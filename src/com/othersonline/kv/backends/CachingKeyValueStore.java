@@ -95,24 +95,24 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 	public void set(String key, Serializable value) throws KeyValueStoreException,
 			IOException {
 		assertWriteable();
-		master.set(key, value);
 		try {
 			cache.set(key, value);
 		} catch (Exception e) {
 			log.warn("Unable to call set() on cache", e);
 		}
+		master.set(key, value);
 	}
 
 	@Override
 	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
-		master.set(key, value, transcoder);
 		try {
 			cache.set(key, value, transcoder);
 		} catch (Exception e) {
 			log.warn("Unable to call set() on cache", e);
 		}
+		master.set(key, value, transcoder);
 	}
 
 	@Override
