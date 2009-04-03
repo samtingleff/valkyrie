@@ -117,12 +117,22 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		File f = getFile(key);
-		OutputStream os = new FileOutputStream(f);
+		File tempFile = File.createTempFile("temp-file", ".tmp", f
+				.getParentFile());
 		try {
-			byte[] bytes = transcoder.encode(value);
-			os.write(bytes);
-		} finally {
-			os.close();
+			OutputStream os = new FileOutputStream(tempFile);
+			try {
+				byte[] bytes = transcoder.encode(value);
+				os.write(bytes);
+			} finally {
+				os.close();
+			}
+			tempFile.renameTo(f);
+		} catch (Exception e) {
+			try {
+				tempFile.delete();
+			} catch (Exception e1) {
+			}
 		}
 	}
 
