@@ -2,16 +2,15 @@ package com.othersonline.kv.backends;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.BasePoolableObjectFactory;
-import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
@@ -33,7 +32,7 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 	private Log log = LogFactory.getLog(getClass());
 
 	private GenericObjectPool connectionPool;
-	
+
 	private Transcoder defaultTranscoder = new SerializableTranscoder();
 
 	private String server = "localhost";
@@ -41,13 +40,17 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 	private int port = Constants.DEFAULT_PORT;
 
 	private boolean lifo = true;
+
 	private int maxActive = 100;
-	
+
 	private int maxIdle = 100;
 
 	private long maxWait = -1;
+
 	private boolean testWhileIdle = false;
+
 	private long timeBetweenEvictionRunsMillis = -1;
+
 	public ThriftKeyValueStore() {
 	}
 
@@ -63,32 +66,40 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 	public void setPort(int port) {
 		this.port = port;
 	}
+
 	public void setLifo(boolean lifo) {
 		this.lifo = lifo;
 	}
+
 	public void setMaxActive(int maxActive) {
 		this.maxActive = maxActive;
 	}
+
 	public void setMaxIdle(int maxIdle) {
 		this.maxIdle = maxIdle;
 	}
+
 	public void setMaxWait(long maxWait) {
 		this.maxWait = maxWait;
 	}
+
 	public void setTestWhileIdle(boolean testWhileIdle) {
 		this.testWhileIdle = testWhileIdle;
 	}
+
 	public void setTimeBetweenEvictionRunsMillis(long millis) {
 		this.timeBetweenEvictionRunsMillis = millis;
 	}
+
 	public String getIdentifier() {
 		return IDENTIFIER;
 	}
 
 	public void start() throws IOException {
 		log.trace("start()");
-		connectionPool = new GenericObjectPool(new TConnectionFactory(server, port),
-				maxActive, GenericObjectPool.WHEN_EXHAUSTED_FAIL, maxWait, maxIdle);
+		connectionPool = new GenericObjectPool(new TConnectionFactory(server,
+				port), maxActive, GenericObjectPool.WHEN_EXHAUSTED_FAIL,
+				maxWait, maxIdle);
 		connectionPool.setLifo(lifo);
 		super.start();
 	}
@@ -244,6 +255,7 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 
 	private static class TConnectionFactory extends BasePoolableObjectFactory {
 		private String server;
+
 		private int port;
 
 		public TConnectionFactory(String server, int port) {
@@ -256,9 +268,10 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 		 */
 		public Object makeObject() throws Exception {
 			TSocket socket = new TSocket(server, port);
-			TProtocol protocol = new TBinaryProtocol(socket);
+			TFramedTransport framed = new TFramedTransport(socket);
+			TProtocol protocol = new TBinaryProtocol(framed);
 			KeyValueService.Iface kv = new KeyValueService.Client(protocol);
-			socket.open();
+			framed.open();
 			return new TConnection(socket, kv);
 		}
 

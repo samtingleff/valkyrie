@@ -17,5 +17,6 @@
 	<classpathentry kind="lib" path="lib/oscache-2.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/libthrift-svn-r761389.jar"/>
 	<classpathentry kind="lib" path="lib/commons-pool-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/jsdk-24.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

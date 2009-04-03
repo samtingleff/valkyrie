@@ -9,8 +9,8 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
+import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TServerSocket;
-import org.apache.thrift.transport.TServerTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.apache.thrift.transport.TTransportFactory;
 
@@ -30,6 +30,10 @@ public class ThriftKeyValueServer {
 
 	private KeyValueStore backend;
 
+	private int minWorkerThreads = 5;
+
+	private int maxWorkerThreads = 500;
+
 	public ThriftKeyValueServer() {
 	}
 
@@ -41,6 +45,14 @@ public class ThriftKeyValueServer {
 		this.backend = backend;
 	}
 
+	public void setMinWorkerThreads(int minWorkerThreads) {
+		this.minWorkerThreads = minWorkerThreads;
+	}
+
+	public void setMaxWorkerThreads(int maxWorkerThreads) {
+		this.maxWorkerThreads = maxWorkerThreads;
+	}
+
 	public void start() throws IOException {
 		log.trace("start()");
 		try {
@@ -49,13 +61,21 @@ public class ThriftKeyValueServer {
 			KeyValueService.Processor processor = new KeyValueService.Processor(
 					handler);
 
-			TServerTransport serverTransport = new TServerSocket(
+			TServerSocket serverTransport = new TServerSocket(
 					Constants.DEFAULT_PORT);
 			TTransportFactory tfactory = new TTransportFactory();
+
 			TProtocolFactory pfactory = new TBinaryProtocol.Factory();
+			// this.server = new TThreadPoolServer(processor, serverTransport,
+			// tfactory, pfactory);
+			TTransportFactory ttfactory = new TFramedTransport.Factory();
+			TThreadPoolServer.Options options = new TThreadPoolServer.Options();
+			options.minWorkerThreads = minWorkerThreads;
+			options.maxWorkerThreads = maxWorkerThreads;
+
 			this.server = new TThreadPoolServer(processor, serverTransport,
-					tfactory, pfactory);
-			// server = new TSimpleServer(processor, serverTransport);
+					ttfactory, ttfactory, pfactory, pfactory, options);
+
 			Thread t = new Thread(new Runnable() {
 				public void run() {
 					server.serve();
