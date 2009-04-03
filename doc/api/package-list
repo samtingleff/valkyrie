@@ -1,5 +1,7 @@
 com.othersonline.kv
 com.othersonline.kv.backends
+com.othersonline.kv.gen
 com.othersonline.kv.mgmt
+com.othersonline.kv.server
 com.othersonline.kv.transcoder
 com.othersonline.kv.util
