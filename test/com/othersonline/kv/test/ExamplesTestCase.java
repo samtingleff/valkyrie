@@ -1,28 +1,20 @@
-# oo-kv #
+package com.othersonline.kv.test;
 
-## Introduction ##
+import com.othersonline.kv.KeyValueStore;
+import com.othersonline.kv.backends.CachingKeyValueStore;
+import com.othersonline.kv.backends.HashtableKeyValueStore;
+import com.othersonline.kv.backends.MemcachedKeyValueStore;
+import com.othersonline.kv.backends.OsCacheKeyValueStore;
+import com.othersonline.kv.backends.ReplicatingKeyValueStore;
+import com.othersonline.kv.backends.TokyoTyrantKeyValueStore;
+import com.othersonline.kv.transcoder.LongTranscoder;
+import com.othersonline.kv.transcoder.Transcoder;
 
-oo-kv is a project to provide a consistent API and value-add for a variety of
-key-value storage backends.
+import junit.framework.TestCase;
 
-It is meant to be easy to use and easily embedded into a Spring or other IoC containers.
+public class ExamplesTestCase extends TestCase {
 
-Currently supported backends include:
-
-- java.util.Hashtable (probably useful just as an example)
-- [OsCache](http://www.opensymphony.com/oscache/ "OsCache")
-- [memcached](http://www.danga.com/memcached/ "memcached") (and cousins [MemcacheQ](http://memcachedb.org/memcacheq/ "MemcacheQ") and [MemcacheDB](http://memcachedb.org/ "MemcacheDB"))
-- [Tokyo Tyrant](http://tokyocabinet.sourceforge.net/tyrantdoc/ "Tokyo Tyrant")
-- a simple file-system backed store
-- WebDAV (tested against Apache mod_dav, nginx and lighttpd)
-
-## Examples ##
-
-### Simple Caching ###
-
-To create a caching store using memcached as cache and Tokyo Tyrant as
-permanent storage:
-
+	public void testSimpleCaching() throws Exception {
 		TokyoTyrantKeyValueStore master = new TokyoTyrantKeyValueStore();
 		master.setHost("localhost");
 		master.setPort(1978);
@@ -45,9 +37,9 @@ permanent storage:
 		Integer i = (Integer) store.get(key);
 		// this will delete on both
 		store.delete(key);
+	}
 
-### Three-level Caching ###
-
+	public void testThreeLevelCaching() throws Exception {
 		TokyoTyrantKeyValueStore master = new TokyoTyrantKeyValueStore();
 		master.setHost("localhost");
 		master.setPort(1978);
@@ -89,9 +81,9 @@ permanent storage:
 
 		// this will delete globally
 		firstCache.delete(key);
+	}
 
-### Replication and Load Balancing ###
-
+	public void testReplication() throws Exception {
 		MemcachedKeyValueStore master = new MemcachedKeyValueStore();
 		master.setHosts("localhost:11211");
 		master.start();
@@ -128,8 +120,5 @@ permanent storage:
 		assertFalse(replica1.exists(key));
 		assertFalse(replica2.exists(key));
 		assertFalse(master.exists(key));
-
-## Documentation ##
-
-- [Javadoc API](http://samtingleff.github.com/oo-kv-storage/doc/api/)
-
+	}
+}
