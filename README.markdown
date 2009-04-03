@@ -155,7 +155,7 @@ Using a [totally unscientific benchmark](http://github.com/samtingleff/oo-kv-sto
   <tr>
    <td>File system</td>
    <td>9143ms</td>
-   <td>182</td>
+   <td>328</td>
   </tr>
   <tr>
    <td>Memcached</td>
