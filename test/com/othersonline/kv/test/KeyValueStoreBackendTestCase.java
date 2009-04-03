@@ -18,9 +18,11 @@ import com.othersonline.kv.backends.HashtableKeyValueStore;
 import com.othersonline.kv.backends.MemcachedKeyValueStore;
 import com.othersonline.kv.backends.OsCacheKeyValueStore;
 import com.othersonline.kv.backends.ReplicatingKeyValueStore;
+import com.othersonline.kv.backends.ThriftKeyValueStore;
 import com.othersonline.kv.backends.TokyoTyrantKeyValueStore;
 import com.othersonline.kv.backends.WebDAVKeyValueStore;
 import com.othersonline.kv.mgmt.JMXMbeanServerFactory;
+import com.othersonline.kv.server.ThriftKeyValueServer;
 import com.othersonline.kv.transcoder.StringTranscoder;
 
 import junit.framework.TestCase;
@@ -103,6 +105,20 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 	public void testWebDavBackend() throws Exception {
 		WebDAVKeyValueStore store = new WebDAVKeyValueStore();
 		store.setBaseUrl("http://localhost/dav/testing/");
+		doTestBackend(store);
+	}
+
+	public void testThriftBackend() throws Exception {
+		// create backend
+		OsCacheKeyValueStore backend = new OsCacheKeyValueStore();
+		backend.start();
+
+		// start server
+		ThriftKeyValueServer server = new ThriftKeyValueServer();
+		server.setBackend(backend);
+		server.start();
+
+		ThriftKeyValueStore store = new ThriftKeyValueStore();
 		doTestBackend(store);
 	}
 

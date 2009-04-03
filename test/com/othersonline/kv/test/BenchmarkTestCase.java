@@ -19,12 +19,25 @@ import com.othersonline.kv.backends.FileSystemKeyValueStore;
 import com.othersonline.kv.backends.HashtableKeyValueStore;
 import com.othersonline.kv.backends.MemcachedKeyValueStore;
 import com.othersonline.kv.backends.OsCacheKeyValueStore;
+import com.othersonline.kv.backends.ThriftKeyValueStore;
 import com.othersonline.kv.backends.TokyoTyrantKeyValueStore;
 import com.othersonline.kv.backends.WebDAVKeyValueStore;
+import com.othersonline.kv.server.ThriftKeyValueServer;
 
 import junit.framework.TestCase;
 
 public class BenchmarkTestCase extends TestCase {
+
+	public void setUp() throws Exception {
+		FileSystemKeyValueStore thriftBackend = new FileSystemKeyValueStore(
+				"tmp/fs");
+		thriftBackend.start();
+		ThriftKeyValueServer server = new ThriftKeyValueServer(thriftBackend);
+		server.start();
+	}
+
+	public void tearDown() {
+	}
 
 	public void testBenchmark() throws Exception {
 		KeyValueStore[] backends = new KeyValueStore[] {
@@ -32,12 +45,13 @@ public class BenchmarkTestCase extends TestCase {
 				new MemcachedKeyValueStore("stanley:11211"),
 				new MemcachedKeyValueStore("stanley:21201"),
 				new FileSystemKeyValueStore("tmp/fs"),
+				new ThriftKeyValueStore("stanley", 9010) };
 				// croaks with > 1 thread
 				// new TokyoTyrantKeyValueStore("stanley", 1978),
-				new WebDAVKeyValueStore("http://stanley/dav/testing") };
+				//new WebDAVKeyValueStore("http://stanley/dav/testing") };
 		for (KeyValueStore kv : backends) {
 			kv.start();
-			TestResult tr = doTestStorageBackend(kv, 10, 100);
+			TestResult tr = doTestStorageBackend(kv, 20, 100);
 			System.out.println(String.format("%1$s,%2$d,%3$d", tr
 					.getIdentifier(), tr.getDuration(), tr.getErrorCount()));
 		}
