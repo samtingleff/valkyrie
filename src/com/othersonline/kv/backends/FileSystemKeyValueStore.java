@@ -21,7 +21,7 @@ import com.othersonline.kv.util.StreamUtils;
  * 
  */
 public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
-	public static final String IDENTIFIER = "fs";
+	public static final String IDENTIFIER = "filesystem";
 
 	private Transcoder defaultTranscoder = new SerializableTranscoder();
 
