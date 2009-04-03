@@ -33,6 +33,8 @@ public class BenchmarkTestCase extends TestCase {
 				"tmp/fs");
 		thriftBackend.start();
 		ThriftKeyValueServer server = new ThriftKeyValueServer(thriftBackend);
+		server.setMinWorkerThreads(10);
+		server.setMaxWorkerThreads(20);
 		server.start();
 	}
 
@@ -45,13 +47,13 @@ public class BenchmarkTestCase extends TestCase {
 				new MemcachedKeyValueStore("stanley:11211"),
 				new MemcachedKeyValueStore("stanley:21201"),
 				new FileSystemKeyValueStore("tmp/fs"),
-				new ThriftKeyValueStore("stanley", 9010) };
+				new ThriftKeyValueStore("stanley", 9010),
 				// croaks with > 1 thread
 				// new TokyoTyrantKeyValueStore("stanley", 1978),
-				//new WebDAVKeyValueStore("http://stanley/dav/testing") };
+				new WebDAVKeyValueStore("http://stanley/dav/testing") };
 		for (KeyValueStore kv : backends) {
 			kv.start();
-			TestResult tr = doTestStorageBackend(kv, 20, 100);
+			TestResult tr = doTestStorageBackend(kv, 10, 100);
 			System.out.println(String.format("%1$s,%2$d,%3$d", tr
 					.getIdentifier(), tr.getDuration(), tr.getErrorCount()));
 		}
