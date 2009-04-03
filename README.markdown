@@ -1,8 +1,8 @@
-# oo-kv #
+# oo-kv-storage #
 
 ## Introduction ##
 
-oo-kv is a project to provide a consistent API and value-add for a variety of
+oo-kv-storage is a project to provide a consistent API and value-add for a variety of
 key-value storage backends.
 
 It is meant to be easy to use and easily embedded into a Spring or other IoC containers.
