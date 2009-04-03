@@ -2,11 +2,15 @@ package com.othersonline.kv.test;
 
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.backends.CachingKeyValueStore;
+import com.othersonline.kv.backends.FileSystemKeyValueStore;
 import com.othersonline.kv.backends.HashtableKeyValueStore;
 import com.othersonline.kv.backends.MemcachedKeyValueStore;
 import com.othersonline.kv.backends.OsCacheKeyValueStore;
 import com.othersonline.kv.backends.ReplicatingKeyValueStore;
+import com.othersonline.kv.backends.ThriftKeyValueStore;
 import com.othersonline.kv.backends.TokyoTyrantKeyValueStore;
+import com.othersonline.kv.gen.Constants;
+import com.othersonline.kv.server.ThriftKeyValueServer;
 import com.othersonline.kv.transcoder.LongTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 
@@ -81,6 +85,29 @@ public class ExamplesTestCase extends TestCase {
 
 		// this will delete globally
 		firstCache.delete(key);
+	}
+
+	public void testThriftServer() throws Exception {
+		// Presumably (1) and (2) occurr on a different host from (3)
+		// (1) create backing store for thrift service
+		FileSystemKeyValueStore backend = new FileSystemKeyValueStore("tmp/fs");
+		backend.start();
+
+		// (2) start thrift service
+		ThriftKeyValueServer server = new ThriftKeyValueServer();
+		server.setBackend(backend);
+		server.start();
+
+		// (3) create client
+		ThriftKeyValueStore client = new ThriftKeyValueStore("localhost",
+				Constants.DEFAULT_PORT);
+		client.start();
+
+		String key = "some.key";
+		client.set(key, new Integer(14));
+		assertTrue(client.exists(key));
+		assertEquals(client.get(key), new Integer(14));
+		client.delete(key);
 	}
 
 	public void testReplication() throws Exception {

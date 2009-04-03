@@ -15,6 +15,7 @@ Currently supported backends include:
 - [Tokyo Tyrant](http://tokyocabinet.sourceforge.net/tyrantdoc/ "Tokyo Tyrant")
 - a simple file-system backed store
 - WebDAV (tested against Apache mod_dav, nginx and lighttpd)
+- A custom [thrift](http://incubator.apache.org/thrift/ "Apache Thrift")-based proxy server that uses any of the above as backend
 
 ## Examples ##
 
@@ -89,6 +90,29 @@ permanent storage:
 
 		// this will delete globally
 		firstCache.delete(key);
+
+### Using Thrift Backend ###
+
+		// Presumably (1) and (2) occurr on a different host from (3)
+		// (1) create backing store for thrift service
+		FileSystemKeyValueStore backend = new FileSystemKeyValueStore("tmp/fs");
+		backend.start();
+
+		// (2) start thrift service
+		ThriftKeyValueServer server = new ThriftKeyValueServer();
+		server.setBackend(backend);
+		server.start();
+
+		// (3) create client
+		ThriftKeyValueStore client = new ThriftKeyValueStore("localhost",
+				Constants.DEFAULT_PORT);
+		client.start();
+
+		String key = "some.key";
+		client.set(key, new Integer(14));
+		assertTrue(client.exists(key));
+		assertEquals(client.get(key), new Integer(14));
+		client.delete(key);
 
 ### Replication and Load Balancing ###
 

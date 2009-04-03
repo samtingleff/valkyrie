@@ -23,18 +23,22 @@ import com.othersonline.kv.backends.ThriftKeyValueStore;
 import com.othersonline.kv.backends.TokyoTyrantKeyValueStore;
 import com.othersonline.kv.backends.WebDAVKeyValueStore;
 import com.othersonline.kv.server.ThriftKeyValueServer;
+import com.othersonline.kv.transcoder.GzippingTranscoder;
+import com.othersonline.kv.transcoder.StringTranscoder;
+import com.othersonline.kv.transcoder.Transcoder;
+import com.othersonline.kv.util.StreamUtils;
 
 import junit.framework.TestCase;
 
 public class BenchmarkTestCase extends TestCase {
 
 	public void setUp() throws Exception {
-		FileSystemKeyValueStore thriftBackend = new FileSystemKeyValueStore(
-				"tmp/fs");
-		thriftBackend.start();
-		ThriftKeyValueServer server = new ThriftKeyValueServer(thriftBackend);
-		server.setMinWorkerThreads(10);
-		server.setMaxWorkerThreads(20);
+		FileSystemKeyValueStore fs = new FileSystemKeyValueStore("tmp/fs");
+		fs.start();
+
+		ThriftKeyValueServer server = new ThriftKeyValueServer(fs);
+		server.setMinWorkerThreads(20);
+		server.setMaxWorkerThreads(50);
 		server.start();
 	}
 
@@ -72,6 +76,8 @@ public class BenchmarkTestCase extends TestCase {
 
 				private int repetitions = 1;
 
+				private String content;
+
 				public Callable init(KeyValueStore store, int repetitions) {
 					this.store = store;
 					this.repetitions = repetitions;
@@ -87,7 +93,8 @@ public class BenchmarkTestCase extends TestCase {
 									123, i, "string goes here",
 									new MySerializableSubclass(12312.21d,
 											12312343l, "another string here"));
-							String key = String.format("/some.key.%1$d.%2$d",
+							String key = String.format(
+									"/some.key.%1$d.%2$d.txt",
 									random.nextInt(), i);
 							store.set(key, msc);
 							MySerializableClass fetch = (MySerializableClass) store
