@@ -1,6 +1,7 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
@@ -122,14 +123,14 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	}
 
 	@Override
-	public void set(String key, Object value) throws KeyValueStoreException,
-			IOException {
+	public void set(String key, Serializable value)
+			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		mcc.set(key, 0, value);
 	}
 
 	@Override
-	public void set(String key, Object value, Transcoder transcoder)
+	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		mcc.set(key, 0, value);

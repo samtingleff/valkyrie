@@ -13,6 +13,7 @@ Currently supported backends include:
 - [OsCache](http://www.opensymphony.com/oscache/ "OsCache")
 - [memcached](http://www.danga.com/memcached/ "memcached") (and cousins [MemcacheQ](http://memcachedb.org/memcacheq/ "MemcacheQ") and [MemcacheDB](http://memcachedb.org/ "MemcacheDB"))
 - [Tokyo Tyrant](http://tokyocabinet.sourceforge.net/tyrantdoc/ "Tokyo Tyrant")
+- a simple file-system backed store
 - WebDAV (tested against Apache mod_dav, nginx and lighttpd)
 
 ## Examples ##

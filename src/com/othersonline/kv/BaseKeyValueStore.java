@@ -1,6 +1,7 @@
 package com.othersonline.kv;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import com.othersonline.kv.transcoder.Transcoder;
 
@@ -45,11 +46,11 @@ public abstract class BaseKeyValueStore implements KeyValueStore {
 	public abstract Object get(String key, Transcoder transcoder)
 			throws KeyValueStoreException, IOException, ClassNotFoundException;
 
-	public abstract void set(String key, Object value)
+	public abstract void set(String key, Serializable value)
 			throws KeyValueStoreException, IOException;
 
-	public abstract void set(String key, Object value, Transcoder transcoder)
-			throws KeyValueStoreException, IOException;
+	public abstract void set(String key, Serializable value,
+			Transcoder transcoder) throws KeyValueStoreException, IOException;
 
 	public abstract void delete(String key) throws KeyValueStoreException,
 			IOException;

@@ -1,6 +1,7 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -159,15 +160,15 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	@Override
-	public void set(String key, Object value) throws KeyValueStoreException,
-			IOException {
+	public void set(String key, Serializable value)
+			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		master.set(key, value);
 		replicateWrite(key, value, null);
 	}
 
 	@Override
-	public void set(String key, Object value, Transcoder transcoder)
+	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		master.set(key, value, transcoder);
@@ -191,7 +192,8 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 		}
 	}
 
-	private void replicateWrite(String key, Object value, Transcoder transcoder) {
+	private void replicateWrite(String key, Serializable value,
+			Transcoder transcoder) {
 		for (KeyValueStore replica : replicas) {
 			WriteReplicaRunnable runner = new WriteReplicaRunnable(replica,
 					key, value, transcoder);
@@ -215,12 +217,12 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 
 		protected String key;
 
-		protected Object value;
+		protected Serializable value;
 
 		protected Transcoder transcoder;
 
 		public WriteReplicaRunnable(KeyValueStore store, String key,
-				Object value, Transcoder transcoder) {
+				Serializable value, Transcoder transcoder) {
 			this.store = store;
 			this.key = key;
 			this.value = value;

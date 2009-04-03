@@ -1,6 +1,7 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -91,7 +92,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	@Override
-	public void set(String key, Object value) throws KeyValueStoreException,
+	public void set(String key, Serializable value) throws KeyValueStoreException,
 			IOException {
 		assertWriteable();
 		master.set(key, value);
@@ -103,7 +104,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	@Override
-	public void set(String key, Object value, Transcoder transcoder)
+	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		master.set(key, value, transcoder);

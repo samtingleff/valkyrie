@@ -1,6 +1,7 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Properties;
 
 import com.opensymphony.oscache.base.CacheEntry;
@@ -128,8 +129,8 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	@Override
-	public void set(String key, Object value) throws KeyValueStoreException,
-			IOException {
+	public void set(String key, Serializable value)
+			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		boolean updated = false;
 		try {
@@ -142,7 +143,7 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	@Override
-	public void set(String key, Object value, Transcoder transcoder)
+	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		set(key, value);

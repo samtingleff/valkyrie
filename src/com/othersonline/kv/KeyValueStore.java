@@ -1,6 +1,7 @@
 package com.othersonline.kv;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import com.othersonline.kv.transcoder.Transcoder;
 
@@ -87,7 +88,7 @@ public interface KeyValueStore {
 	 * @throws KeyValueStoreException
 	 * @throws IOException
 	 */
-	public void set(String key, Object value) throws KeyValueStoreException,
+	public void set(String key, Serializable value) throws KeyValueStoreException,
 			IOException;
 
 	/**
@@ -96,7 +97,7 @@ public interface KeyValueStore {
 	 * @throws KeyValueStoreException
 	 * @throws IOException
 	 */
-	public void set(String key, Object value, Transcoder transcoder)
+	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException;
 
 	/**

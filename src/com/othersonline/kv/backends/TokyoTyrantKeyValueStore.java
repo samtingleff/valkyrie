@@ -1,6 +1,7 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 
 import tokyotyrant.RDB;
@@ -11,8 +12,8 @@ import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.transcoder.Transcoder;
 
-public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore implements
-		KeyValueStore {
+public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
+		implements KeyValueStore {
 	public static final String IDENTIFIER = "tyrant";
 
 	private RDB rdb;
@@ -79,14 +80,14 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore implement
 	}
 
 	@Override
-	public void set(String key, Object value) throws KeyValueStoreException,
-			IOException {
+	public void set(String key, Serializable value)
+			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		rdb.put(key, value, transcoder);
 	}
 
 	@Override
-	public void set(String key, Object value, Transcoder transcoder)
+	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		rdb.put(key, value, this.transcoder);

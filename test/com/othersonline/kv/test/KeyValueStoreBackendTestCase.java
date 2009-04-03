@@ -8,10 +8,12 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 import com.othersonline.kv.KeyValueStore;
+import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.KeyValueStoreStatus;
 import com.othersonline.kv.KeyValueStoreUnavailable;
 import com.othersonline.kv.ManagedKeyValueStore;
 import com.othersonline.kv.backends.CachingKeyValueStore;
+import com.othersonline.kv.backends.FileSystemKeyValueStore;
 import com.othersonline.kv.backends.HashtableKeyValueStore;
 import com.othersonline.kv.backends.MemcachedKeyValueStore;
 import com.othersonline.kv.backends.OsCacheKeyValueStore;
@@ -19,7 +21,7 @@ import com.othersonline.kv.backends.ReplicatingKeyValueStore;
 import com.othersonline.kv.backends.TokyoTyrantKeyValueStore;
 import com.othersonline.kv.backends.WebDAVKeyValueStore;
 import com.othersonline.kv.mgmt.JMXMbeanServerFactory;
-import com.othersonline.kv.mgmt.KeyValueStoreMXBean;
+import com.othersonline.kv.transcoder.StringTranscoder;
 
 import junit.framework.TestCase;
 
@@ -43,7 +45,8 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 		// test counters
 		String counterKey = "test.counter";
-		store.incr(counterKey, 2, 5l, 1); // counter that expires in one second
+		store.incr(counterKey, 2, 5l, 1); // counter that expires in one
+		// second
 		Object o = store.get(counterKey);
 		assertNotNull(o);
 		assertEquals(Long.parseLong((String) store.get(counterKey)), 5l);
@@ -77,6 +80,24 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		store.setHost("localhost");
 		store.setPort(1978);
 		doTestBackend(store);
+	}
+
+	public void testFileSystemBackend() throws Exception {
+		FileSystemKeyValueStore store = new FileSystemKeyValueStore();
+		store.setRoot("tmp/fs");
+		store.setCleanEmptyDirectories(true);
+		doTestBackend(store);
+		try {
+			String s = (String) store.get("../../../../etc/passwd",
+					new StringTranscoder());
+			throw new Exception("should not be here");
+		} catch (KeyValueStoreException e) {
+		}
+		try {
+			store.set("../../some/wacky/path.txt", "my object");
+			throw new Exception("should not be here");
+		} catch (KeyValueStoreException e) {
+		}
 	}
 
 	public void testWebDavBackend() throws Exception {

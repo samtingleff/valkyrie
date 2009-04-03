@@ -3,6 +3,7 @@ package com.othersonline.kv.backends;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.List;
@@ -145,7 +146,8 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 			HttpResponse response = executeMethod(method);
 			if (response.responseCode == 200) {
 				InputStream is = response.responseBody;
-				byte[] bytes = StreamUtils.inputStreamToBytes(is, is.available());
+				byte[] bytes = StreamUtils.inputStreamToBytes(is, is
+						.available());
 				is.close();
 				Object obj = transcoder.decode(bytes);
 				return obj;
@@ -169,13 +171,13 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 	}
 
 	@Override
-	public void set(String key, Object value) throws KeyValueStoreException,
-			IOException {
+	public void set(String key, Serializable value)
+			throws KeyValueStoreException, IOException {
 		set(key, value, defaultTranscoder);
 	}
 
 	@Override
-	public void set(String key, Object value, Transcoder transcoder)
+	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		String uri = getUri(key);
