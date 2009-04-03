@@ -8,6 +8,7 @@ key-value storage backends.
 It is meant to be easy to use and easily embedded into a Spring or other IoC containers.
 
 Currently supported backends include:
+
 *   java.util.Hashtable (probably useful just as an example)
 *   [OsCache](http://www.opensymphony.com/oscache/ "OsCache")
 *   [memcached](http://www.danga.com/memcached/ "memcached") (and cousins [MemcacheQ](http://memcachedb.org/memcacheq/ "MemcacheQ") and [MemcacheDB](http://memcachedb.org/ "MemcacheDB"))
