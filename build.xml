@@ -10,19 +10,22 @@
 		<property name="debug" value="on"/>
 		<property name="local.path" value="./"/>
 		<property name="lib.path" value="${local.path}/lib"/>
+		<property name="gen.path" value="${local.path}/gen"/>
 		<property name="src.path" value="${local.path}/src"/>
+		<property name="test.path" value="${local.path}/test"/>
 		<property name="build.path" value="${local.path}/build"/>
 	</target>
 
 	<!--cleanup -->
 	<target name="clean" depends="init">
-		<delete>
+		<delete quiet="true">
 			<fileset dir="${build.path}" includes="**/*.jar"/>
 		</delete>
 	</target>
 
 	<!--create directory structure -->
 	<target name="dirCreate" depends="clean">
+		<delete dir="${build.path}"/>
 		<delete dir="${build.path}/classes"/>
 		<mkdir dir="${build.path}/classes"/>
 	</target>
@@ -35,7 +38,9 @@
 				        <include name="*.jar"/>
 				      </fileset>
 			</classpath>
+			<src path="${gen.path}/"/>
 			<src path="${src.path}/"/>
+			<src path="${test.path}/"/>
 			<include name="**/*.java"/>
 		</javac>
 	</target>
@@ -53,6 +58,7 @@
 			author="true"
 			version="true"
 			use="true">
+			<fileset dir="${gen.path}" includes="**/*.java"/>
 			<fileset dir="${src.path}" includes="**/*.java"/>
 			<classpath>
 				<fileset dir="${lib.path}">
