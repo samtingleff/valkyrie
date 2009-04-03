@@ -7,6 +7,7 @@ import java.io.ObjectOutput;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,11 +28,12 @@ public class BenchmarkTestCase extends TestCase {
 
 	public void testBenchmark() throws Exception {
 		KeyValueStore[] backends = new KeyValueStore[] {
-				new FileSystemKeyValueStore("tmp/fs"),
-				new HashtableKeyValueStore(),
+				new HashtableKeyValueStore(), new OsCacheKeyValueStore(),
 				new MemcachedKeyValueStore("stanley:11211"),
-				new OsCacheKeyValueStore(),
-				// new TokyoTyrantKeyValueStore("stanley", 1978), // croaks with > 1 thread
+				new MemcachedKeyValueStore("stanley:21201"),
+				new FileSystemKeyValueStore("tmp/fs"),
+				// croaks with > 1 thread
+				// new TokyoTyrantKeyValueStore("stanley", 1978),
 				new WebDAVKeyValueStore("http://stanley/dav/testing") };
 		for (KeyValueStore kv : backends) {
 			kv.start();
@@ -48,6 +50,8 @@ public class BenchmarkTestCase extends TestCase {
 				concurrency);
 		for (int i = 0; i < concurrency; ++i) {
 			Callable<TestResult> c = new Callable<TestResult>() {
+				private Random random = new Random();
+
 				private KeyValueStore store;
 
 				private int repetitions = 1;
@@ -67,7 +71,8 @@ public class BenchmarkTestCase extends TestCase {
 									123, i, "string goes here",
 									new MySerializableSubclass(12312.21d,
 											12312343l, "another string here"));
-							String key = String.format("/some.key.%1$d", i);
+							String key = String.format("/some.key.%1$d.%2$d",
+									random.nextInt(), i);
 							store.set(key, msc);
 							MySerializableClass fetch = (MySerializableClass) store
 									.get(key);
