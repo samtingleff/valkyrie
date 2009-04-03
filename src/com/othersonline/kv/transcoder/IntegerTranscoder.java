@@ -1,18 +1,39 @@
 package com.othersonline.kv.transcoder;
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Arrays;
 
+/**
+ * Encoder/decoder for integer objects. Copied from Tokyo Tyrant:
+ * 
+ * http://bitbucket.org/EP/tokyotyrant-java/src/tip/src/main/java/tokyotyrant/transcoder/IntegerTranscoder.java
+ * 
+ * @author samtingleff
+ * 
+ */
 public class IntegerTranscoder implements Transcoder {
+	private final ByteOrder byteOrder;
 
-	public Object decode(byte[] bytes) throws IOException,
-			ClassNotFoundException {
-		String s = new String(bytes);
-		return Integer.parseInt(s);
+	public IntegerTranscoder() {
+		this(ByteOrder.nativeOrder());
 	}
 
-	public byte[] encode(Object value) throws IOException {
-		Integer i = (Integer) value;
-		return Integer.toString(i.intValue()).getBytes();
+	public IntegerTranscoder(ByteOrder byteOrder) {
+		this.byteOrder = byteOrder;
+	}
+
+	public byte[] encode(Object decoded) {
+		return ByteBuffer.allocate(Integer.SIZE / 8).order(byteOrder).putInt(
+				(Integer) decoded).array();
+	}
+
+	public Object decode(byte[] encoded) {
+		if (encoded.length != Integer.SIZE / 8) {
+			throw new IllegalArgumentException("Unable to decode "
+					+ Arrays.toString(encoded));
+		}
+		return ByteBuffer.wrap(encoded).order(byteOrder).getInt();
 	}
 
 }

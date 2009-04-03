@@ -1,18 +1,39 @@
 package com.othersonline.kv.transcoder;
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Arrays;
 
+/**
+ * Encoder/decoder for long objects. Copied from Tokyo Tyrant:
+ * 
+ * http://bitbucket.org/EP/tokyotyrant-java/src/tip/src/main/java/tokyotyrant/transcoder/LongTranscoder.java
+ * 
+ * @author samtingleff
+ * 
+ */
 public class LongTranscoder implements Transcoder {
+	private final ByteOrder byteOrder;
 
-	public Object decode(byte[] bytes) throws IOException,
-			ClassNotFoundException {
-		String s = new String(bytes);
-		return Long.parseLong(s);
+	public LongTranscoder() {
+		this(ByteOrder.nativeOrder());
 	}
 
-	public byte[] encode(Object value) throws IOException {
-		Long i = (Long) value;
-		return Long.toString(i.longValue()).getBytes();
+	public LongTranscoder(ByteOrder byteOrder) {
+		this.byteOrder = byteOrder;
+	}
+
+	public byte[] encode(Object decoded) {
+		return ByteBuffer.allocate(Long.SIZE / 8).order(byteOrder).putLong(
+				(Long) decoded).array();
+	}
+
+	public Object decode(byte[] encoded) {
+		if (encoded.length != Long.SIZE / 8) {
+			throw new IllegalArgumentException("Unable to decode "
+					+ Arrays.toString(encoded));
+		}
+		return ByteBuffer.wrap(encoded).order(byteOrder).getLong();
 	}
 
 }
