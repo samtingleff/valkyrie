@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--For help visit url - http://ant.apache.org/manual-->
+
+<project name="oo-kv-storage" default="jar" basedir=".">
+
+	<target name="init">
+		<!-- project settings go here -->
+		<property file="build.properties"/>
+		<property name="jar.filename" value="oo-kv-storage.jar"/>
+		<property name="debug" value="on"/>
+		<property name="local.path" value="./"/>
+		<property name="lib.path" value="${local.path}/lib"/>
+		<property name="src.path" value="${local.path}/src"/>
+		<property name="build.path" value="${local.path}/build"/>
+	</target>
+
+	<!--cleanup -->
+	<target name="clean" depends="init">
+		<delete>
+			<fileset dir="${build.path}" includes="**/*.jar"/>
+		</delete>
+	</target>
+
+	<!--create directory structure -->
+	<target name="dirCreate" depends="clean">
+		<delete dir="${build.path}/classes"/>
+		<mkdir dir="${build.path}/classes"/>
+	</target>
+
+	<!--compile the source code into destdir-->
+	<target name="compile" depends="dirCreate">
+		<javac destdir="${build.path}/classes" target="1.5" debug="${debug}">
+			<classpath>
+				<fileset dir="${lib.path}">
+				        <include name="*.jar"/>
+				      </fileset>
+			</classpath>
+			<src path="${src.path}/"/>
+			<include name="**/*.java"/>
+		</javac>
+	</target>
+
+	<!--create the jar file-->
+	<target name="jar" depends="compile">
+		<jar destfile="${build.path}/${jar.filename}" basedir="${build.path}/classes"/>
+	</target>
+
+	<!-- create javadocs -->
+	<target name="docs" depends="init">
+		<javadoc
+			packagenames="com.othersonline.*"
+			destdir="doc/api"
+			author="true"
+			version="true"
+			use="true">
+			<fileset dir="${src.path}" includes="**/*.java"/>
+			<classpath>
+				<fileset dir="${lib.path}">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+			<doctitle><![CDATA[<h1>oo-kv-storage</h1>]]></doctitle>
+			<bottom><![CDATA[<i>Copyright &#169; 2009 OthersOnline/Sam Tingleff.</i>]]></bottom>
+			<link href="http://java.sun.com/javase/6/docs/api/"/>
+		</javadoc>
+	</target>
+
+	<!--run ant-->
+	<target name="all" depends="init">
+		<antcall target="jar"/>
+	</target>
+
+</project>
