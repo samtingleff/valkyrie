@@ -44,3 +44,9 @@ permanent storage:
 
 ### Replication and Load Balancing ###
 
+Need to document.
+
+## Documentation ##
+
+- [Javadoc API](http://samtingleff.github.com/oo-kv-storage/doc/api/)
+
