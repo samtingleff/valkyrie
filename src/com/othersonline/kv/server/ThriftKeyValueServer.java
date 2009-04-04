@@ -94,6 +94,8 @@ public class ThriftKeyValueServer {
 			KeyValueService.Iface {
 		private Log log = LogFactory.getLog(getClass());
 
+		private Log accessLog = LogFactory.getLog("logging.access");
+
 		private Transcoder transcoder = new ByteArrayTranscoder();
 
 		private KeyValueStore backend;
@@ -105,28 +107,45 @@ public class ThriftKeyValueServer {
 		public boolean exists(String key) throws KeyValueStoreIOException,
 				KeyValueStoreException, TException {
 			log.trace("exists()");
+			long start = System.currentTimeMillis();
+			boolean success = false;
 			try {
-				return backend.exists(key);
+				boolean b = backend.exists(key);
+				success = true;
+				return b;
 			} catch (com.othersonline.kv.KeyValueStoreException e) {
 				log.error("KeyValueStoreException inside exists()", e);
 				throw new KeyValueStoreException();
 			} catch (IOException e) {
 				log.error("IOException inside exists()", e);
 				throw new KeyValueStoreIOException();
+			} finally {
+				if (accessLog.isInfoEnabled()) {
+					long time = System.currentTimeMillis() - start;
+					accessLog.info(String.format("exists %1$s %2$d 0 %3$s",
+							key, time, success));
+				}
 			}
 		}
 
 		public GetResult getValue(String key) throws KeyValueStoreIOException,
 				KeyValueStoreException, TException {
 			log.trace("getValue()");
+			long start = System.currentTimeMillis();
+			long byteCount = 0;
+			boolean success = false;
 			try {
 				Object obj = backend.get(key, transcoder);
+				GetResult result = null;
 				if (obj == null)
-					return new GetResult(false, new byte[] {});
+					result = new GetResult(false, new byte[] {});
 				else {
 					byte[] bytes = (byte[]) obj;
-					return new GetResult(true, bytes);
+					byteCount = bytes.length;
+					result = new GetResult(true, bytes);
 				}
+				success = true;
+				return result;
 			} catch (com.othersonline.kv.KeyValueStoreException e) {
 				log.error("KeyValueStoreException inside getValue()", e);
 				throw new KeyValueStoreException();
@@ -136,6 +155,12 @@ public class ThriftKeyValueServer {
 			} catch (ClassNotFoundException e) {
 				log.error("ClassNotFoundException inside getValue()", e);
 				throw new KeyValueStoreException();
+			} finally {
+				if (accessLog.isInfoEnabled()) {
+					long time = System.currentTimeMillis() - start;
+					accessLog.info(String.format("get %1$s %2$d %3$d %4$s",
+							key, time, byteCount, success));
+				}
 			}
 		}
 
@@ -143,28 +168,48 @@ public class ThriftKeyValueServer {
 				throws KeyValueStoreIOException, KeyValueStoreException,
 				TException {
 			log.trace("setValue()");
+			long start = System.currentTimeMillis();
+			long byteCount = 0;
+			boolean success = false;
 			try {
 				backend.set(key, data, transcoder);
+				byteCount = data.length;
+				success = true;
 			} catch (com.othersonline.kv.KeyValueStoreException e) {
 				log.error("KeyValueStoreException inside setValue()", e);
 				throw new KeyValueStoreException();
 			} catch (IOException e) {
 				log.error("IOException inside setValue()", e);
 				throw new KeyValueStoreIOException();
+			} finally {
+				if (accessLog.isInfoEnabled()) {
+					long time = System.currentTimeMillis() - start;
+					accessLog.info(String.format("set %1$s %2$d %3$d %4$s",
+							key, time, byteCount, success));
+				}
 			}
 		}
 
 		public void deleteValue(String key) throws KeyValueStoreIOException,
 				KeyValueStoreException, TException {
 			log.trace("deleteValue()");
+			long start = System.currentTimeMillis();
+			boolean success = false;
 			try {
 				backend.delete(key);
+				success = true;
 			} catch (com.othersonline.kv.KeyValueStoreException e) {
 				log.error("KeyValueStoreException inside deleteValue()", e);
 				throw new KeyValueStoreException();
 			} catch (IOException e) {
 				log.error("IOException inside deleteValue()", e);
 				throw new KeyValueStoreIOException();
+			} finally {
+				if (accessLog.isInfoEnabled()) {
+					long time = System.currentTimeMillis() - start;
+					accessLog.info(String.format("delete %1$s %2$d 0 %3$s",
+							key, time, success));
+				}
 			}
 		}
 
