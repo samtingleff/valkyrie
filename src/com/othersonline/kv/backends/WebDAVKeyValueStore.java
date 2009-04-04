@@ -46,9 +46,9 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 
 	private int maxTotalConnections = 500;
 
-	private int socketTimeout = 500;
+	private int socketTimeout = 5000;
 
-	private int connectionTimeout = 500;
+	private int connectionTimeout = 5000;
 
 	private int responseBufferSize = 1024;
 
