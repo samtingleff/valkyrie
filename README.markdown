@@ -201,6 +201,11 @@ Using a [totally unscientific benchmark](http://github.com/samtingleff/oo-kv-sto
    <td>101344ms</td>
    <td>29</td>
   </tr>
+  <tr>
+   <td>Tokyo Tyrant</td>
+   <td>102844ms</td>
+   <td>29</td>
+  </tr>
  </tbody>
 </table>
 
