@@ -4,21 +4,32 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 
-import tokyotyrant.RDB;
-import tokyotyrant.transcoder.SerializableTranscoder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.pool.BasePoolableObjectFactory;
+import org.apache.commons.pool.ObjectPool;
+import org.apache.commons.pool.impl.StackObjectPool;
 
+import tokyotyrant.RDB;
+import tokyotyrant.transcoder.ByteArrayTranscoder;
+import tokyotyrant.transcoder.SerializingTranscoder;
+
+import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
-import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.transcoder.Transcoder;
 
 public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		implements KeyValueStore {
 	public static final String IDENTIFIER = "tyrant";
 
-	private RDB rdb;
+	private Log log = LogFactory.getLog(getClass());
 
-	private tokyotyrant.transcoder.Transcoder transcoder = new SerializableTranscoder();
+	private ObjectPool connectionPool;
+
+	private tokyotyrant.transcoder.Transcoder tokyoDefaultTranscoder = new SerializingTranscoder();
+
+	private tokyotyrant.transcoder.Transcoder tokyoByteTranscoder = new ByteArrayTranscoder();
 
 	private String host = "localhost";
 
@@ -47,15 +58,17 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 
 	@Override
 	public void start() throws IOException {
-		rdb = new RDB();
-		rdb.open(new InetSocketAddress(host, port));
+		connectionPool = new StackObjectPool(new RDBConnectionFactory(host,
+				port), 10, 10);
 		super.start();
 	}
 
 	@Override
 	public void stop() {
-		rdb.close();
-		rdb = null;
+		try {
+			connectionPool.close();
+		} catch (Exception e) {
+		}
 		super.stop();
 	}
 
@@ -63,40 +76,137 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	public boolean exists(String key) throws KeyValueStoreException,
 			IOException {
 		assertReadable();
-		return (rdb.get(key) != null);
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			return (rdb.get(key) != null);
+		} catch (Exception e) {
+			log.error("Exception inside exists()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+			releaseRDB(rdb);
+		}
 	}
 
 	@Override
 	public Object get(String key) throws KeyValueStoreException, IOException {
 		assertReadable();
-		return rdb.get(key, transcoder);
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			Object obj = rdb.get(key, tokyoDefaultTranscoder);
+			return obj;
+		} catch (Exception e) {
+			log.error("Exception inside get()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+			releaseRDB(rdb);
+		}
 	}
 
 	@Override
 	public Object get(String key, Transcoder transcoder)
-			throws KeyValueStoreException, IOException {
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
-		return rdb.get(key, this.transcoder);
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			byte[] bytes = (byte[]) rdb.get(key, tokyoByteTranscoder);
+			if (bytes == null)
+				return null;
+			else
+				return transcoder.decode(bytes);
+		} catch (Exception e) {
+			log.error("Exception inside get()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+			releaseRDB(rdb);
+		}
 	}
 
 	@Override
 	public void set(String key, Serializable value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
-		rdb.put(key, value, transcoder);
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			rdb.put(key, value, tokyoDefaultTranscoder);
+		} catch (Exception e) {
+			log.error("Exception inside get()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+			releaseRDB(rdb);
+		}
 	}
 
 	@Override
 	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
-		rdb.put(key, value, this.transcoder);
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			byte[] bytes = transcoder.encode(value);
+			rdb.put(key, bytes, tokyoByteTranscoder);
+		} catch (Exception e) {
+			log.error("Exception inside set()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+			releaseRDB(rdb);
+		}
 	}
 
 	@Override
 	public void delete(String key) throws KeyValueStoreException, IOException {
 		assertWriteable();
-		rdb.out(key);
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			rdb.out(key);
+		} catch (Exception e) {
+			log.error("Exception inside delete()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+			releaseRDB(rdb);
+		}
 	}
 
+	private RDB getRDB() throws Exception {
+		RDB rdb = (RDB) connectionPool.borrowObject();
+		return rdb;
+	}
+
+	private void releaseRDB(RDB rdb) {
+		if (rdb != null) {
+			try {
+				connectionPool.returnObject(rdb);
+			} catch (Exception e) {
+			}
+		}
+	}
+
+	private static class RDBConnectionFactory extends BasePoolableObjectFactory {
+		private String host;
+
+		private int port;
+
+		public RDBConnectionFactory(String host, int port) {
+			this.host = host;
+			this.port = port;
+		}
+
+		@Override
+		public Object makeObject() throws Exception {
+			RDB rdb = new RDB();
+			rdb.open(new InetSocketAddress(host, port));
+			return rdb;
+		}
+
+		@Override
+		public void passivateObject(Object obj) throws Exception {
+
+		}
+
+	}
 }

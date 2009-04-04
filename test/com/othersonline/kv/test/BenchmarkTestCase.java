@@ -52,8 +52,7 @@ public class BenchmarkTestCase extends TestCase {
 				new MemcachedKeyValueStore("stanley:21201"),
 				new FileSystemKeyValueStore("tmp/fs"),
 				new ThriftKeyValueStore("stanley", 9010),
-				// croaks with > 1 thread
-				// new TokyoTyrantKeyValueStore("stanley", 1978),
+				new TokyoTyrantKeyValueStore("stanley", 1978),
 				new WebDAVKeyValueStore("http://stanley/dav/testing") };
 		for (KeyValueStore kv : backends) {
 			kv.start();
