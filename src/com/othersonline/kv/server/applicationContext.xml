@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <!-- config -->
+    <bean
+            id="propertyConfigurator"
+            class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location">
+            <value>file:/etc/oo-kv-server.properties</value>
+        </property>
+    </bean>
+
+    <bean
+            id="oscache"
+            class="com.othersonline.kv.backends.OsCacheKeyValueStore"
+            lazy-init="true"
+            init-method="start">
+    </bean>
+
+    <bean
+            id="fs"
+            class="com.othersonline.kv.backends.FileSystemKeyValueStore"
+            lazy-init="true"
+            init-method="start">
+        <property name="root" value="${file-system.path}"/>
+    </bean>
+
+    <bean
+            id="thriftServer"
+            class="com.othersonline.kv.server.ThriftKeyValueServer"
+            lazy-init="false"
+            init-method="start">
+        <property name="backend" ref="${thriftServer.backend}"/>
+        <property name="minWorkerThreads" value="${thriftServer.minWorkerThreads}"/>
+        <property name="maxWorkerThreads" value="${thriftServer.maxWorkerThreads}"/>
+    </bean>
+
+</beans>

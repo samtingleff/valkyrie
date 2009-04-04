@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <!-- config -->
+    <bean
+            id="propertyConfigurator"
+            class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location">
+            <value>file:/etc/oo-kv-benchmark.properties</value>
+        </property>
+    </bean>
+
+    <bean
+            id="hashtable"
+            class="com.othersonline.kv.backends.HashtableKeyValueStore"
+            lazy-init="true"
+            init-method="start">
+    </bean>
+
+    <bean
+            id="oscache"
+            class="com.othersonline.kv.backends.OsCacheKeyValueStore"
+            lazy-init="true"
+            init-method="start">
+    </bean>
+
+    <bean
+            id="memcached"
+            class="com.othersonline.kv.backends.MemcachedKeyValueStore"
+            lazy-init="true"
+            init-method="start">
+        <property name="hosts" value="${memcached.hosts}"/>
+    </bean>
+
+    <bean
+            id="memcachedb"
+            class="com.othersonline.kv.backends.MemcachedKeyValueStore"
+            lazy-init="true"
+            init-method="start">
+        <property name="hosts" value="${memcachedb.hosts}"/>
+    </bean>
+
+    <bean
+            id="tyrant"
+            class="com.othersonline.kv.backends.TokyoTyrantKeyValueStore"
+            lazy-init="true"
+            init-method="start">
+        <property name="host" value="${tokyoTyrant.host}"/>
+        <property name="port" value="${tokyoTyrant.port}"/>
+    </bean>
+
+    <bean
+            id="webdav"
+            class="com.othersonline.kv.backends.WebDAVKeyValueStore"
+            lazy-init="true"
+            init-method="start">
+        <property name="baseUrl" value="${webdav.url}"/>
+    </bean>
+
+    <bean
+            id="thrift"
+            class="com.othersonline.kv.backends.ThriftKeyValueStore"
+            lazy-init="true"
+            init-method="start">
+        <property name="server" value="${thrift.server}"/>
+        <property name="port" value="${thrift.port}"/>
+    </bean>
+
+    <bean
+            id="fs"
+            class="com.othersonline.kv.backends.FileSystemKeyValueStore"
+            lazy-init="true"
+            init-method="start">
+        <property name="root" value="${file-system.path}"/>
+    </bean>
+
+</beans>

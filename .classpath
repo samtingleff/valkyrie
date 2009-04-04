@@ -18,5 +18,7 @@
 	<classpathentry kind="lib" path="lib/libthrift-svn-r761389.jar"/>
 	<classpathentry kind="lib" path="lib/commons-pool-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/jsdk-24.jar"/>
+	<classpathentry kind="lib" path="lib/spring-2.5.6.jar"/>
+	<classpathentry kind="lib" path="lib/args4j-2.0.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

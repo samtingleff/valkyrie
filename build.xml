@@ -32,6 +32,10 @@
 
 	<!--compile the source code into destdir-->
 	<target name="compile" depends="dirCreate">
+		<copy todir="${build.path}/classes" overwrite="true">
+			<fileset dir="${src.path}" includes="*.properties,*.xml,**/*.properties,**/*.xml"/>
+			<fileset dir="${test.path}" includes="*.properties,*.xml,**/*.properties,**/*.xml,**/*.txt"/>
+		</copy>
 		<javac destdir="${build.path}/classes" target="1.5" debug="${debug}">
 			<classpath>
 				<fileset dir="${lib.path}">

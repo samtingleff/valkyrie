@@ -167,34 +167,39 @@ Using a [totally unscientific benchmark](http://github.com/samtingleff/oo-kv-sto
  </thead>
  <tbody>
   <tr>
-   <td>OsCache</td>
-   <td>329ms</td>
-   <td>9102</td>
+   <td>Hashtable</td>
+   <td>262ms</td>
+   <td>11,441</td>
   </tr>
   <tr>
-   <td>Hashtable</td>
-   <td>468ms</td>
-   <td>6405</td>
+   <td>OsCache</td>
+   <td>734ms</td>
+   <td>4,084</td>
   </tr>
   <tr>
    <td>File system</td>
-   <td>9143ms</td>
-   <td>328</td>
+   <td>14208ms</td>
+   <td>211</td>
   </tr>
   <tr>
-   <td>MemcacheDB</td>
-   <td>15571ms</td>
-   <td>193</td>
+   <td>Thrift + FS</td>
+   <td>31300ms</td>
+   <td>96</td>
   </tr>
   <tr>
    <td>Memcached</td>
-   <td>16454ms</td>
-   <td>182</td>
+   <td>88962ms</td>
+   <td>33</td>
+  </tr>
+  <tr>
+   <td>MemcacheDB</td>
+   <td>92542ms</td>
+   <td>32</td>
   </tr>
   <tr>
    <td>WebDAV (Apache 2.2)</td>
-   <td>44734ms</td>
-   <td>67</td>
+   <td>101344ms</td>
+   <td>29</td>
   </tr>
  </tbody>
 </table>

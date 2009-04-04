@@ -26,8 +26,6 @@ import net.spy.memcached.protocol.binary.BinaryOperationFactory;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.BaseManagedKeyValueStore;
-import com.othersonline.kv.mgmt.BaseKeyValueStoreImplMXBean;
-import com.othersonline.kv.mgmt.KeyValueStoreMXBean;
 import com.othersonline.kv.mgmt.MemcachedImplMXBean;
 import com.othersonline.kv.transcoder.Transcoder;
 
