@@ -2,8 +2,9 @@ package com.othersonline.kv.mgmt;
 
 import java.io.IOException;
 
-public interface MemcachedMXBean {
+import com.othersonline.kv.KeyValueStoreException;
 
+public interface MemcachedMXBean {
 	public void start() throws IOException;
 
 	public void stop();
@@ -16,11 +17,11 @@ public interface MemcachedMXBean {
 
 	public void online();
 
-	public long getTotalObjectCount();
-	
-	public long getTotalByteCount();
-	
-	public long getTotalEvictions();
-	
-	public double getHitRatio();
+	public long getTotalObjectCount() throws KeyValueStoreException;
+
+	public long getTotalByteCount() throws KeyValueStoreException;
+
+	public long getTotalEvictions() throws KeyValueStoreException;
+
+	public double getHitRatio() throws KeyValueStoreException;
 }

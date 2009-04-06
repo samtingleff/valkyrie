@@ -5,6 +5,7 @@ import java.net.SocketAddress;
 import java.util.Map;
 
 import com.othersonline.kv.KeyValueStore;
+import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.backends.MemcachedKeyValueStore;
 
 public class MemcachedImplMXBean implements MemcachedMXBean {
@@ -41,26 +42,26 @@ public class MemcachedImplMXBean implements MemcachedMXBean {
 		delegate.online();
 	}
 
-	public long getTotalObjectCount() {
+	public long getTotalObjectCount() throws KeyValueStoreException {
 		return getStatSum("curr_items");
 	}
 
-	public long getTotalByteCount() {
+	public long getTotalByteCount() throws KeyValueStoreException {
 		return getStatSum("bytes");
 	}
 
-	public long getTotalEvictions() {
+	public long getTotalEvictions() throws KeyValueStoreException {
 		return getStatSum("evictions");
 	}
 
-	public double getHitRatio() {
+	public double getHitRatio() throws KeyValueStoreException {
 		long getHits = getStatSum("get_hits");
 		long getMisses = getStatSum("get_misses");
 		long totalGets = getHits + getMisses;
 		return ((double) getHits) / ((double) totalGets);
 	}
 
-	private long getStatSum(String stat) {
+	private long getStatSum(String stat) throws KeyValueStoreException {
 		Map<SocketAddress, Map<String, String>> stats = mcc.getStats();
 		// getStats("curr_items") is throwing an exception
 		long total = 0;
