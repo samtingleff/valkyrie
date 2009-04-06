@@ -203,10 +203,5 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			return rdb;
 		}
 
-		@Override
-		public void passivateObject(Object obj) throws Exception {
-
-		}
-
 	}
 }
