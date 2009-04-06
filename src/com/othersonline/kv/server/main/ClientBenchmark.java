@@ -36,6 +36,9 @@ public class ClientBenchmark extends BaseKVServerMain {
 	@Option(name = "--repetitions", usage = "repetitions per thread (default is 100)")
 	private int repetitions = 100;
 
+	@Option(name = "--size", usage = "message size (default is 10k)")
+	private int byteCount = 1024 * 10;
+
 	@Option(name = "--gzip", usage = "use gzipping transcoder (default is false)")
 	private boolean gzip = false;
 
@@ -52,8 +55,8 @@ public class ClientBenchmark extends BaseKVServerMain {
 			parser.parseArgument(args);
 			AbstractApplicationContext ctx = getContext(defaultClientSpringPaths);
 			KeyValueStore store = (KeyValueStore) ctx.getBean(backend);
-			TestResult result = doTestStorageBackend(store, concurrency,
-					repetitions);
+			TestResult result = doTestStorageBackend(store, byteCount,
+					concurrency, repetitions);
 			System.out.println("Backend\tDuration\tErrors");
 			System.out.println(String.format("%1$s\t%2$d\t%3$d",
 					result.identifier, result.duration, result.errorCount));
@@ -66,13 +69,14 @@ public class ClientBenchmark extends BaseKVServerMain {
 		}
 	}
 
-	private TestResult doTestStorageBackend(KeyValueStore store,
+	private TestResult doTestStorageBackend(KeyValueStore store, int byteCount,
 			int concurrency, int repetitions) throws Exception {
 		ExecutorService executor = Executors.newFixedThreadPool(concurrency);
 		List<Future<TestResult>> futures = new ArrayList<Future<TestResult>>(
 				concurrency);
-		String content = StreamUtils
-				.getResourceAsString("/com/othersonline/kv/test/resources/lorem-ipsum-10k.txt");
+		String fullContent = StreamUtils
+				.getResourceAsString("/com/othersonline/kv/test/resources/lorem-ipsum.txt");
+		String content = fullContent.substring(0, byteCount);
 		for (int i = 0; i < concurrency; ++i) {
 			Callable<TestResult> c = new Callable<TestResult>() {
 				private Random random = new Random();
@@ -112,6 +116,9 @@ public class ClientBenchmark extends BaseKVServerMain {
 							store.set(key, content, transcoder);
 							String s = (String) store.get(key, transcoder);
 							store.delete(key);
+							// compare length rather than string equality
+							if ((s == null) || (content.length() != s.length()))
+								result.addError();
 						} catch (Exception e) {
 							result.addError();
 						}
