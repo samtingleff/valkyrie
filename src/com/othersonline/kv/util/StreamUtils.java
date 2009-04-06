@@ -1,12 +1,62 @@
 package com.othersonline.kv.util;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 public class StreamUtils {
+
+	/**
+	 * Read a file into a string.
+	 * 
+	 * @param file
+	 *            the file
+	 * @param encoding
+	 *            character encoding used to convert bytes to string
+	 * @return the string representation of the file
+	 * @throws IOException
+	 */
+	public static String fileToString(File file, String encoding)
+			throws IOException {
+		byte[] bytes = fileToBytes(file);
+		String s = new String(bytes, encoding);
+		return s;
+	}
+
+	/**
+	 * Read a file into a byte array.
+	 * 
+	 * @param file
+	 *            the file
+	 * @return byte array
+	 * @throws IOException
+	 */
+	public static byte[] fileToBytes(File file) throws IOException {
+		long size = file.length();
+		byte[] bytes = new byte[(int) size];
+		InputStream in = null;
+		try {
+			in = new FileInputStream(file);
+			int pos = 0, read = 0;
+			while ((pos < size)
+					&& ((read = in.read(bytes, pos, (int) size)) > 0)) {
+				pos += read;
+			}
+			return bytes;
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (Exception e) {
+				}
+			}
+		}
+	}
+
 	/**
 	 * Read an InputStream to bytes.
 	 * 

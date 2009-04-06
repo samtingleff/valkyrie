@@ -95,13 +95,11 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 		File f = getFile(key);
 		if (!f.exists())
 			return null;
-		InputStream is = new FileInputStream(f);
 		try {
-			byte[] bytes = StreamUtils.inputStreamToBytes(is);
+			byte[] bytes = StreamUtils.fileToBytes(f);
 			Object obj = transcoder.decode(bytes);
 			return obj;
 		} finally {
-			is.close();
 		}
 	}
 
