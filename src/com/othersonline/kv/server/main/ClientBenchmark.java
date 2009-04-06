@@ -36,7 +36,7 @@ public class ClientBenchmark extends BaseKVServerMain {
 	@Option(name = "--repetitions", usage = "repetitions per thread (default is 100)")
 	private int repetitions = 100;
 
-	@Option(name = "--size", usage = "message size (default is 10k)")
+	@Option(name = "--size", usage = "message size in bytes (default is 1024 * 10)")
 	private int byteCount = 1024 * 10;
 
 	@Option(name = "--gzip", usage = "use gzipping transcoder (default is false)")
@@ -77,6 +77,8 @@ public class ClientBenchmark extends BaseKVServerMain {
 		String fullContent = StreamUtils
 				.getResourceAsString("/com/othersonline/kv/test/resources/lorem-ipsum.txt");
 		String content = fullContent.substring(0, byteCount);
+		List<Callable<TestResult>> callables = new ArrayList<Callable<TestResult>>(
+				concurrency);
 		for (int i = 0; i < concurrency; ++i) {
 			Callable<TestResult> c = new Callable<TestResult>() {
 				private Random random = new Random();
@@ -105,20 +107,17 @@ public class ClientBenchmark extends BaseKVServerMain {
 
 				public TestResult call() {
 					TestResult result = new TestResult(store.getIdentifier());
+					Transcoder transcoder = (gzip) ? gzipTranscoder
+							: stringTranscoder;
 					long start = System.currentTimeMillis();
 					for (int i = 0; i < repetitions; ++i) {
 						try {
-							Transcoder transcoder = (gzip) ? gzipTranscoder
-									: stringTranscoder;
 							String key = String.format(
 									"/some.key.%1$d.%2$d.txt",
 									random.nextInt(), i);
 							store.set(key, content, transcoder);
 							String s = (String) store.get(key, transcoder);
 							store.delete(key);
-							// compare length rather than string equality
-							if ((s == null) || (content.length() != s.length()))
-								result.addError();
 						} catch (Exception e) {
 							result.addError();
 						}
@@ -127,15 +126,19 @@ public class ClientBenchmark extends BaseKVServerMain {
 					return result;
 				}
 			}.init(store, repetitions, content, gzip);
+			callables.add(c);
+		}
+		long start = System.currentTimeMillis();
+		for (Callable<TestResult> c : callables) {
 			Future<TestResult> future = executor.submit(c);
 			futures.add(future);
 		}
 		TestResult result = new TestResult(store.getIdentifier());
 		for (Future<TestResult> future : futures) {
 			TestResult tr = future.get(10l, TimeUnit.MINUTES);
-			result.setDuration(result.getDuration() + tr.getDuration());
 			result.addErrors(tr.getErrorCount());
 		}
+		result.setDuration(System.currentTimeMillis() - start);
 		return result;
 	}
 
