@@ -14,11 +14,11 @@ import com.othersonline.kv.transcoder.Transcoder;
 public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 	public static final String IDENTIFIER = "caching";
 
-	private Log log = LogFactory.getLog(getClass());
+	protected Log log = LogFactory.getLog(getClass());
 
-	private KeyValueStore master;
+	protected KeyValueStore master;
 
-	private KeyValueStore cache;
+	protected KeyValueStore cache;
 
 	public CachingKeyValueStore() {
 	}
