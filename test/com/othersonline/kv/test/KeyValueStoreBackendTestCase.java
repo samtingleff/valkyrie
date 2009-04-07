@@ -12,6 +12,8 @@ import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.KeyValueStoreStatus;
 import com.othersonline.kv.KeyValueStoreUnavailable;
 import com.othersonline.kv.ManagedKeyValueStore;
+import com.othersonline.kv.ThreadPoolAsyncFlushQueue;
+import com.othersonline.kv.backends.AsyncFlushCachingKeyValueStore;
 import com.othersonline.kv.backends.CachingKeyValueStore;
 import com.othersonline.kv.backends.FileSystemKeyValueStore;
 import com.othersonline.kv.backends.HashtableKeyValueStore;
@@ -139,6 +141,33 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		cache.setStatus(KeyValueStoreStatus.Offline);
 		store.setStatus(KeyValueStoreStatus.Offline);
 		doTestBackend(store);
+	}
+
+	public void testAsyncFlushCachingStore() throws Exception {
+		MemcachedKeyValueStore master = new MemcachedKeyValueStore();
+		master.setHosts("localhost:11211");
+		master.start();
+
+		KeyValueStore cache = new HashtableKeyValueStore();
+		cache.start();
+
+		AsyncFlushCachingKeyValueStore store = new AsyncFlushCachingKeyValueStore(
+				master, cache, new ThreadPoolAsyncFlushQueue(master, 1));
+		store.start();
+
+		String key = "xyz";
+		SampleV v = new SampleV(10, "hello world", 12);
+		store.set(key, v);
+		Thread.sleep(100l);
+
+		// should be flushed to master
+		SampleV v2 = (SampleV) master.get(key);
+		assertNotNull(v2);
+		assertEquals(v2.someRequiredInt, v.someRequiredInt);
+		assertEquals(v2.someString, v.someString);
+		assertEquals(v2.someOptionalDouble, v.someOptionalDouble);
+		store.delete(key);
+		Thread.sleep(100l);
 	}
 
 	public void testReplicatingStore() throws Exception {
