@@ -1,6 +1,10 @@
 package com.othersonline.kv.server;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -138,11 +142,11 @@ public class ThriftKeyValueServer {
 				Object obj = backend.get(key, transcoder);
 				GetResult result = null;
 				if (obj == null)
-					result = new GetResult(false, new byte[] {});
+					result = new GetResult(false, key, new byte[] {});
 				else {
 					byte[] bytes = (byte[]) obj;
 					byteCount = bytes.length;
-					result = new GetResult(true, bytes);
+					result = new GetResult(true, key, bytes);
 				}
 				success = true;
 				return result;
@@ -160,6 +164,44 @@ public class ThriftKeyValueServer {
 					long time = System.currentTimeMillis() - start;
 					accessLog.info(String.format("get %1$s %2$d %3$d %4$s",
 							key, time, byteCount, success));
+				}
+			}
+		}
+
+		public List<GetResult> getBulk(List<String> keys)
+				throws KeyValueStoreIOException, KeyValueStoreException,
+				TException {
+			log.trace("getValue()");
+			long start = System.currentTimeMillis();
+			long byteCount = 0;
+			boolean success = false;
+			try {
+				Map<String, Object> backendResult = backend.getBulk(keys,
+						transcoder);
+				List<GetResult> results = new ArrayList<GetResult>(
+						backendResult.size());
+				for (Map.Entry<String, Object> entry : backendResult.entrySet()) {
+
+					GetResult result = new GetResult(true, entry.getKey(),
+							(byte[]) entry.getValue());
+					results.add(result);
+				}
+				success = true;
+				return results;
+			} catch (com.othersonline.kv.KeyValueStoreException e) {
+				log.error("KeyValueStoreException inside getValue()", e);
+				throw new KeyValueStoreException();
+			} catch (IOException e) {
+				log.error("IOException inside getValue()", e);
+				throw new KeyValueStoreIOException();
+			} catch (ClassNotFoundException e) {
+				log.error("ClassNotFoundException inside getValue()", e);
+				throw new KeyValueStoreException();
+			} finally {
+				if (accessLog.isInfoEnabled()) {
+					long time = System.currentTimeMillis() - start;
+					accessLog.info(String.format("getbulk %1$s %2$d %3$d %4$s",
+							"_", time, byteCount, success));
 				}
 			}
 		}

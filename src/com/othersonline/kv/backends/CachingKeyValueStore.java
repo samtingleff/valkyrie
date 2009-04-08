@@ -2,6 +2,11 @@ package com.othersonline.kv.backends;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -117,6 +122,65 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 			}
 		}
 		return obj;
+	}
+
+	@Override
+	public Map<String, Object> getBulk(String... keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		List<String> coll = Arrays.asList(keys);
+		return getBulk(coll);
+	}
+
+	@Override
+	public Map<String, Object> getBulk(List<String> keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = new HashMap<String, Object>();
+		try {
+			Map<String, Object> cached = cache.getBulk(keys);
+			results.putAll(cached);
+		} catch (Exception e) {
+			log.warn("Unable to call getBulk() on cache", e);
+		}
+		if (results.size() < keys.size()) {
+			// find all keys not in cache
+			List<String> backendQueryKeys = new ArrayList<String>(keys.size()
+					- results.size());
+			for (String key : keys) {
+				if (!results.containsKey(key))
+					backendQueryKeys.add(key);
+			}
+			Map<String, Object> backendResults = master
+					.getBulk(backendQueryKeys);
+			results.putAll(backendResults);
+		}
+		return results;
+	}
+
+	@Override
+	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = new HashMap<String, Object>();
+		try {
+			Map<String, Object> cached = cache.getBulk(keys, transcoder);
+			results.putAll(cached);
+		} catch (Exception e) {
+			log.warn("Unable to call getBulk() on cache", e);
+		}
+		if (results.size() < keys.size()) {
+			// find all keys not in cache
+			List<String> backendQueryKeys = new ArrayList<String>(keys.size()
+					- results.size());
+			for (String key : keys) {
+				if (!results.containsKey(key))
+					backendQueryKeys.add(key);
+			}
+			Map<String, Object> backendResults = master.getBulk(
+					backendQueryKeys, transcoder);
+			results.putAll(backendResults);
+		}
+		return results;
 	}
 
 	@Override

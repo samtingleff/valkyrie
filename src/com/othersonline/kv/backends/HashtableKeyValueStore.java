@@ -2,6 +2,8 @@ package com.othersonline.kv.backends;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -45,6 +47,45 @@ public class HashtableKeyValueStore extends BaseManagedKeyValueStore implements
 			throws KeyValueStoreException, IOException {
 		assertReadable();
 		return map.get(key);
+	}
+
+	@Override
+	public Map<String, Object> getBulk(String... keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = new HashMap<String, Object>();
+		for (String key : keys) {
+			Object obj = get(key);
+			if (obj != null)
+				results.put(key, obj);
+		}
+		return results;
+	}
+
+	public Map<String, Object> getBulk(final List<String> keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = new HashMap<String, Object>();
+		for (String key : keys) {
+			Object obj = get(key);
+			if (obj != null)
+				results.put(key, obj);
+		}
+		return results;
+	}
+
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys,
+			Transcoder transcoder) throws KeyValueStoreException, IOException,
+			ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = new HashMap<String, Object>();
+		for (String key : keys) {
+			Object obj = get(key, transcoder);
+			if (obj != null)
+				results.put(key, obj);
+		}
+		return results;
 	}
 
 	@Override

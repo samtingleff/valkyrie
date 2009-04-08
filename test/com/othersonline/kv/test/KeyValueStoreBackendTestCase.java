@@ -2,6 +2,8 @@ package com.othersonline.kv.test;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Map;
 
 import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
@@ -46,7 +48,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 	public void testMemcachedBackend() throws Exception {
 		MemcachedKeyValueStore store = new MemcachedKeyValueStore();
 		store.setUseBinaryProtocol(false);
-		store.setHosts("localhost:11211");
+		store.setHosts("stanley:11211");
 		doTestBackend(store);
 
 		// test counters
@@ -83,7 +85,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testTokyoTyrantBackend() throws Exception {
 		TokyoTyrantKeyValueStore store = new TokyoTyrantKeyValueStore();
-		store.setHost("localhost");
+		store.setHost("stanley");
 		store.setPort(1978);
 		doTestBackend(store);
 	}
@@ -108,7 +110,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testWebDavBackend() throws Exception {
 		WebDAVKeyValueStore store = new WebDAVKeyValueStore();
-		store.setBaseUrl("http://localhost/dav/testing/");
+		store.setBaseUrl("http://stanley/dav/testing/");
 		doTestBackend(store);
 	}
 
@@ -136,12 +138,12 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testCachingStore() throws Exception {
 		TokyoTyrantKeyValueStore master = new TokyoTyrantKeyValueStore();
-		master.setHost("localhost");
+		master.setHost("stanley");
 		master.setPort(1978);
 		master.start();
 
 		MemcachedKeyValueStore cache = new MemcachedKeyValueStore();
-		cache.setHosts("localhost:11211");
+		cache.setHosts("stanley:11211");
 		cache.start();
 
 		CachingKeyValueStore store = new CachingKeyValueStore(master, cache);
@@ -155,7 +157,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testAsyncFlushCachingStore() throws Exception {
 		MemcachedKeyValueStore master = new MemcachedKeyValueStore();
-		master.setHosts("localhost:11211");
+		master.setHosts("stanley:11211");
 		master.start();
 
 		KeyValueStore cache = new HashtableKeyValueStore();
@@ -182,7 +184,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testReplicatingStore() throws Exception {
 		MemcachedKeyValueStore master = new MemcachedKeyValueStore();
-		master.setHosts("localhost:11211");
+		master.setHosts("stanley:11211");
 		master.start();
 
 		KeyValueStore replica = new HashtableKeyValueStore();
@@ -230,6 +232,16 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		assertEquals(v2.someRequiredInt, v.someRequiredInt);
 		assertEquals(v2.someString, v.someString);
 		assertEquals(v2.someOptionalDouble, v.someOptionalDouble);
+
+		// test getBulk()
+		Map<String, Object> map = store.getBulk(key, "abcdefg");
+		assertEquals(map.size(), 1);
+		assertEquals(((SampleV) map.get(key)).someRequiredInt,
+				v.someRequiredInt);
+		map = store.getBulk(Arrays.asList(new String[] { "sxyzxv", "123", key }));
+		assertEquals(map.size(), 1);
+		assertEquals(((SampleV) map.get(key)).someRequiredInt,
+				v.someRequiredInt);
 
 		// set status to read only
 		store.setStatus(KeyValueStoreStatus.ReadOnly);

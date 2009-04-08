@@ -2,6 +2,9 @@ package com.othersonline.kv.backends;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import com.opensymphony.oscache.base.CacheEntry;
@@ -126,6 +129,43 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 	public Object get(String key, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		return get(key);
+	}
+
+	@Override
+	public Map<String, Object> getBulk(String... keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		Map<String, Object> results = new HashMap<String, Object>();
+		for (String key : keys) {
+			Object obj = get(key);
+			if (obj != null)
+				results.put(key, obj);
+		}
+		return results;
+	}
+
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		Map<String, Object> results = new HashMap<String, Object>();
+		for (String key : keys) {
+			Object obj = get(key);
+			if (obj != null)
+				results.put(key, obj);
+		}
+		return results;
+	}
+
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys,
+			Transcoder transcoder) throws KeyValueStoreException, IOException,
+			ClassNotFoundException {
+		Map<String, Object> results = new HashMap<String, Object>();
+		for (String key : keys) {
+			Object obj = get(key, transcoder);
+			if (obj != null)
+				results.put(key, obj);
+		}
+		return results;
 	}
 
 	@Override

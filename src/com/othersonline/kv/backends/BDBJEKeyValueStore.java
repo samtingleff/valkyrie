@@ -3,8 +3,9 @@ package com.othersonline.kv.backends;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -171,12 +172,21 @@ public class BDBJEKeyValueStore extends BaseManagedKeyValueStore {
 		}
 	}
 
-	public Map<String, Object> getBulk(final Collection<String> keys)
+	@Override
+	public Map<String, Object> getBulk(String... keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		List<String> coll = Arrays.asList(keys);
+		return getBulk(coll);
+	}
+
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		return getBulk(keys, defaultTranscoder);
 	}
 
-	public Map<String, Object> getBulk(final Collection<String> keys,
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys,
 			Transcoder transcoder) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
 		assertReadable();

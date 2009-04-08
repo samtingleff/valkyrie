@@ -5,8 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -168,6 +172,42 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 			} catch (Exception e) {
 			}
 		}
+	}
+
+	@Override
+	public Map<String, Object> getBulk(String... keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		List<String> coll = Arrays.asList(keys);
+		return getBulk(coll);
+	}
+
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = new HashMap<String, Object>();
+		for (String key : keys) {
+			Object obj = get(key);
+			if (obj != null) {
+				results.put(key, obj);
+			}
+		}
+		return results;
+	}
+
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys,
+			Transcoder transcoder) throws KeyValueStoreException, IOException,
+			ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = new HashMap<String, Object>();
+		for (String key : keys) {
+			Object obj = get(key, transcoder);
+			if (obj != null) {
+				results.put(key, obj);
+			}
+		}
+		return results;
 	}
 
 	@Override

@@ -2,6 +2,8 @@ package com.othersonline.kv;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 import com.othersonline.kv.transcoder.Transcoder;
 
@@ -83,13 +85,50 @@ public interface KeyValueStore {
 			throws KeyValueStoreException, IOException, ClassNotFoundException;
 
 	/**
+	 * Perform bulk get operation.
+	 * 
+	 * @param keys
+	 * @return map of key->object
+	 * @throws KeyValueStoreException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	public Map<String, Object> getBulk(String... keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException;
+
+	/**
+	 * Perform bulk get operation.
+	 * 
+	 * @param keys
+	 * @return map of key->object
+	 * @throws KeyValueStoreException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	public Map<String, Object> getBulk(final List<String> keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException;
+
+	/**
+	 * Perform bulk get operation.
+	 * 
+	 * @param keys
+	 * @return map of key->object
+	 * @throws KeyValueStoreException
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	public Map<String, Object> getBulk(final List<String> keys,
+			Transcoder transcoder) throws KeyValueStoreException, IOException,
+			ClassNotFoundException;
+
+	/**
 	 * Save an object for a given key.
 	 * 
 	 * @throws KeyValueStoreException
 	 * @throws IOException
 	 */
-	public void set(String key, Serializable value) throws KeyValueStoreException,
-			IOException;
+	public void set(String key, Serializable value)
+			throws KeyValueStoreException, IOException;
 
 	/**
 	 * Save an object for a given key using the specified transcoder.

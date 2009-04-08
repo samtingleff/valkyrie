@@ -3,6 +3,9 @@ package com.othersonline.kv.backends;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -118,6 +121,75 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 				return transcoder.decode(bytes);
 		} catch (Exception e) {
 			log.error("Exception inside get()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+			releaseRDB(rdb);
+		}
+	}
+
+	@Override
+	public Map<String, Object> getBulk(String... keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = new HashMap<String, Object>();
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			for (String key : keys) {
+				Object obj = rdb.get(key, tokyoDefaultTranscoder);
+				if (obj != null)
+					results.put(key, obj);
+			}
+			return results;
+		} catch (Exception e) {
+			log.error("Exception inside getBulk()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+			releaseRDB(rdb);
+		}
+	}
+
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = new HashMap<String, Object>();
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			for (String key : keys) {
+				Object obj = rdb.get(key, tokyoDefaultTranscoder);
+				if (obj != null)
+					results.put(key, obj);
+			}
+			return results;
+		} catch (Exception e) {
+			log.error("Exception inside getBulk()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+			releaseRDB(rdb);
+		}
+	}
+
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys,
+			Transcoder transcoder) throws KeyValueStoreException, IOException,
+			ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = new HashMap<String, Object>();
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			for (String key : keys) {
+				byte[] bytes = (byte[]) rdb.get(key, tokyoByteTranscoder);
+				if (bytes != null) {
+					Object obj = transcoder.decode(bytes);
+					results.put(key, obj);
+				}
+			}
+			return results;
+		} catch (Exception e) {
+			log.error("Exception inside getBulk()", e);
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);

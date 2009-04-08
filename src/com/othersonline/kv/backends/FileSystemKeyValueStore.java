@@ -1,12 +1,13 @@
 package com.othersonline.kv.backends;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
@@ -101,6 +102,46 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 			return obj;
 		} finally {
 		}
+	}
+
+	@Override
+	public Map<String, Object> getBulk(String... keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = new HashMap<String, Object>();
+		for (String key : keys) {
+			Object obj = get(key);
+			if (obj != null)
+				results.put(key, obj);
+		}
+		return results;
+	}
+
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = new HashMap<String, Object>();
+		for (String key : keys) {
+			Object obj = get(key);
+			if (obj != null)
+				results.put(key, obj);
+		}
+		return results;
+	}
+
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys,
+			Transcoder transcoder) throws KeyValueStoreException, IOException,
+			ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = new HashMap<String, Object>();
+		for (String key : keys) {
+			Object obj = get(key, transcoder);
+			if (obj != null)
+				results.put(key, obj);
+		}
+		return results;
 	}
 
 	@Override

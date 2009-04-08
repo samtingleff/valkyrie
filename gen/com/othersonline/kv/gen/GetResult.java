@@ -20,12 +20,15 @@ import org.apache.thrift.protocol.*;
 public class GetResult implements TBase, java.io.Serializable, Cloneable {
   private static final TStruct STRUCT_DESC = new TStruct("GetResult");
   private static final TField EXISTS_FIELD_DESC = new TField("exists", TType.BOOL, (short)1);
-  private static final TField DATA_FIELD_DESC = new TField("data", TType.STRING, (short)2);
+  private static final TField KEY_FIELD_DESC = new TField("key", TType.STRING, (short)2);
+  private static final TField DATA_FIELD_DESC = new TField("data", TType.STRING, (short)3);
 
   private boolean exists;
   public static final int EXISTS = 1;
+  private String key;
+  public static final int KEY = 2;
   private byte[] data;
-  public static final int DATA = 2;
+  public static final int DATA = 3;
 
   private final Isset __isset = new Isset();
   private static final class Isset implements java.io.Serializable {
@@ -35,6 +38,8 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
   public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
     put(EXISTS, new FieldMetaData("exists", TFieldRequirementType.DEFAULT, 
         new FieldValueMetaData(TType.BOOL)));
+    put(KEY, new FieldMetaData("key", TFieldRequirementType.DEFAULT, 
+        new FieldValueMetaData(TType.STRING)));
     put(DATA, new FieldMetaData("data", TFieldRequirementType.DEFAULT, 
         new FieldValueMetaData(TType.STRING)));
   }});
@@ -48,11 +53,13 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
 
   public GetResult(
     boolean exists,
+    String key,
     byte[] data)
   {
     this();
     this.exists = exists;
     this.__isset.exists = true;
+    this.key = key;
     this.data = data;
   }
 
@@ -62,6 +69,9 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
   public GetResult(GetResult other) {
     __isset.exists = other.__isset.exists;
     this.exists = other.exists;
+    if (other.isSetKey()) {
+      this.key = other.key;
+    }
     if (other.isSetData()) {
       this.data = new byte[other.data.length];
       System.arraycopy(other.data, 0, data, 0, other.data.length);
@@ -91,6 +101,23 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
     return this.__isset.exists;
   }
 
+  public String getKey() {
+    return this.key;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  public void unsetKey() {
+    this.key = null;
+  }
+
+  // Returns true if field key is set (has been asigned a value) and false otherwise
+  public boolean isSetKey() {
+    return this.key != null;
+  }
+
   public byte[] getData() {
     return this.data;
   }
@@ -118,6 +145,14 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
       }
       break;
 
+    case KEY:
+      if (value == null) {
+        unsetKey();
+      } else {
+        setKey((String)value);
+      }
+      break;
+
     case DATA:
       if (value == null) {
         unsetData();
@@ -136,6 +171,9 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
     case EXISTS:
       return new Boolean(isExists());
 
+    case KEY:
+      return getKey();
+
     case DATA:
       return getData();
 
@@ -149,6 +187,8 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
     switch (fieldID) {
     case EXISTS:
       return isSetExists();
+    case KEY:
+      return isSetKey();
     case DATA:
       return isSetData();
     default:
@@ -175,6 +215,15 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
       if (!(this_present_exists && that_present_exists))
         return false;
       if (this.exists != that.exists)
+        return false;
+    }
+
+    boolean this_present_key = true && this.isSetKey();
+    boolean that_present_key = true && that.isSetKey();
+    if (this_present_key || that_present_key) {
+      if (!(this_present_key && that_present_key))
+        return false;
+      if (!this.key.equals(that.key))
         return false;
     }
 
@@ -214,6 +263,13 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
             TProtocolUtil.skip(iprot, field.type);
           }
           break;
+        case KEY:
+          if (field.type == TType.STRING) {
+            this.key = iprot.readString();
+          } else { 
+            TProtocolUtil.skip(iprot, field.type);
+          }
+          break;
         case DATA:
           if (field.type == TType.STRING) {
             this.data = iprot.readBinary();
@@ -239,6 +295,11 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
     oprot.writeFieldBegin(EXISTS_FIELD_DESC);
     oprot.writeBool(this.exists);
     oprot.writeFieldEnd();
+    if (this.key != null) {
+      oprot.writeFieldBegin(KEY_FIELD_DESC);
+      oprot.writeString(this.key);
+      oprot.writeFieldEnd();
+    }
     if (this.data != null) {
       oprot.writeFieldBegin(DATA_FIELD_DESC);
       oprot.writeBinary(this.data);
@@ -255,6 +316,14 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
 
     sb.append("exists:");
     sb.append(this.exists);
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("key:");
+    if (this.key == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.key);
+    }
     first = false;
     if (!first) sb.append(", ");
     sb.append("data:");

@@ -25,6 +25,8 @@ public class KeyValueService {
 
     public GetResult getValue(String key) throws KeyValueStoreIOException, KeyValueStoreException, TException;
 
+    public List<GetResult> getBulk(List<String> keys) throws KeyValueStoreIOException, KeyValueStoreException, TException;
+
     public void setValue(String key, byte[] data) throws KeyValueStoreIOException, KeyValueStoreException, TException;
 
     public void deleteValue(String key) throws KeyValueStoreIOException, KeyValueStoreException, TException;
@@ -136,6 +138,45 @@ public class KeyValueService {
       throw new TApplicationException(TApplicationException.MISSING_RESULT, "getValue failed: unknown result");
     }
 
+    public List<GetResult> getBulk(List<String> keys) throws KeyValueStoreIOException, KeyValueStoreException, TException
+    {
+      send_getBulk(keys);
+      return recv_getBulk();
+    }
+
+    public void send_getBulk(List<String> keys) throws TException
+    {
+      oprot_.writeMessageBegin(new TMessage("getBulk", TMessageType.CALL, seqid_));
+      getBulk_args args = new getBulk_args();
+      args.keys = keys;
+      args.write(oprot_);
+      oprot_.writeMessageEnd();
+      oprot_.getTransport().flush();
+    }
+
+    public List<GetResult> recv_getBulk() throws KeyValueStoreIOException, KeyValueStoreException, TException
+    {
+      TMessage msg = iprot_.readMessageBegin();
+      if (msg.type == TMessageType.EXCEPTION) {
+        TApplicationException x = TApplicationException.read(iprot_);
+        iprot_.readMessageEnd();
+        throw x;
+      }
+      getBulk_result result = new getBulk_result();
+      result.read(iprot_);
+      iprot_.readMessageEnd();
+      if (result.isSetSuccess()) {
+        return result.success;
+      }
+      if (result.ioException != null) {
+        throw result.ioException;
+      }
+      if (result.keyValueStoreException != null) {
+        throw result.keyValueStoreException;
+      }
+      throw new TApplicationException(TApplicationException.MISSING_RESULT, "getBulk failed: unknown result");
+    }
+
     public void setValue(String key, byte[] data) throws KeyValueStoreIOException, KeyValueStoreException, TException
     {
       send_setValue(key, data);
@@ -216,6 +257,7 @@ public class KeyValueService {
       iface_ = iface;
       processMap_.put("exists", new exists());
       processMap_.put("getValue", new getValue());
+      processMap_.put("getBulk", new getBulk());
       processMap_.put("setValue", new setValue());
       processMap_.put("deleteValue", new deleteValue());
     }
@@ -283,6 +325,28 @@ public class KeyValueService {
           result.keyValueStoreException = keyValueStoreException;
         }
         oprot.writeMessageBegin(new TMessage("getValue", TMessageType.REPLY, seqid));
+        result.write(oprot);
+        oprot.writeMessageEnd();
+        oprot.getTransport().flush();
+      }
+
+    }
+
+    private class getBulk implements ProcessFunction {
+      public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
+      {
+        getBulk_args args = new getBulk_args();
+        args.read(iprot);
+        iprot.readMessageEnd();
+        getBulk_result result = new getBulk_result();
+        try {
+          result.success = iface_.getBulk(args.keys);
+        } catch (KeyValueStoreIOException ioException) {
+          result.ioException = ioException;
+        } catch (KeyValueStoreException keyValueStoreException) {
+          result.keyValueStoreException = keyValueStoreException;
+        }
+        oprot.writeMessageBegin(new TMessage("getBulk", TMessageType.REPLY, seqid));
         result.write(oprot);
         oprot.writeMessageEnd();
         oprot.getTransport().flush();
@@ -1338,6 +1402,598 @@ public class KeyValueService {
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder("getValue_result(");
+      boolean first = true;
+
+      sb.append("success:");
+      if (this.success == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.success);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("ioException:");
+      if (this.ioException == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.ioException);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("keyValueStoreException:");
+      if (this.keyValueStoreException == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.keyValueStoreException);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws TException {
+      // check for required fields
+      // check that fields of type enum have valid values
+    }
+
+  }
+
+  public static class getBulk_args implements TBase, java.io.Serializable, Cloneable   {
+    private static final TStruct STRUCT_DESC = new TStruct("getBulk_args");
+    private static final TField KEYS_FIELD_DESC = new TField("keys", TType.LIST, (short)1);
+
+    private List<String> keys;
+    public static final int KEYS = 1;
+
+    private final Isset __isset = new Isset();
+    private static final class Isset implements java.io.Serializable {
+    }
+
+    public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
+      put(KEYS, new FieldMetaData("keys", TFieldRequirementType.DEFAULT, 
+          new ListMetaData(TType.LIST, 
+              new FieldValueMetaData(TType.STRING))));
+    }});
+
+    static {
+      FieldMetaData.addStructMetaDataMap(getBulk_args.class, metaDataMap);
+    }
+
+    public getBulk_args() {
+    }
+
+    public getBulk_args(
+      List<String> keys)
+    {
+      this();
+      this.keys = keys;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public getBulk_args(getBulk_args other) {
+      if (other.isSetKeys()) {
+        List<String> __this__keys = new ArrayList<String>();
+        for (String other_element : other.keys) {
+          __this__keys.add(other_element);
+        }
+        this.keys = __this__keys;
+      }
+    }
+
+    @Override
+    public getBulk_args clone() {
+      return new getBulk_args(this);
+    }
+
+    public int getKeysSize() {
+      return (this.keys == null) ? 0 : this.keys.size();
+    }
+
+    public java.util.Iterator<String> getKeysIterator() {
+      return (this.keys == null) ? null : this.keys.iterator();
+    }
+
+    public void addToKeys(String elem) {
+      if (this.keys == null) {
+        this.keys = new ArrayList<String>();
+      }
+      this.keys.add(elem);
+    }
+
+    public List<String> getKeys() {
+      return this.keys;
+    }
+
+    public void setKeys(List<String> keys) {
+      this.keys = keys;
+    }
+
+    public void unsetKeys() {
+      this.keys = null;
+    }
+
+    // Returns true if field keys is set (has been asigned a value) and false otherwise
+    public boolean isSetKeys() {
+      return this.keys != null;
+    }
+
+    public void setFieldValue(int fieldID, Object value) {
+      switch (fieldID) {
+      case KEYS:
+        if (value == null) {
+          unsetKeys();
+        } else {
+          setKeys((List<String>)value);
+        }
+        break;
+
+      default:
+        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
+      }
+    }
+
+    public Object getFieldValue(int fieldID) {
+      switch (fieldID) {
+      case KEYS:
+        return getKeys();
+
+      default:
+        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
+      }
+    }
+
+    // Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise
+    public boolean isSet(int fieldID) {
+      switch (fieldID) {
+      case KEYS:
+        return isSetKeys();
+      default:
+        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
+      }
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof getBulk_args)
+        return this.equals((getBulk_args)that);
+      return false;
+    }
+
+    public boolean equals(getBulk_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_keys = true && this.isSetKeys();
+      boolean that_present_keys = true && that.isSetKeys();
+      if (this_present_keys || that_present_keys) {
+        if (!(this_present_keys && that_present_keys))
+          return false;
+        if (!this.keys.equals(that.keys))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    public void read(TProtocol iprot) throws TException {
+      TField field;
+      iprot.readStructBegin();
+      while (true)
+      {
+        field = iprot.readFieldBegin();
+        if (field.type == TType.STOP) { 
+          break;
+        }
+        switch (field.id)
+        {
+          case KEYS:
+            if (field.type == TType.LIST) {
+              {
+                TList _list0 = iprot.readListBegin();
+                this.keys = new ArrayList<String>(_list0.size);
+                for (int _i1 = 0; _i1 < _list0.size; ++_i1)
+                {
+                  String _elem2;
+                  _elem2 = iprot.readString();
+                  this.keys.add(_elem2);
+                }
+                iprot.readListEnd();
+              }
+            } else { 
+              TProtocolUtil.skip(iprot, field.type);
+            }
+            break;
+          default:
+            TProtocolUtil.skip(iprot, field.type);
+            break;
+        }
+        iprot.readFieldEnd();
+      }
+      iprot.readStructEnd();
+
+      validate();
+    }
+
+    public void write(TProtocol oprot) throws TException {
+      validate();
+
+      oprot.writeStructBegin(STRUCT_DESC);
+      if (this.keys != null) {
+        oprot.writeFieldBegin(KEYS_FIELD_DESC);
+        {
+          oprot.writeListBegin(new TList(TType.STRING, this.keys.size()));
+          for (String _iter3 : this.keys)          {
+            oprot.writeString(_iter3);
+          }
+          oprot.writeListEnd();
+        }
+        oprot.writeFieldEnd();
+      }
+      oprot.writeFieldStop();
+      oprot.writeStructEnd();
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("getBulk_args(");
+      boolean first = true;
+
+      sb.append("keys:");
+      if (this.keys == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.keys);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws TException {
+      // check for required fields
+      // check that fields of type enum have valid values
+    }
+
+  }
+
+  public static class getBulk_result implements TBase, java.io.Serializable, Cloneable   {
+    private static final TStruct STRUCT_DESC = new TStruct("getBulk_result");
+    private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.LIST, (short)0);
+    private static final TField IO_EXCEPTION_FIELD_DESC = new TField("ioException", TType.STRUCT, (short)1);
+    private static final TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new TField("keyValueStoreException", TType.STRUCT, (short)2);
+
+    private List<GetResult> success;
+    public static final int SUCCESS = 0;
+    private KeyValueStoreIOException ioException;
+    public static final int IOEXCEPTION = 1;
+    private KeyValueStoreException keyValueStoreException;
+    public static final int KEYVALUESTOREEXCEPTION = 2;
+
+    private final Isset __isset = new Isset();
+    private static final class Isset implements java.io.Serializable {
+    }
+
+    public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
+      put(SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT, 
+          new ListMetaData(TType.LIST, 
+              new StructMetaData(TType.STRUCT, GetResult.class))));
+      put(IOEXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
+          new FieldValueMetaData(TType.STRUCT)));
+      put(KEYVALUESTOREEXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
+          new FieldValueMetaData(TType.STRUCT)));
+    }});
+
+    static {
+      FieldMetaData.addStructMetaDataMap(getBulk_result.class, metaDataMap);
+    }
+
+    public getBulk_result() {
+    }
+
+    public getBulk_result(
+      List<GetResult> success,
+      KeyValueStoreIOException ioException,
+      KeyValueStoreException keyValueStoreException)
+    {
+      this();
+      this.success = success;
+      this.ioException = ioException;
+      this.keyValueStoreException = keyValueStoreException;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public getBulk_result(getBulk_result other) {
+      if (other.isSetSuccess()) {
+        List<GetResult> __this__success = new ArrayList<GetResult>();
+        for (GetResult other_element : other.success) {
+          __this__success.add(new GetResult(other_element));
+        }
+        this.success = __this__success;
+      }
+      if (other.isSetIoException()) {
+        this.ioException = new KeyValueStoreIOException(other.ioException);
+      }
+      if (other.isSetKeyValueStoreException()) {
+        this.keyValueStoreException = new KeyValueStoreException(other.keyValueStoreException);
+      }
+    }
+
+    @Override
+    public getBulk_result clone() {
+      return new getBulk_result(this);
+    }
+
+    public int getSuccessSize() {
+      return (this.success == null) ? 0 : this.success.size();
+    }
+
+    public java.util.Iterator<GetResult> getSuccessIterator() {
+      return (this.success == null) ? null : this.success.iterator();
+    }
+
+    public void addToSuccess(GetResult elem) {
+      if (this.success == null) {
+        this.success = new ArrayList<GetResult>();
+      }
+      this.success.add(elem);
+    }
+
+    public List<GetResult> getSuccess() {
+      return this.success;
+    }
+
+    public void setSuccess(List<GetResult> success) {
+      this.success = success;
+    }
+
+    public void unsetSuccess() {
+      this.success = null;
+    }
+
+    // Returns true if field success is set (has been asigned a value) and false otherwise
+    public boolean isSetSuccess() {
+      return this.success != null;
+    }
+
+    public KeyValueStoreIOException getIoException() {
+      return this.ioException;
+    }
+
+    public void setIoException(KeyValueStoreIOException ioException) {
+      this.ioException = ioException;
+    }
+
+    public void unsetIoException() {
+      this.ioException = null;
+    }
+
+    // Returns true if field ioException is set (has been asigned a value) and false otherwise
+    public boolean isSetIoException() {
+      return this.ioException != null;
+    }
+
+    public KeyValueStoreException getKeyValueStoreException() {
+      return this.keyValueStoreException;
+    }
+
+    public void setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
+      this.keyValueStoreException = keyValueStoreException;
+    }
+
+    public void unsetKeyValueStoreException() {
+      this.keyValueStoreException = null;
+    }
+
+    // Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise
+    public boolean isSetKeyValueStoreException() {
+      return this.keyValueStoreException != null;
+    }
+
+    public void setFieldValue(int fieldID, Object value) {
+      switch (fieldID) {
+      case SUCCESS:
+        if (value == null) {
+          unsetSuccess();
+        } else {
+          setSuccess((List<GetResult>)value);
+        }
+        break;
+
+      case IOEXCEPTION:
+        if (value == null) {
+          unsetIoException();
+        } else {
+          setIoException((KeyValueStoreIOException)value);
+        }
+        break;
+
+      case KEYVALUESTOREEXCEPTION:
+        if (value == null) {
+          unsetKeyValueStoreException();
+        } else {
+          setKeyValueStoreException((KeyValueStoreException)value);
+        }
+        break;
+
+      default:
+        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
+      }
+    }
+
+    public Object getFieldValue(int fieldID) {
+      switch (fieldID) {
+      case SUCCESS:
+        return getSuccess();
+
+      case IOEXCEPTION:
+        return getIoException();
+
+      case KEYVALUESTOREEXCEPTION:
+        return getKeyValueStoreException();
+
+      default:
+        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
+      }
+    }
+
+    // Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise
+    public boolean isSet(int fieldID) {
+      switch (fieldID) {
+      case SUCCESS:
+        return isSetSuccess();
+      case IOEXCEPTION:
+        return isSetIoException();
+      case KEYVALUESTOREEXCEPTION:
+        return isSetKeyValueStoreException();
+      default:
+        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
+      }
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof getBulk_result)
+        return this.equals((getBulk_result)that);
+      return false;
+    }
+
+    public boolean equals(getBulk_result that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_success = true && this.isSetSuccess();
+      boolean that_present_success = true && that.isSetSuccess();
+      if (this_present_success || that_present_success) {
+        if (!(this_present_success && that_present_success))
+          return false;
+        if (!this.success.equals(that.success))
+          return false;
+      }
+
+      boolean this_present_ioException = true && this.isSetIoException();
+      boolean that_present_ioException = true && that.isSetIoException();
+      if (this_present_ioException || that_present_ioException) {
+        if (!(this_present_ioException && that_present_ioException))
+          return false;
+        if (!this.ioException.equals(that.ioException))
+          return false;
+      }
+
+      boolean this_present_keyValueStoreException = true && this.isSetKeyValueStoreException();
+      boolean that_present_keyValueStoreException = true && that.isSetKeyValueStoreException();
+      if (this_present_keyValueStoreException || that_present_keyValueStoreException) {
+        if (!(this_present_keyValueStoreException && that_present_keyValueStoreException))
+          return false;
+        if (!this.keyValueStoreException.equals(that.keyValueStoreException))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    public void read(TProtocol iprot) throws TException {
+      TField field;
+      iprot.readStructBegin();
+      while (true)
+      {
+        field = iprot.readFieldBegin();
+        if (field.type == TType.STOP) { 
+          break;
+        }
+        switch (field.id)
+        {
+          case SUCCESS:
+            if (field.type == TType.LIST) {
+              {
+                TList _list4 = iprot.readListBegin();
+                this.success = new ArrayList<GetResult>(_list4.size);
+                for (int _i5 = 0; _i5 < _list4.size; ++_i5)
+                {
+                  GetResult _elem6;
+                  _elem6 = new GetResult();
+                  _elem6.read(iprot);
+                  this.success.add(_elem6);
+                }
+                iprot.readListEnd();
+              }
+            } else { 
+              TProtocolUtil.skip(iprot, field.type);
+            }
+            break;
+          case IOEXCEPTION:
+            if (field.type == TType.STRUCT) {
+              this.ioException = new KeyValueStoreIOException();
+              this.ioException.read(iprot);
+            } else { 
+              TProtocolUtil.skip(iprot, field.type);
+            }
+            break;
+          case KEYVALUESTOREEXCEPTION:
+            if (field.type == TType.STRUCT) {
+              this.keyValueStoreException = new KeyValueStoreException();
+              this.keyValueStoreException.read(iprot);
+            } else { 
+              TProtocolUtil.skip(iprot, field.type);
+            }
+            break;
+          default:
+            TProtocolUtil.skip(iprot, field.type);
+            break;
+        }
+        iprot.readFieldEnd();
+      }
+      iprot.readStructEnd();
+
+      validate();
+    }
+
+    public void write(TProtocol oprot) throws TException {
+      oprot.writeStructBegin(STRUCT_DESC);
+
+      if (this.isSetSuccess()) {
+        oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
+        {
+          oprot.writeListBegin(new TList(TType.STRUCT, this.success.size()));
+          for (GetResult _iter7 : this.success)          {
+            _iter7.write(oprot);
+          }
+          oprot.writeListEnd();
+        }
+        oprot.writeFieldEnd();
+      } else if (this.isSetIoException()) {
+        oprot.writeFieldBegin(IO_EXCEPTION_FIELD_DESC);
+        this.ioException.write(oprot);
+        oprot.writeFieldEnd();
+      } else if (this.isSetKeyValueStoreException()) {
+        oprot.writeFieldBegin(KEY_VALUE_STORE_EXCEPTION_FIELD_DESC);
+        this.keyValueStoreException.write(oprot);
+        oprot.writeFieldEnd();
+      }
+      oprot.writeFieldStop();
+      oprot.writeStructEnd();
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("getBulk_result(");
       boolean first = true;
 
       sb.append("success:");

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -163,6 +164,46 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 			obj = master.get(key, transcoder);
 		}
 		return obj;
+	}
+
+	@Override
+	public Map<String, Object> getBulk(String... keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = null;
+		try {
+			results = getReadReplica().getBulk(keys);
+		} catch (Exception e) {
+			results = master.getBulk(keys);
+		}
+		return results;
+	}
+
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = null;
+		try {
+			results = getReadReplica().getBulk(keys);
+		} catch (Exception e) {
+			results = master.getBulk(keys);
+		}
+		return results;
+	}
+
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys,
+			Transcoder transcoder) throws KeyValueStoreException, IOException,
+			ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = null;
+		try {
+			results = getReadReplica().getBulk(keys, transcoder);
+		} catch (Exception e) {
+			results = master.getBulk(keys, transcoder);
+		}
+		return results;
 	}
 
 	@Override

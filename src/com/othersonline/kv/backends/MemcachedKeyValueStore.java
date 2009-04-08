@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -140,6 +141,53 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 				Object obj = transcoder.decode(bytes);
 				return obj;
 			}
+		} finally {
+			releaseMemcachedClient(mcc);
+		}
+	}
+
+	@Override
+	public Map<String, Object> getBulk(String... keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		assertReadable();
+		MemcachedClientIF mcc = getMemcachedClient();
+		try {
+			Map<String, Object> results = mcc.getBulk(keys);
+			return results;
+		} finally {
+			releaseMemcachedClient(mcc);
+		}
+	}
+
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		assertReadable();
+		MemcachedClientIF mcc = getMemcachedClient();
+		try {
+			Map<String, Object> results = mcc.getBulk(keys);
+			return results;
+		} finally {
+			releaseMemcachedClient(mcc);
+		}
+	}
+
+	@Override
+	public Map<String, Object> getBulk(final List<String> keys,
+			Transcoder transcoder) throws KeyValueStoreException, IOException,
+			ClassNotFoundException {
+		assertReadable();
+		MemcachedClientIF mcc = getMemcachedClient();
+		try {
+			Map<String, Object> results = mcc.getBulk(keys);
+			Map<String, Object> retval = new HashMap<String, Object>(results
+					.size());
+			for (Map.Entry<String, Object> entry : results.entrySet()) {
+				byte[] bytes = (byte[]) entry.getValue();
+				Object obj = transcoder.decode(bytes);
+				retval.put(entry.getKey(), obj);
+			}
+			return results;
 		} finally {
 			releaseMemcachedClient(mcc);
 		}

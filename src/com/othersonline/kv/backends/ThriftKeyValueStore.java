@@ -2,6 +2,10 @@ package com.othersonline.kv.backends;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -173,6 +177,59 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 		} finally {
 			closeTConnection(tconn);
 		}
+	}
+
+	@Override
+	public Map<String, Object> getBulk(String... keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		List<String> coll = Arrays.asList(keys);
+		return getBulk(coll);
+	}
+
+	@Override
+	public Map<String, Object> getBulk(List<String> keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		log.trace("get()");
+		assertReadable();
+		TConnection tconn = null;
+		try {
+			tconn = getTConnection();
+			List<GetResult> results = tconn.kv.getBulk(keys);
+			Map<String, Object> retval = new HashMap<String, Object>(results
+					.size());
+			for (GetResult result : results) {
+				if (result.isExists()) {
+					byte[] data = result.getData();
+					Object obj = defaultTranscoder.decode(data);
+					retval.put(result.getKey(), obj);
+				}
+			}
+			return retval;
+		} catch (TTransportException e) {
+			log.error("TTransportException inside get()", e);
+			throw new IOException(e);
+		} catch (KeyValueStoreIOException e) {
+			log.error("KeyValueStoreIOException inside get()", e);
+			throw new IOException(e);
+		} catch (com.othersonline.kv.gen.KeyValueStoreException e) {
+			log.error("KeyValueStoreException inside get()", e);
+			throw new KeyValueStoreException(e);
+		} catch (TException e) {
+			log.error("TException inside get()", e);
+			throw new IOException(e);
+		} catch (Exception e) {
+			log.error("Exception inside get()", e);
+			throw new IOException(e);
+		} finally {
+			closeTConnection(tconn);
+		}
+	}
+
+	@Override
+	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public void set(String key, Serializable value)
