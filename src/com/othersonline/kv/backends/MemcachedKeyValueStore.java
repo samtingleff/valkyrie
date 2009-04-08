@@ -148,23 +148,33 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	@Override
 	public void set(String key, Serializable value)
 			throws KeyValueStoreException, IOException {
-		assertWriteable();
-		MemcachedClientIF mcc = getMemcachedClient();
-		try {
-			mcc.set(key, 0, value);
-		} finally {
-			releaseMemcachedClient(mcc);
-		}
+		set(key, value, 0);
 	}
 
 	@Override
 	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
+		set(key, value, transcoder, 0);
+	}
+
+	public void set(String key, Serializable value, int exp)
+			throws KeyValueStoreException, IOException {
+		assertWriteable();
+		MemcachedClientIF mcc = getMemcachedClient();
+		try {
+			mcc.set(key, exp, value);
+		} finally {
+			releaseMemcachedClient(mcc);
+		}
+	}
+
+	public void set(String key, Serializable value, Transcoder transcoder,
+			int exp) throws KeyValueStoreException, IOException {
 		assertWriteable();
 		MemcachedClientIF mcc = getMemcachedClient();
 		try {
 			byte[] bytes = transcoder.encode(value);
-			mcc.set(key, 0, bytes, spyByteTranscoder);
+			mcc.set(key, exp, bytes, spyByteTranscoder);
 		} finally {
 			releaseMemcachedClient(mcc);
 		}
