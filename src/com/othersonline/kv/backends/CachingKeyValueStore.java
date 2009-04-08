@@ -20,6 +20,10 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 
 	protected KeyValueStore cache;
 
+	protected boolean cacheOnMiss = true;
+
+	protected boolean cacheOnSet = true;
+
 	public CachingKeyValueStore() {
 	}
 
@@ -34,6 +38,14 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 
 	public void setCache(KeyValueStore cache) {
 		this.cache = cache;
+	}
+
+	public void setCacheOnMiss(boolean cacheOnMiss) {
+		this.cacheOnMiss = cacheOnMiss;
+	}
+
+	public void setCacheOnSet(boolean cacheOnSet) {
+		this.cacheOnSet = cacheOnSet;
 	}
 
 	@Override
@@ -71,8 +83,16 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		} catch (Exception e) {
 			log.warn("Unable to call get() on cache", e);
 		}
-		if (obj == null)
+		if (obj == null) {
 			obj = master.get(key);
+			if ((obj != null) && (cacheOnMiss)) {
+				try {
+					cache.set(key, (Serializable) obj);
+				} catch (Exception e) {
+					log.warn("Unable to call set() on cache", e);
+				}
+			}
+		}
 		return obj;
 	}
 
@@ -86,19 +106,30 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		} catch (Exception e) {
 			log.warn("Unable to call get() on cache", e);
 		}
-		if (obj == null)
+		if (obj == null) {
 			obj = master.get(key, transcoder);
+			if ((obj != null) && (cacheOnMiss)) {
+				try {
+					cache.set(key, (Serializable) obj, transcoder);
+				} catch (Exception e) {
+					log.warn("Unable to call set() on cache", e);
+				}
+			}
+		}
 		return obj;
 	}
 
 	@Override
-	public void set(String key, Serializable value) throws KeyValueStoreException,
-			IOException {
+	public void set(String key, Serializable value)
+			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		try {
-			cache.set(key, value);
+			if (cacheOnSet) {
+				cache.set(key, value);
+			} else
+				cache.delete(key);
 		} catch (Exception e) {
-			log.warn("Unable to call set() on cache", e);
+			log.warn("Unable to call set() or delete() on cache", e);
 		}
 		master.set(key, value);
 	}
@@ -108,9 +139,12 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		try {
-			cache.set(key, value, transcoder);
+			if (cacheOnSet)
+				cache.set(key, value, transcoder);
+			else
+				cache.delete(key);
 		} catch (Exception e) {
-			log.warn("Unable to call set() on cache", e);
+			log.warn("Unable to call set() or delete() on cache", e);
 		}
 		master.set(key, value, transcoder);
 	}
