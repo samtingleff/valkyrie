@@ -1,5 +1,6 @@
 package com.othersonline.kv.test;
 
+import java.io.File;
 import java.io.Serializable;
 
 import javax.management.MBeanInfo;
@@ -14,6 +15,7 @@ import com.othersonline.kv.KeyValueStoreUnavailable;
 import com.othersonline.kv.ManagedKeyValueStore;
 import com.othersonline.kv.ThreadPoolAsyncFlushQueue;
 import com.othersonline.kv.backends.AsyncFlushCachingKeyValueStore;
+import com.othersonline.kv.backends.BDBJEKeyValueStore;
 import com.othersonline.kv.backends.CachingKeyValueStore;
 import com.othersonline.kv.backends.FileSystemKeyValueStore;
 import com.othersonline.kv.backends.HashtableKeyValueStore;
@@ -107,6 +109,14 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 	public void testWebDavBackend() throws Exception {
 		WebDAVKeyValueStore store = new WebDAVKeyValueStore();
 		store.setBaseUrl("http://localhost/dav/testing/");
+		doTestBackend(store);
+	}
+
+	public void testBDBJEBAckend() throws Exception {
+		File tempFile = File.createTempFile("test-bdb-dir", ".tmp");
+		tempFile.delete();
+		tempFile.mkdir();
+		BDBJEKeyValueStore store = new BDBJEKeyValueStore(tempFile);
 		doTestBackend(store);
 	}
 
@@ -209,10 +219,12 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 		store.delete(key);
 		assertNull(store.get(key));
+		assertFalse(store.exists(key));
 
 		SampleV v = new SampleV(10, "hello world", 12);
 		store.set(key, v);
 		Thread.sleep(100l);
+		assertTrue(store.exists(key));
 		SampleV v2 = (SampleV) store.get(key);
 		assertNotNull(v2);
 		assertEquals(v2.someRequiredInt, v.someRequiredInt);
