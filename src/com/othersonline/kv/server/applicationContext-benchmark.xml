@@ -29,6 +29,15 @@
     </bean>
 
     <bean
+            id="bdbje"
+            class="com.othersonline.kv.backends.BDBJEKeyValueStore"
+            lazy-init="true"
+            init-method="start">
+        <property name="directory" value="${bdbje.directory}"/>
+        <property name="cacheSize" value="${bdbje.cacheSize}"/>
+    </bean>
+
+    <bean
             id="memcached"
             class="com.othersonline.kv.backends.MemcachedKeyValueStore"
             lazy-init="true"
