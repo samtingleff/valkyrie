@@ -3,13 +3,15 @@ package com.othersonline.kv.backends;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
-import com.othersonline.kv.transcoder.ByteArrayTranscoder;
 import com.othersonline.kv.transcoder.SerializableTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 import com.sleepycat.bind.EntryBinding;
@@ -162,6 +164,46 @@ public class BDBJEKeyValueStore extends BaseManagedKeyValueStore {
 			} else {
 				return null;
 			}
+		} catch (DatabaseException e) {
+			rollback(tx);
+			log.error("DatabaseException inside exists()", e);
+			throw new KeyValueStoreException(e);
+		}
+	}
+
+	public Map<String, Object> getBulk(final Collection<String> keys)
+			throws KeyValueStoreException, IOException, ClassNotFoundException {
+		return getBulk(keys, defaultTranscoder);
+	}
+
+	public Map<String, Object> getBulk(final Collection<String> keys,
+			Transcoder transcoder) throws KeyValueStoreException, IOException,
+			ClassNotFoundException {
+		assertReadable();
+		Map<String, Object> results = new HashMap<String, Object>();
+		Transaction tx = null;
+		try {
+			tx = env.beginTransaction(null, null);
+
+			for (String key : keys) {
+				DatabaseEntry keyEntry = getDatabaseKeyEntry(key);
+				DatabaseEntry dataEntry = new DatabaseEntry();
+				OperationStatus result = db.get(tx, keyEntry, dataEntry,
+						LockMode.READ_COMMITTED);
+				byte[] data = null;
+				if (result.equals(OperationStatus.NOTFOUND))
+					data = null;
+				else if (result.equals(OperationStatus.KEYEMPTY))
+					data = null;
+				else if (result.equals(OperationStatus.SUCCESS))
+					data = (byte[]) dataBinding.entryToObject(dataEntry);
+				if (data != null) {
+					Object obj = transcoder.decode(data);
+					results.put(key, obj);
+				}
+			}
+			tx.commit();
+			return results;
 		} catch (DatabaseException e) {
 			rollback(tx);
 			log.error("DatabaseException inside exists()", e);
