@@ -70,6 +70,9 @@ public class BDBJEKeyValueStore extends BaseManagedKeyValueStore {
 
 	public void start() throws IOException {
 		try {
+			if (!dir.exists()) {
+				dir.mkdirs();
+			}
 			envConfig = new EnvironmentConfig();
 			envConfig.setAllowCreate(true);
 			envConfig.setCacheSize(cacheSize);
