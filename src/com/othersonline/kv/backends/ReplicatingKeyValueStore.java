@@ -130,7 +130,13 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 	public boolean exists(String key) throws KeyValueStoreException,
 			IOException {
 		assertReadable();
-		return getReadReplica().exists(key);
+		boolean exists = false;
+		try {
+			exists = getReadReplica().exists(key);
+		} catch (Exception e) {
+			exists = master.exists(key);
+		}
+		return exists;
 	}
 
 	@Override
