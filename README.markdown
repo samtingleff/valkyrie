@@ -183,7 +183,7 @@ Using a [totally unscientific benchmark](http://github.com/samtingleff/oo-kv-sto
   </tr>
   <tr>
    <td>MemcacheDB</td>
-   <td>9,226</td>
+   <td>9,226ms</td>
    <td>325</td>
   </tr>
   <tr>
