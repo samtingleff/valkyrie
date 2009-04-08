@@ -25,7 +25,7 @@ public class KeyValueService {
 
     public GetResult getValue(String key) throws KeyValueStoreIOException, KeyValueStoreException, TException;
 
-    public List<GetResult> getBulk(List<String> keys) throws KeyValueStoreIOException, KeyValueStoreException, TException;
+    public Map<String,GetResult> getBulk(List<String> keys) throws KeyValueStoreIOException, KeyValueStoreException, TException;
 
     public void setValue(String key, byte[] data) throws KeyValueStoreIOException, KeyValueStoreException, TException;
 
@@ -138,7 +138,7 @@ public class KeyValueService {
       throw new TApplicationException(TApplicationException.MISSING_RESULT, "getValue failed: unknown result");
     }
 
-    public List<GetResult> getBulk(List<String> keys) throws KeyValueStoreIOException, KeyValueStoreException, TException
+    public Map<String,GetResult> getBulk(List<String> keys) throws KeyValueStoreIOException, KeyValueStoreException, TException
     {
       send_getBulk(keys);
       return recv_getBulk();
@@ -154,7 +154,7 @@ public class KeyValueService {
       oprot_.getTransport().flush();
     }
 
-    public List<GetResult> recv_getBulk() throws KeyValueStoreIOException, KeyValueStoreException, TException
+    public Map<String,GetResult> recv_getBulk() throws KeyValueStoreIOException, KeyValueStoreException, TException
     {
       TMessage msg = iprot_.readMessageBegin();
       if (msg.type == TMessageType.EXCEPTION) {
@@ -1667,11 +1667,11 @@ public class KeyValueService {
 
   public static class getBulk_result implements TBase, java.io.Serializable, Cloneable   {
     private static final TStruct STRUCT_DESC = new TStruct("getBulk_result");
-    private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.LIST, (short)0);
+    private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.MAP, (short)0);
     private static final TField IO_EXCEPTION_FIELD_DESC = new TField("ioException", TType.STRUCT, (short)1);
     private static final TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new TField("keyValueStoreException", TType.STRUCT, (short)2);
 
-    private List<GetResult> success;
+    private Map<String,GetResult> success;
     public static final int SUCCESS = 0;
     private KeyValueStoreIOException ioException;
     public static final int IOEXCEPTION = 1;
@@ -1684,7 +1684,8 @@ public class KeyValueService {
 
     public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
       put(SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT, 
-          new ListMetaData(TType.LIST, 
+          new MapMetaData(TType.MAP, 
+              new FieldValueMetaData(TType.STRING), 
               new StructMetaData(TType.STRUCT, GetResult.class))));
       put(IOEXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRUCT)));
@@ -1700,7 +1701,7 @@ public class KeyValueService {
     }
 
     public getBulk_result(
-      List<GetResult> success,
+      Map<String,GetResult> success,
       KeyValueStoreIOException ioException,
       KeyValueStoreException keyValueStoreException)
     {
@@ -1715,9 +1716,17 @@ public class KeyValueService {
      */
     public getBulk_result(getBulk_result other) {
       if (other.isSetSuccess()) {
-        List<GetResult> __this__success = new ArrayList<GetResult>();
-        for (GetResult other_element : other.success) {
-          __this__success.add(new GetResult(other_element));
+        Map<String,GetResult> __this__success = new HashMap<String,GetResult>();
+        for (Map.Entry<String, GetResult> other_element : other.success.entrySet()) {
+
+          String other_element_key = other_element.getKey();
+          GetResult other_element_value = other_element.getValue();
+
+          String __this__success_copy_key = other_element_key;
+
+          GetResult __this__success_copy_value = new GetResult(other_element_value);
+
+          __this__success.put(__this__success_copy_key, __this__success_copy_value);
         }
         this.success = __this__success;
       }
@@ -1738,22 +1747,18 @@ public class KeyValueService {
       return (this.success == null) ? 0 : this.success.size();
     }
 
-    public java.util.Iterator<GetResult> getSuccessIterator() {
-      return (this.success == null) ? null : this.success.iterator();
-    }
-
-    public void addToSuccess(GetResult elem) {
+    public void putToSuccess(String key, GetResult val) {
       if (this.success == null) {
-        this.success = new ArrayList<GetResult>();
+        this.success = new HashMap<String,GetResult>();
       }
-      this.success.add(elem);
+      this.success.put(key, val);
     }
 
-    public List<GetResult> getSuccess() {
+    public Map<String,GetResult> getSuccess() {
       return this.success;
     }
 
-    public void setSuccess(List<GetResult> success) {
+    public void setSuccess(Map<String,GetResult> success) {
       this.success = success;
     }
 
@@ -1806,7 +1811,7 @@ public class KeyValueService {
         if (value == null) {
           unsetSuccess();
         } else {
-          setSuccess((List<GetResult>)value);
+          setSuccess((Map<String,GetResult>)value);
         }
         break;
 
@@ -1921,18 +1926,20 @@ public class KeyValueService {
         switch (field.id)
         {
           case SUCCESS:
-            if (field.type == TType.LIST) {
+            if (field.type == TType.MAP) {
               {
-                TList _list4 = iprot.readListBegin();
-                this.success = new ArrayList<GetResult>(_list4.size);
-                for (int _i5 = 0; _i5 < _list4.size; ++_i5)
+                TMap _map4 = iprot.readMapBegin();
+                this.success = new HashMap<String,GetResult>(2*_map4.size);
+                for (int _i5 = 0; _i5 < _map4.size; ++_i5)
                 {
-                  GetResult _elem6;
-                  _elem6 = new GetResult();
-                  _elem6.read(iprot);
-                  this.success.add(_elem6);
+                  String _key6;
+                  GetResult _val7;
+                  _key6 = iprot.readString();
+                  _val7 = new GetResult();
+                  _val7.read(iprot);
+                  this.success.put(_key6, _val7);
                 }
-                iprot.readListEnd();
+                iprot.readMapEnd();
               }
             } else { 
               TProtocolUtil.skip(iprot, field.type);
@@ -1971,11 +1978,12 @@ public class KeyValueService {
       if (this.isSetSuccess()) {
         oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
         {
-          oprot.writeListBegin(new TList(TType.STRUCT, this.success.size()));
-          for (GetResult _iter7 : this.success)          {
-            _iter7.write(oprot);
+          oprot.writeMapBegin(new TMap(TType.STRING, TType.STRUCT, this.success.size()));
+          for (Map.Entry<String, GetResult> _iter8 : this.success.entrySet())          {
+            oprot.writeString(_iter8.getKey());
+            _iter8.getValue().write(oprot);
           }
-          oprot.writeListEnd();
+          oprot.writeMapEnd();
         }
         oprot.writeFieldEnd();
       } else if (this.isSetIoException()) {

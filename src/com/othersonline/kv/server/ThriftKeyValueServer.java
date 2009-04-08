@@ -1,8 +1,7 @@
 package com.othersonline.kv.server;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -142,11 +141,11 @@ public class ThriftKeyValueServer {
 				Object obj = backend.get(key, transcoder);
 				GetResult result = null;
 				if (obj == null)
-					result = new GetResult(false, key, new byte[] {});
+					result = new GetResult(false, new byte[] {});
 				else {
 					byte[] bytes = (byte[]) obj;
 					byteCount = bytes.length;
-					result = new GetResult(true, key, bytes);
+					result = new GetResult(true, bytes);
 				}
 				success = true;
 				return result;
@@ -168,7 +167,7 @@ public class ThriftKeyValueServer {
 			}
 		}
 
-		public List<GetResult> getBulk(List<String> keys)
+		public Map<String, GetResult> getBulk(List<String> keys)
 				throws KeyValueStoreIOException, KeyValueStoreException,
 				TException {
 			log.trace("getValue()");
@@ -178,13 +177,12 @@ public class ThriftKeyValueServer {
 			try {
 				Map<String, Object> backendResult = backend.getBulk(keys,
 						transcoder);
-				List<GetResult> results = new ArrayList<GetResult>(
+				Map<String, GetResult> results = new HashMap<String, GetResult>(
 						backendResult.size());
 				for (Map.Entry<String, Object> entry : backendResult.entrySet()) {
-
-					GetResult result = new GetResult(true, entry.getKey(),
-							(byte[]) entry.getValue());
-					results.add(result);
+					GetResult result = new GetResult(true, (byte[]) entry
+							.getValue());
+					results.put(entry.getKey(), result);
 				}
 				success = true;
 				return results;

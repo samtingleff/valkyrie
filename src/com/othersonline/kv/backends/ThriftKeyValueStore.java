@@ -189,47 +189,45 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 	@Override
 	public Map<String, Object> getBulk(List<String> keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
-		log.trace("get()");
-		assertReadable();
-		TConnection tconn = null;
-		try {
-			tconn = getTConnection();
-			List<GetResult> results = tconn.kv.getBulk(keys);
-			Map<String, Object> retval = new HashMap<String, Object>(results
-					.size());
-			for (GetResult result : results) {
-				if (result.isExists()) {
-					byte[] data = result.getData();
-					Object obj = defaultTranscoder.decode(data);
-					retval.put(result.getKey(), obj);
-				}
-			}
-			return retval;
-		} catch (TTransportException e) {
-			log.error("TTransportException inside get()", e);
-			throw new IOException(e);
-		} catch (KeyValueStoreIOException e) {
-			log.error("KeyValueStoreIOException inside get()", e);
-			throw new IOException(e);
-		} catch (com.othersonline.kv.gen.KeyValueStoreException e) {
-			log.error("KeyValueStoreException inside get()", e);
-			throw new KeyValueStoreException(e);
-		} catch (TException e) {
-			log.error("TException inside get()", e);
-			throw new IOException(e);
-		} catch (Exception e) {
-			log.error("Exception inside get()", e);
-			throw new IOException(e);
-		} finally {
-			closeTConnection(tconn);
-		}
+		log.trace("getBulk()");
+		return getBulk(keys, defaultTranscoder);
 	}
 
 	@Override
 	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
-		return null;
+		log.trace("getBulk()");
+		assertReadable();
+		TConnection tconn = null;
+		try {
+			tconn = getTConnection();
+			Map<String, GetResult> results = tconn.kv.getBulk(keys);
+			Map<String, Object> retval = new HashMap<String, Object>(results
+					.size());
+			for (Map.Entry<String, GetResult> entry : results.entrySet()) {
+				byte[] data = entry.getValue().getData();
+				Object obj = transcoder.decode(data);
+				retval.put(entry.getKey(), obj);
+			}
+			return retval;
+		} catch (TTransportException e) {
+			log.error("TTransportException inside getBulk()", e);
+			throw new IOException(e);
+		} catch (KeyValueStoreIOException e) {
+			log.error("KeyValueStoreIOException inside getBulk()", e);
+			throw new IOException(e);
+		} catch (com.othersonline.kv.gen.KeyValueStoreException e) {
+			log.error("KeyValueStoreException inside getBulk()", e);
+			throw new KeyValueStoreException(e);
+		} catch (TException e) {
+			log.error("TException inside getBulk()", e);
+			throw new IOException(e);
+		} catch (Exception e) {
+			log.error("Exception inside getBulk()", e);
+			throw new IOException(e);
+		} finally {
+			closeTConnection(tconn);
+		}
 	}
 
 	public void set(String key, Serializable value)
