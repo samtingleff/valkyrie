@@ -2,8 +2,7 @@
 
 ## Introduction ##
 
-oo-kv-storage is a project to provide a consistent API and value-add for a variety of
-key-value storage backends.
+oo-kv-storage is a project to provide a consistent API and value-add for a variety of key-value storage backends.
 
 It is meant to be easy to use and easily embedded into a Spring or other IoC containers.
 
@@ -12,6 +11,7 @@ Currently supported backends include:
 - java.util.Hashtable (probably useful just as an example)
 - [OsCache](http://www.opensymphony.com/oscache/ "OsCache")
 - [memcached](http://www.danga.com/memcached/ "memcached") (and cousins [MemcacheQ](http://memcachedb.org/memcacheq/ "MemcacheQ") and [MemcacheDB](http://memcachedb.org/ "MemcacheDB"))
+- [BDB JE](http://www.oracle.com/database/berkeley-db/je/ "BDB Java Edition")
 - [Tokyo Tyrant](http://tokyocabinet.sourceforge.net/tyrantdoc/ "Tokyo Tyrant")
 - a simple file-system backed store
 - WebDAV (tested against Apache mod_dav, nginx and lighttpd)
@@ -168,43 +168,53 @@ Using a [totally unscientific benchmark](http://github.com/samtingleff/oo-kv-sto
  <tbody>
   <tr>
    <td>Hashtable</td>
-   <td>262ms</td>
-   <td>11,441</td>
+   <td>147ms</td>
+   <td>20,408</td>
   </tr>
   <tr>
    <td>OsCache</td>
-   <td>734ms</td>
-   <td>4,084</td>
+   <td>167ms</td>
+   <td>17,964</td>
   </tr>
   <tr>
    <td>File system</td>
-   <td>14208ms</td>
-   <td>211</td>
-  </tr>
-  <tr>
-   <td>Thrift + FS</td>
-   <td>31300ms</td>
-   <td>96</td>
-  </tr>
-  <tr>
-   <td>Memcached</td>
-   <td>88962ms</td>
-   <td>33</td>
+   <td>965ms</td>
+   <td>3,109</td>
   </tr>
   <tr>
    <td>MemcacheDB</td>
-   <td>92542ms</td>
-   <td>32</td>
+   <td>9,226</td>
+   <td>325</td>
   </tr>
   <tr>
-   <td>WebDAV (Apache 2.2)</td>
-   <td>101344ms</td>
-   <td>29</td>
+   <td>Memcached</td>
+   <td>10,287ms</td>
+   <td>292</td>
   </tr>
   <tr>
    <td>Tokyo Tyrant</td>
-   <td>102844ms</td>
-   <td>29</td>
+   <td>11,150ms</td>
+   <td>269</td>
+  </tr>
+  <tr>
+   <td>WebDAV (Apache 2.2)</td>
+   <td>11,342ms</td>
+   <td>265</td>
+  </tr>
+  <tr>
+   <td>Thrift + FS</td>
+   <td>12387ms</td>
+   <td>242</td>
+  </tr>
+  <tr>
+   <td>BDB JE</td>
+   <td>13,983ms</td>
+   <td>215</td>
+  </tr>
+  <tr>
+   <td>Thrift + BDB JE</td>
+   <td>17,127ms</td>
+   <td>175</td>
   </tr>
  </tbody>
 </table>
