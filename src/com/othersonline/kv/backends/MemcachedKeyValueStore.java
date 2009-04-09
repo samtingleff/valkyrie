@@ -9,6 +9,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import net.spy.memcached.AddrUtil;
 import net.spy.memcached.BinaryConnectionFactory;
@@ -51,6 +55,10 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 
 	private boolean useKetama = true;
 
+	private long getOperationTimeout = 1000l;
+
+	private long setOperationTimeout = 1000l;
+
 	private List<InetSocketAddress> hosts;
 
 	public MemcachedKeyValueStore() {
@@ -74,6 +82,14 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 
 	public void setUseKetama(boolean useKetama) {
 		this.useKetama = useKetama;
+	}
+
+	public void setGetOperationTimeout(long millis) {
+		this.getOperationTimeout = millis;
+	}
+
+	public void setSetOperationTimeout(long millis) {
+		this.setOperationTimeout = millis;
 	}
 
 	public void start() throws IOException {
@@ -116,8 +132,16 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		assertReadable();
 		MemcachedClientIF mcc = getMemcachedClient();
 		try {
-			Object value = mcc.get(key);
+			Future<Object> future = mcc.asyncGet(key);
+			Object value = future.get(getOperationTimeout,
+					TimeUnit.MILLISECONDS);
 			return value;
+		} catch (InterruptedException e) {
+			throw new KeyValueStoreException(e);
+		} catch (ExecutionException e) {
+			throw new KeyValueStoreException(e);
+		} catch (TimeoutException e) {
+			throw new KeyValueStoreException(e);
 		} finally {
 			releaseMemcachedClient(mcc);
 		}
@@ -128,13 +152,21 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		assertReadable();
 		MemcachedClientIF mcc = getMemcachedClient();
 		try {
-			byte[] bytes = mcc.get(key, spyByteTranscoder);
+			Future<byte[]> future = mcc.asyncGet(key, spyByteTranscoder);
+			byte[] bytes = future.get(getOperationTimeout,
+					TimeUnit.MILLISECONDS);
 			if (bytes == null)
 				return null;
 			else {
 				Object obj = transcoder.decode(bytes);
 				return obj;
 			}
+		} catch (InterruptedException e) {
+			throw new KeyValueStoreException(e);
+		} catch (ExecutionException e) {
+			throw new KeyValueStoreException(e);
+		} catch (TimeoutException e) {
+			throw new KeyValueStoreException(e);
 		} finally {
 			releaseMemcachedClient(mcc);
 		}
@@ -145,8 +177,16 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		assertReadable();
 		MemcachedClientIF mcc = getMemcachedClient();
 		try {
-			Map<String, Object> results = mcc.getBulk(keys);
+			Future<Map<String, Object>> future = mcc.asyncGetBulk(keys);
+			Map<String, Object> results = future.get(getOperationTimeout,
+					TimeUnit.MILLISECONDS);
 			return results;
+		} catch (InterruptedException e) {
+			throw new KeyValueStoreException(e);
+		} catch (ExecutionException e) {
+			throw new KeyValueStoreException(e);
+		} catch (TimeoutException e) {
+			throw new KeyValueStoreException(e);
 		} finally {
 			releaseMemcachedClient(mcc);
 		}
@@ -157,8 +197,16 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		assertReadable();
 		MemcachedClientIF mcc = getMemcachedClient();
 		try {
-			Map<String, Object> results = mcc.getBulk(keys);
+			Future<Map<String, Object>> future = mcc.asyncGetBulk(keys);
+			Map<String, Object> results = future.get(getOperationTimeout,
+					TimeUnit.MILLISECONDS);
 			return results;
+		} catch (InterruptedException e) {
+			throw new KeyValueStoreException(e);
+		} catch (ExecutionException e) {
+			throw new KeyValueStoreException(e);
+		} catch (TimeoutException e) {
+			throw new KeyValueStoreException(e);
 		} finally {
 			releaseMemcachedClient(mcc);
 		}
@@ -170,7 +218,9 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		assertReadable();
 		MemcachedClientIF mcc = getMemcachedClient();
 		try {
-			Map<String, Object> results = mcc.getBulk(keys);
+			Future<Map<String, Object>> future = mcc.asyncGetBulk(keys);
+			Map<String, Object> results = future.get(getOperationTimeout,
+					TimeUnit.MILLISECONDS);
 			Map<String, Object> retval = new HashMap<String, Object>(results
 					.size());
 			for (Map.Entry<String, Object> entry : results.entrySet()) {
@@ -179,6 +229,12 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 				retval.put(entry.getKey(), obj);
 			}
 			return results;
+		} catch (InterruptedException e) {
+			throw new KeyValueStoreException(e);
+		} catch (ExecutionException e) {
+			throw new KeyValueStoreException(e);
+		} catch (TimeoutException e) {
+			throw new KeyValueStoreException(e);
 		} finally {
 			releaseMemcachedClient(mcc);
 		}
@@ -199,7 +255,14 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		assertWriteable();
 		MemcachedClientIF mcc = getMemcachedClient();
 		try {
-			mcc.set(key, exp, value);
+			Future<Boolean> future = mcc.set(key, exp, value);
+			future.get(setOperationTimeout, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			throw new KeyValueStoreException(e);
+		} catch (ExecutionException e) {
+			throw new KeyValueStoreException(e);
+		} catch (TimeoutException e) {
+			throw new KeyValueStoreException(e);
 		} finally {
 			releaseMemcachedClient(mcc);
 		}
@@ -211,7 +274,15 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		MemcachedClientIF mcc = getMemcachedClient();
 		try {
 			byte[] bytes = transcoder.encode(value);
-			mcc.set(key, exp, bytes, spyByteTranscoder);
+			Future<Boolean> future = mcc
+					.set(key, exp, bytes, spyByteTranscoder);
+			future.get(setOperationTimeout, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			throw new KeyValueStoreException(e);
+		} catch (ExecutionException e) {
+			throw new KeyValueStoreException(e);
+		} catch (TimeoutException e) {
+			throw new KeyValueStoreException(e);
 		} finally {
 			releaseMemcachedClient(mcc);
 		}
@@ -221,7 +292,14 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		assertWriteable();
 		MemcachedClientIF mcc = getMemcachedClient();
 		try {
-			mcc.delete(key);
+			Future<Boolean> future = mcc.delete(key);
+			future.get(setOperationTimeout, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			throw new KeyValueStoreException(e);
+		} catch (ExecutionException e) {
+			throw new KeyValueStoreException(e);
+		} catch (TimeoutException e) {
+			throw new KeyValueStoreException(e);
 		} finally {
 			releaseMemcachedClient(mcc);
 		}
