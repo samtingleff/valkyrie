@@ -54,19 +54,16 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		this.port = port;
 	}
 
-	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
 	}
 
-	@Override
 	public void start() throws IOException {
 		connectionPool = new StackObjectPool(new RDBConnectionFactory(host,
 				port), 10, 10);
 		super.start();
 	}
 
-	@Override
 	public void stop() {
 		try {
 			connectionPool.close();
@@ -75,7 +72,6 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		super.stop();
 	}
 
-	@Override
 	public boolean exists(String key) throws KeyValueStoreException,
 			IOException {
 		assertReadable();
@@ -91,7 +87,6 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
-	@Override
 	public Object get(String key) throws KeyValueStoreException, IOException {
 		assertReadable();
 		RDB rdb = null;
@@ -107,7 +102,6 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
-	@Override
 	public Object get(String key, Transcoder transcoder)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -127,7 +121,6 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
-	@Override
 	public Map<String, Object> getBulk(String... keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -149,7 +142,6 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -171,7 +163,6 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys,
 			Transcoder transcoder) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
@@ -196,7 +187,6 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
-	@Override
 	public void set(String key, Serializable value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
@@ -212,7 +202,6 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
-	@Override
 	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
@@ -229,7 +218,6 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
-	@Override
 	public void delete(String key) throws KeyValueStoreException, IOException {
 		assertWriteable();
 		RDB rdb = null;
@@ -268,7 +256,6 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			this.port = port;
 		}
 
-		@Override
 		public Object makeObject() throws Exception {
 			RDB rdb = new RDB();
 			rdb.open(new InetSocketAddress(host, port));

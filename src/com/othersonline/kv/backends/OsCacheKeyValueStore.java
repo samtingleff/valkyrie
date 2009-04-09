@@ -71,12 +71,10 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 		this.diskPersistencePath = diskPersistencePath;
 	}
 
-	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
 	}
 
-	@Override
 	public void start() throws IOException {
 		Properties props = new Properties();
 		props.put("cache.memory", Boolean.toString(memoryCache));
@@ -99,7 +97,6 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 		super.stop();
 	}
 
-	@Override
 	public boolean exists(String key) throws KeyValueStoreException,
 			IOException {
 		assertReadable();
@@ -113,7 +110,6 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 		return result;
 	}
 
-	@Override
 	public Object get(String key) throws KeyValueStoreException, IOException {
 		assertReadable();
 		Object o = null;
@@ -125,13 +121,11 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 		return o;
 	}
 
-	@Override
 	public Object get(String key, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		return get(key);
 	}
 
-	@Override
 	public Map<String, Object> getBulk(String... keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		Map<String, Object> results = new HashMap<String, Object>();
@@ -143,7 +137,6 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		Map<String, Object> results = new HashMap<String, Object>();
@@ -155,7 +148,6 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys,
 			Transcoder transcoder) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
@@ -168,7 +160,6 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	@Override
 	public void set(String key, Serializable value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
@@ -182,14 +173,12 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 		}
 	}
 
-	@Override
 	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		set(key, value);
 	}
 
-	@Override
 	public void delete(String key) throws KeyValueStoreException, IOException {
 		assertWriteable();
 		boolean updated = false;

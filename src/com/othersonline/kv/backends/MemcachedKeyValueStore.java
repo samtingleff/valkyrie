@@ -76,7 +76,6 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		this.useKetama = useKetama;
 	}
 
-	@Override
 	public void start() throws IOException {
 		ConnectionFactory cf = null;
 		if (useBinaryProtocol && useKetama)
@@ -91,19 +90,16 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		super.start();
 	}
 
-	@Override
 	public void stop() {
 		mcc.shutdown();
 		mcc = null;
 		super.stop();
 	}
 
-	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
 	}
 
-	@Override
 	public boolean exists(String key) throws KeyValueStoreException,
 			IOException {
 		assertReadable();
@@ -116,7 +112,6 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	@Override
 	public Object get(String key) throws KeyValueStoreException, IOException {
 		assertReadable();
 		MemcachedClientIF mcc = getMemcachedClient();
@@ -128,7 +123,6 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	@Override
 	public Object get(String key, Transcoder transcoder)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -146,7 +140,6 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	@Override
 	public Map<String, Object> getBulk(String... keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -159,7 +152,6 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -172,7 +164,6 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys,
 			Transcoder transcoder) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
@@ -193,13 +184,11 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	@Override
 	public void set(String key, Serializable value)
 			throws KeyValueStoreException, IOException {
 		set(key, value, 0);
 	}
 
-	@Override
 	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		set(key, value, transcoder, 0);
@@ -228,7 +217,6 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	@Override
 	public void delete(String key) throws KeyValueStoreException, IOException {
 		assertWriteable();
 		MemcachedClientIF mcc = getMemcachedClient();
@@ -434,12 +422,10 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 			this(DEFAULT_OP_QUEUE_LEN, DEFAULT_READ_BUFFER_SIZE);
 		}
 
-		@Override
 		public NodeLocator createLocator(List<MemcachedNode> nodes) {
 			return new KetamaNodeLocator(nodes, getHashAlg());
 		}
 
-		@Override
 		public MemcachedNode createMemcachedNode(SocketAddress sa,
 				SocketChannel c, int bufSize) {
 			return new BinaryMemcachedNodeImpl(sa, c, bufSize,
@@ -447,7 +433,6 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 					createOperationQueue());
 		}
 
-		@Override
 		public OperationFactory getOperationFactory() {
 			return new BinaryOperationFactory();
 		}

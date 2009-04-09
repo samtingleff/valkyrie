@@ -87,12 +87,10 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 		replicas.remove(replica);
 	}
 
-	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
 	}
 
-	@Override
 	public void start() throws IOException {
 		if (executor == null) {
 			executor = Executors.newFixedThreadPool(threadPoolSize,
@@ -103,7 +101,6 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 		super.start();
 	}
 
-	@Override
 	public void stop() {
 		if (iOwnThreadPool) {
 			executor.shutdown(); // Disable new tasks from being submitted
@@ -127,7 +124,6 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 		super.stop();
 	}
 
-	@Override
 	public boolean exists(String key) throws KeyValueStoreException,
 			IOException {
 		assertReadable();
@@ -140,7 +136,6 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 		return exists;
 	}
 
-	@Override
 	public Object get(String key) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
 		assertReadable();
@@ -153,7 +148,6 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 		return obj;
 	}
 
-	@Override
 	public Object get(String key, Transcoder transcoder)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -166,7 +160,6 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 		return obj;
 	}
 
-	@Override
 	public Map<String, Object> getBulk(String... keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -179,7 +172,6 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -192,7 +184,6 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys,
 			Transcoder transcoder) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
@@ -206,7 +197,6 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	@Override
 	public void set(String key, Serializable value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
@@ -214,7 +204,6 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 		replicateWrite(key, value, null);
 	}
 
-	@Override
 	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
@@ -222,7 +211,6 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 		replicateWrite(key, value, transcoder);
 	}
 
-	@Override
 	public void delete(String key) throws KeyValueStoreException, IOException {
 		assertWriteable();
 		master.delete(key);
@@ -296,7 +284,6 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 			super(store, key, null, null);
 		}
 
-		@Override
 		public void run() {
 			try {
 				store.delete(key);

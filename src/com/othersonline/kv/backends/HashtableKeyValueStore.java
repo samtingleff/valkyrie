@@ -18,38 +18,32 @@ public class HashtableKeyValueStore extends BaseManagedKeyValueStore implements
 
 	private Map<String, Object> map = new Hashtable<String, Object>();
 
-	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
 	}
 
-	@Override
 	public void stop() {
 		map.clear();
 		super.stop();
 	}
 
-	@Override
 	public boolean exists(String key) throws KeyValueStoreException,
 			IOException {
 		assertReadable();
 		return map.containsKey(key);
 	}
 
-	@Override
 	public Object get(String key) throws KeyValueStoreException, IOException {
 		assertReadable();
 		return map.get(key);
 	}
 
-	@Override
 	public Object get(String key, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertReadable();
 		return map.get(key);
 	}
 
-	@Override
 	public Map<String, Object> getBulk(String... keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -74,7 +68,6 @@ public class HashtableKeyValueStore extends BaseManagedKeyValueStore implements
 		return results;
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys,
 			Transcoder transcoder) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
@@ -88,21 +81,18 @@ public class HashtableKeyValueStore extends BaseManagedKeyValueStore implements
 		return results;
 	}
 
-	@Override
 	public void set(String key, Serializable value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		map.put(key, value);
 	}
 
-	@Override
 	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		map.put(key, value);
 	}
 
-	@Override
 	public void delete(String key) throws KeyValueStoreException, IOException {
 		assertWriteable();
 		map.remove(key);

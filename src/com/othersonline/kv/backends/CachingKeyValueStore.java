@@ -53,17 +53,14 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		this.cacheOnSet = cacheOnSet;
 	}
 
-	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
 	}
 
-	@Override
 	public void start() throws IOException {
 		super.start();
 	}
 
-	@Override
 	public boolean exists(String key) throws KeyValueStoreException,
 			IOException {
 		assertReadable();
@@ -78,7 +75,6 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		return b;
 	}
 
-	@Override
 	public Object get(String key) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
 		assertReadable();
@@ -101,7 +97,6 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		return obj;
 	}
 
-	@Override
 	public Object get(String key, Transcoder transcoder)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -124,14 +119,12 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		return obj;
 	}
 
-	@Override
 	public Map<String, Object> getBulk(String... keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		List<String> coll = Arrays.asList(keys);
 		return getBulk(coll);
 	}
 
-	@Override
 	public Map<String, Object> getBulk(List<String> keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -157,7 +150,6 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	@Override
 	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -183,7 +175,6 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	@Override
 	public void set(String key, Serializable value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
@@ -198,7 +189,6 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		master.set(key, value);
 	}
 
-	@Override
 	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
@@ -213,7 +203,6 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		master.set(key, value, transcoder);
 	}
 
-	@Override
 	public void delete(String key) throws KeyValueStoreException, IOException {
 		assertWriteable();
 		try {

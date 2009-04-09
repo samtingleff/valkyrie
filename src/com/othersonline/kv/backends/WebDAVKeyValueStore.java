@@ -87,12 +87,10 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 		this.responseBufferSize = responseBufferSize;
 	}
 
-	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
 	}
 
-	@Override
 	public void start() throws IOException {
 		MultiThreadedHttpConnectionManager mgr = new MultiThreadedHttpConnectionManager();
 		mgr.getParams().setDefaultMaxConnectionsPerHost(maxConnectionsPerHost);
@@ -103,13 +101,11 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 		super.start();
 	}
 
-	@Override
 	public void stop() {
 		httpClient = null;
 		super.stop();
 	}
 
-	@Override
 	public boolean exists(String key) throws KeyValueStoreException,
 			IOException {
 		assertReadable();
@@ -135,13 +131,11 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	@Override
 	public Object get(String key) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
 		return get(key, defaultTranscoder);
 	}
 
-	@Override
 	public Object get(String key, Transcoder transcoder)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -174,14 +168,12 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	@Override
 	public Map<String, Object> getBulk(String... keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		List<String> coll = Arrays.asList(keys);
 		return getBulk(coll);
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -195,7 +187,6 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 		return results;
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys,
 			Transcoder transcoder) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
@@ -210,13 +201,11 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 		return results;
 	}
 
-	@Override
 	public void set(String key, Serializable value)
 			throws KeyValueStoreException, IOException {
 		set(key, value, defaultTranscoder);
 	}
 
-	@Override
 	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
@@ -268,7 +257,6 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	@Override
 	public void delete(String key) throws KeyValueStoreException, IOException {
 		assertWriteable();
 		DeleteMethod method = new DeleteMethod(getUri(key));
@@ -321,7 +309,6 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 			super(uri);
 		}
 
-		@Override
 		public String getName() {
 			return "MKCOL";
 		}

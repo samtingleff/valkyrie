@@ -57,12 +57,10 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 		this.removeEmptyDirectories = removeEmptyDirectories;
 	}
 
-	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
 	}
 
-	@Override
 	public void start() throws IOException {
 		root = new File(rootDirectory);
 		if (!root.exists()) {
@@ -74,7 +72,6 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 		super.start();
 	}
 
-	@Override
 	public boolean exists(String key) throws KeyValueStoreException,
 			IOException {
 		assertReadable();
@@ -82,14 +79,12 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 		return f.exists();
 	}
 
-	@Override
 	public Object get(String key) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
 		assertReadable();
 		return get(key, defaultTranscoder);
 	}
 
-	@Override
 	public Object get(String key, Transcoder transcoder)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -104,7 +99,6 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 		}
 	}
 
-	@Override
 	public Map<String, Object> getBulk(String... keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -117,7 +111,6 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -130,7 +123,6 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys,
 			Transcoder transcoder) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
@@ -144,14 +136,12 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	@Override
 	public void set(String key, Serializable value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		set(key, value, defaultTranscoder);
 	}
 
-	@Override
 	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
@@ -175,7 +165,6 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 		}
 	}
 
-	@Override
 	public void delete(String key) throws KeyValueStoreException, IOException {
 		assertWriteable();
 		File f = getFile(key);

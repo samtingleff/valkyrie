@@ -66,7 +66,6 @@ public class BDBJEKeyValueStore extends BaseManagedKeyValueStore {
 		this.cacheSize = cacheSize;
 	}
 
-	@Override
 	public String getIdentifier() {
 		return IDENTIFIER;
 	}
@@ -108,7 +107,6 @@ public class BDBJEKeyValueStore extends BaseManagedKeyValueStore {
 		}
 	}
 
-	@Override
 	public boolean exists(String key) throws KeyValueStoreException,
 			IOException {
 		assertReadable();
@@ -131,14 +129,12 @@ public class BDBJEKeyValueStore extends BaseManagedKeyValueStore {
 		}
 	}
 
-	@Override
 	public Object get(String key) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
 		assertReadable();
 		return get(key, defaultTranscoder);
 	}
 
-	@Override
 	public Object get(String key, Transcoder transcoder)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
@@ -172,20 +168,17 @@ public class BDBJEKeyValueStore extends BaseManagedKeyValueStore {
 		}
 	}
 
-	@Override
 	public Map<String, Object> getBulk(String... keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		List<String> coll = Arrays.asList(keys);
 		return getBulk(coll);
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		return getBulk(keys, defaultTranscoder);
 	}
 
-	@Override
 	public Map<String, Object> getBulk(final List<String> keys,
 			Transcoder transcoder) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
@@ -221,14 +214,12 @@ public class BDBJEKeyValueStore extends BaseManagedKeyValueStore {
 		}
 	}
 
-	@Override
 	public void set(String key, Serializable value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		set(key, value, defaultTranscoder);
 	}
 
-	@Override
 	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
@@ -247,7 +238,6 @@ public class BDBJEKeyValueStore extends BaseManagedKeyValueStore {
 		}
 	}
 
-	@Override
 	public void delete(String key) throws KeyValueStoreException, IOException {
 		assertWriteable();
 		Transaction tx = null;

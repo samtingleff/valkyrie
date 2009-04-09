@@ -179,21 +179,18 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	@Override
 	public Map<String, Object> getBulk(String... keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		List<String> coll = Arrays.asList(keys);
 		return getBulk(coll);
 	}
 
-	@Override
 	public Map<String, Object> getBulk(List<String> keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		log.trace("getBulk()");
 		return getBulk(keys, defaultTranscoder);
 	}
 
-	@Override
 	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		log.trace("getBulk()");
