@@ -42,6 +42,12 @@ public class ClientBenchmark extends BaseKVServerMain {
 	@Option(name = "--gzip", usage = "use gzipping transcoder (default is false)")
 	private boolean gzip = false;
 
+	@Option(name = "--skip-get", usage = "do not call get() (default is false)")
+	private boolean skipGet = false;
+
+	@Option(name = "--skip-delete", usage = "do not call delete() (default is false)")
+	private boolean skipDelete = false;
+
 	public static void main(String[] args) throws Exception {
 		ClientBenchmark cb = new ClientBenchmark();
 		int returnValue = cb.execute(args);
@@ -56,7 +62,7 @@ public class ClientBenchmark extends BaseKVServerMain {
 			AbstractApplicationContext ctx = getContext(defaultClientSpringPaths);
 			KeyValueStore store = (KeyValueStore) ctx.getBean(backend);
 			TestResult result = doTestStorageBackend(store, byteCount,
-					concurrency, repetitions);
+					concurrency, repetitions, !skipGet, !skipDelete);
 			System.out.println("Backend\tDuration\tErrors");
 			System.out.println(String.format("%1$s\t%2$d\t%3$d",
 					result.identifier, result.duration, result.errorCount));
@@ -70,7 +76,8 @@ public class ClientBenchmark extends BaseKVServerMain {
 	}
 
 	private TestResult doTestStorageBackend(KeyValueStore store, int byteCount,
-			int concurrency, int repetitions) throws Exception {
+			int concurrency, int repetitions, boolean doGet, boolean doDelete)
+			throws Exception {
 		ExecutorService executor = Executors.newFixedThreadPool(concurrency);
 		List<Future<TestResult>> futures = new ArrayList<Future<TestResult>>(
 				concurrency);
@@ -96,12 +103,19 @@ public class ClientBenchmark extends BaseKVServerMain {
 
 				private boolean gzip = false;
 
+				private boolean doGet;
+
+				private boolean doDelete;
+
 				public Callable init(KeyValueStore store, int repetitions,
-						String content, boolean gzip) {
+						String content, boolean gzip, boolean doGet,
+						boolean doDelete) {
 					this.store = store;
 					this.repetitions = repetitions;
 					this.content = content;
 					this.gzip = gzip;
+					this.doGet = doGet;
+					this.doDelete = doDelete;
 					return this;
 				}
 
@@ -116,8 +130,11 @@ public class ClientBenchmark extends BaseKVServerMain {
 									"/some.key.%1$d.%2$d.txt",
 									random.nextInt(), i);
 							store.set(key, content, transcoder);
-							String s = (String) store.get(key, transcoder);
-							store.delete(key);
+							if (doGet) {
+								String s = (String) store.get(key, transcoder);
+							}
+							if (doDelete)
+								store.delete(key);
 						} catch (Exception e) {
 							result.addError();
 						}
@@ -125,7 +142,7 @@ public class ClientBenchmark extends BaseKVServerMain {
 					result.setDuration(System.currentTimeMillis() - start);
 					return result;
 				}
-			}.init(store, repetitions, content, gzip);
+			}.init(store, repetitions, content, gzip, doGet, doDelete);
 			callables.add(c);
 		}
 		long start = System.currentTimeMillis();
