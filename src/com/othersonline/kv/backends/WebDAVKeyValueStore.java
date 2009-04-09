@@ -119,14 +119,11 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 				return false;
 			}
 		} catch (HttpException e) {
-			log.error("HttpException inside exists()", e);
 			throw new IOException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("SocketTimeoutException inside exists()");
 			throw new IOException(e);
 		} catch (IOException e) {
-			log.error("IOException inside exists()", e);
-			throw new IOException(e);
+			throw e;
 		} finally {
 			try {
 				method.releaseConnection();
@@ -159,14 +156,11 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 		} catch (EOFException e) {
 			return null;
 		} catch (HttpException e) {
-			log.error("HttpException inside get()", e);
 			throw new IOException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("SocketTimeoutException inside get()");
 			throw new IOException(e);
 		} catch (IOException e) {
-			log.error("IOException inside get()", e);
-			throw new IOException(e);
+			throw e;
 		} finally {
 			try {
 				method.releaseConnection();
@@ -248,17 +242,13 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 						+ response.responseCode);
 			}
 		} catch (UnsupportedEncodingException e) {
-			log.error("UnsupportedEncodingException inside set()", e);
 			throw new KeyValueStoreException(e);
 		} catch (HttpException e) {
-			log.error("HttpException inside set()", e);
 			throw new IOException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("SocketTimeoutException inside set()");
 			throw new IOException();
 		} catch (IOException e) {
-			log.error("IOException inside set()", e);
-			throw new IOException(e);
+			throw e;
 		} finally {
 			try {
 				method.releaseConnection();
@@ -278,14 +268,11 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 						+ response.responseCode);
 			}
 		} catch (HttpException e) {
-			log.error("HttpException inside delete()", e);
 			throw new IOException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("SocketTimeoutException inside delete()");
 			throw new IOException(e);
 		} catch (IOException e) {
-			log.error("IOException inside delete()", e);
-			throw new IOException(e);
+			throw e;
 		} finally {
 			try {
 				method.releaseConnection();

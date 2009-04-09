@@ -68,7 +68,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		try {
 			b = cache.exists(key);
 		} catch (Exception e) {
-			log.warn("Unable to call exists() on cache", e);
+			log.warn("Unable to call exists() on cache: " + e.getMessage());
 		}
 		if (!b)
 			b = master.exists(key);
@@ -82,7 +82,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		try {
 			obj = cache.get(key);
 		} catch (Exception e) {
-			log.warn("Unable to call get() on cache", e);
+			log.warn("Unable to call get() on cache: " + e.getMessage());
 		}
 		if (obj == null) {
 			obj = master.get(key);
@@ -90,7 +90,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 				try {
 					cache.set(key, (Serializable) obj);
 				} catch (Exception e) {
-					log.warn("Unable to call set() on cache", e);
+					log.warn("Unable to call set() on cache: " + e.getMessage());
 				}
 			}
 		}
@@ -104,7 +104,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		try {
 			obj = cache.get(key, transcoder);
 		} catch (Exception e) {
-			log.warn("Unable to call get() on cache", e);
+			log.warn("Unable to call get() on cache: " + e.getMessage());
 		}
 		if (obj == null) {
 			obj = master.get(key, transcoder);
@@ -133,7 +133,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 			Map<String, Object> cached = cache.getBulk(keys);
 			results.putAll(cached);
 		} catch (Exception e) {
-			log.warn("Unable to call getBulk() on cache", e);
+			log.warn("Unable to call getBulk() on cache: " + e.getMessage());
 		}
 		if (results.size() < keys.size()) {
 			// find all keys not in cache
@@ -158,7 +158,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 			Map<String, Object> cached = cache.getBulk(keys, transcoder);
 			results.putAll(cached);
 		} catch (Exception e) {
-			log.warn("Unable to call getBulk() on cache", e);
+			log.warn("Unable to call getBulk() on cache: " + e.getMessage());
 		}
 		if (results.size() < keys.size()) {
 			// find all keys not in cache
@@ -184,7 +184,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 			} else
 				cache.delete(key);
 		} catch (Exception e) {
-			log.warn("Unable to call set() or delete() on cache", e);
+			log.warn("Unable to call set() on cache: " + e.getMessage());
 		}
 		master.set(key, value);
 	}
@@ -198,7 +198,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 			else
 				cache.delete(key);
 		} catch (Exception e) {
-			log.warn("Unable to call set() or delete() on cache", e);
+			log.warn("Unable to call set() on cache: " + e.getMessage());
 		}
 		master.set(key, value, transcoder);
 	}
@@ -208,7 +208,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		try {
 			cache.delete(key);
 		} catch (Exception e) {
-			log.warn("Unable to call delete() on cache", e);
+			log.warn("Unable to call delete() on cache: " + e.getMessage());
 		}
 		master.delete(key);
 	}
