@@ -19,7 +19,7 @@ import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.transcoder.Transcoder;
 import com.othersonline.kv.util.DaemonThreadFactory;
 
-public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
+public class ReplicatingKeyValueStore extends ReadLoadBalancingKeyValueStore {
 
 	public static final String IDENTIFIER = "replicating";
 
@@ -27,68 +27,50 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 
 	private ExecutorService executor;
 
-	private Random random = new Random();
-
-	private KeyValueStore master;
-
-	private List<KeyValueStore> replicas;
-
 	private int threadPoolSize = 1;
 
 	private boolean iOwnThreadPool = true;
 
 	public ReplicatingKeyValueStore() {
-		this.replicas = new ArrayList<KeyValueStore>();
+		super();
 	}
 
 	public ReplicatingKeyValueStore(KeyValueStore master) {
-		this.replicas = new ArrayList<KeyValueStore>();
-		this.master = master;
+		super(master);
 	}
 
 	public ReplicatingKeyValueStore(KeyValueStore master,
 			List<KeyValueStore> replicas) {
-		this.master = master;
-		this.replicas = replicas;
+		super(master, replicas);
 		this.threadPoolSize = replicas.size();
 	}
 
 	public ReplicatingKeyValueStore(KeyValueStore master,
 			List<KeyValueStore> replicas, int threadPoolSize) {
-		this.master = master;
-		this.replicas = replicas;
+		super(master, replicas);
 		this.threadPoolSize = threadPoolSize;
 	}
 
 	public ReplicatingKeyValueStore(KeyValueStore master,
 			List<KeyValueStore> replicas, ExecutorService executor) {
-		this.master = master;
-		this.replicas = replicas;
+		super(master, replicas);
 		this.executor = executor;
-	}
-
-	public void setMaster(KeyValueStore master) {
-		this.master = master;
-	}
-
-	public void setReplicas(List<KeyValueStore> replicas) {
-		this.replicas = replicas;
 	}
 
 	public void setExecutorService(ExecutorService executor) {
 		this.executor = executor;
 	}
 
-	public void addReplica(KeyValueStore replica) {
-		replicas.add(replica);
-	}
-
-	public void removeReplica(KeyValueStore replica) {
-		replicas.remove(replica);
-	}
-
 	public String getIdentifier() {
 		return IDENTIFIER;
+	}
+
+	public void addReplica(KeyValueStore store) {
+		super.addReader(store);
+	}
+
+	public void removeReplica(KeyValueStore store) {
+		super.removeReader(store);
 	}
 
 	public void start() throws IOException {
@@ -124,112 +106,26 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 		super.stop();
 	}
 
-	public boolean exists(String key) throws KeyValueStoreException,
-			IOException {
-		assertReadable();
-		boolean exists = false;
-		try {
-			exists = getReadReplica().exists(key);
-		} catch (Exception e) {
-			exists = master.exists(key);
-		}
-		return exists;
-	}
-
-	public Object get(String key) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
-		assertReadable();
-		Object obj = null;
-		try {
-			obj = getReadReplica().get(key);
-		} catch (Exception e) {
-			obj = master.get(key);
-		}
-		return obj;
-	}
-
-	public Object get(String key, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
-		assertReadable();
-		Object obj = null;
-		try {
-			obj = getReadReplica().get(key, transcoder);
-		} catch (Exception e) {
-			obj = master.get(key, transcoder);
-		}
-		return obj;
-	}
-
-	public Map<String, Object> getBulk(String... keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
-		assertReadable();
-		Map<String, Object> results = null;
-		try {
-			results = getReadReplica().getBulk(keys);
-		} catch (Exception e) {
-			results = master.getBulk(keys);
-		}
-		return results;
-	}
-
-	public Map<String, Object> getBulk(final List<String> keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
-		assertReadable();
-		Map<String, Object> results = null;
-		try {
-			results = getReadReplica().getBulk(keys);
-		} catch (Exception e) {
-			results = master.getBulk(keys);
-		}
-		return results;
-	}
-
-	public Map<String, Object> getBulk(final List<String> keys,
-			Transcoder transcoder) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
-		assertReadable();
-		Map<String, Object> results = null;
-		try {
-			results = getReadReplica().getBulk(keys, transcoder);
-		} catch (Exception e) {
-			results = master.getBulk(keys, transcoder);
-		}
-		return results;
-	}
-
 	public void set(String key, Serializable value)
 			throws KeyValueStoreException, IOException {
-		assertWriteable();
-		master.set(key, value);
+		super.set(key, value);
 		replicateWrite(key, value, null);
 	}
 
 	public void set(String key, Serializable value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
-		assertWriteable();
-		master.set(key, value, transcoder);
+		super.set(key, value, transcoder);
 		replicateWrite(key, value, transcoder);
 	}
 
 	public void delete(String key) throws KeyValueStoreException, IOException {
-		assertWriteable();
-		master.delete(key);
+		super.delete(key);
 		replicateDelete(key);
-	}
-
-	private KeyValueStore getReadReplica() {
-		int size = replicas.size();
-		if (size == 0)
-			return master;
-		else {
-			int index = random.nextInt(size);
-			return replicas.get(index);
-		}
 	}
 
 	private void replicateWrite(String key, Serializable value,
 			Transcoder transcoder) {
-		for (KeyValueStore replica : replicas) {
+		for (KeyValueStore replica : readers) {
 			WriteReplicaRunnable runner = new WriteReplicaRunnable(replica,
 					key, value, transcoder);
 			executor.execute(runner);
@@ -237,7 +133,7 @@ public class ReplicatingKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	private void replicateDelete(String key) {
-		for (KeyValueStore replica : replicas) {
+		for (KeyValueStore replica : readers) {
 			DeleteReplicaRunnable runner = new DeleteReplicaRunnable(replica,
 					key);
 			executor.execute(runner);
