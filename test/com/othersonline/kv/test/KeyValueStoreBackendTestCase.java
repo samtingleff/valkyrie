@@ -26,6 +26,7 @@ import com.othersonline.kv.backends.OsCacheKeyValueStore;
 import com.othersonline.kv.backends.ReplicatingKeyValueStore;
 import com.othersonline.kv.backends.ThriftKeyValueStore;
 import com.othersonline.kv.backends.TokyoTyrantKeyValueStore;
+import com.othersonline.kv.backends.VoldemortKeyValueStore;
 import com.othersonline.kv.backends.WebDAVKeyValueStore;
 import com.othersonline.kv.mgmt.JMXMbeanServerFactory;
 import com.othersonline.kv.server.ThriftKeyValueServer;
@@ -114,11 +115,16 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		doTestBackend(store);
 	}
 
-	public void testBDBJEBAckend() throws Exception {
+	public void testBDBJEBackend() throws Exception {
 		File tempFile = File.createTempFile("test-bdb-dir", ".tmp");
 		tempFile.delete();
 		tempFile.mkdir();
 		BDBJEKeyValueStore store = new BDBJEKeyValueStore(tempFile);
+		doTestBackend(store);
+	}
+
+	public void testVoldemortBackend() throws Exception {
+		VoldemortKeyValueStore store = new VoldemortKeyValueStore();
 		doTestBackend(store);
 	}
 
@@ -238,7 +244,8 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		assertEquals(map.size(), 1);
 		assertEquals(((SampleV) map.get(key)).someRequiredInt,
 				v.someRequiredInt);
-		map = store.getBulk(Arrays.asList(new String[] { "sxyzxv", "123", key }));
+		map = store.getBulk(Arrays
+				.asList(new String[] { "sxyzxv", "123", key }));
 		assertEquals(map.size(), 1);
 		assertEquals(((SampleV) map.get(key)).someRequiredInt,
 				v.someRequiredInt);

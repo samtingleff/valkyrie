@@ -136,6 +136,7 @@ public class ClientBenchmark extends BaseKVServerMain {
 							if (doDelete)
 								store.delete(key);
 						} catch (Exception e) {
+							e.printStackTrace();
 							result.addError();
 						}
 					}

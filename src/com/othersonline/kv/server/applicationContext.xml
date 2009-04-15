@@ -39,6 +39,22 @@
     </bean>
 
     <bean
+            id="fs"
+            class="com.othersonline.kv.backends.VoldemortKeyValueStore"
+            lazy-init="true"
+            init-method="start"
+            destroy-method="stop">
+        <property name="threadPoolSize" value="${voldemort.threadPoolSize}"/>
+        <property name="maxConnectionsPerNode" value="${voldemort.maxConnectionsPerNode}"/>
+        <property name="maxTotalConnections" value="${voldemort.maxTotalConnections}"/>
+        <property name="socketTimeout" value="${voldemort.socketTimeout}"/>
+        <property name="routingTimeout" value="${voldemort.routingTimeout}"/>
+        <property name="nodeBannage" value="${voldemort.nodeBannage}"/>
+        <property name="bootstrapUrl" value="${voldemort.bootstrapUrl}"/>
+        <property name="storeName" value="${voldemort.storeName}"/>
+    </bean>
+
+    <bean
             id="thriftServer"
             class="com.othersonline.kv.server.ThriftKeyValueServer"
             lazy-init="false"

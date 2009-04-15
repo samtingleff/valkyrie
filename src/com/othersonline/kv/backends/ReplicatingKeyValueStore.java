@@ -2,10 +2,7 @@ package com.othersonline.kv.backends;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -15,9 +12,9 @@ import org.apache.commons.logging.LogFactory;
 
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
-import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.transcoder.Transcoder;
 import com.othersonline.kv.util.DaemonThreadFactory;
+import com.othersonline.kv.util.ExecutorUtils;
 
 public class ReplicatingKeyValueStore extends ReadLoadBalancingKeyValueStore {
 
@@ -75,8 +72,7 @@ public class ReplicatingKeyValueStore extends ReadLoadBalancingKeyValueStore {
 
 	public void start() throws IOException {
 		if (executor == null) {
-			executor = Executors.newFixedThreadPool(threadPoolSize,
-					new DaemonThreadFactory());
+			executor = ExecutorUtils.newFixedSizeDaemonThreadPool(threadPoolSize);
 			iOwnThreadPool = true;
 		} else
 			iOwnThreadPool = false;
@@ -85,22 +81,7 @@ public class ReplicatingKeyValueStore extends ReadLoadBalancingKeyValueStore {
 
 	public void stop() {
 		if (iOwnThreadPool) {
-			executor.shutdown(); // Disable new tasks from being submitted
-			try {
-				// Wait a while for existing tasks to terminate
-				if (!executor.awaitTermination(2, TimeUnit.SECONDS)) {
-					// Cancel currently executing tasks
-					executor.shutdownNow();
-					// Wait a while for tasks to respond to being cancelled
-					if (!executor.awaitTermination(2, TimeUnit.SECONDS))
-						log.error("Pool did not terminate within timeout");
-				}
-			} catch (InterruptedException ie) {
-				// (Re-)Cancel if current thread also interrupted
-				executor.shutdownNow();
-				// Preserve interrupt status
-				Thread.currentThread().interrupt();
-			}
+			ExecutorUtils.shutdown(executor, TimeUnit.SECONDS, 2l, TimeUnit.SECONDS, 2);
 			executor = null;
 		}
 		super.stop();

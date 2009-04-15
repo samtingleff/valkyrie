@@ -9,9 +9,11 @@ import com.othersonline.kv.backends.OsCacheKeyValueStore;
 import com.othersonline.kv.backends.ReplicatingKeyValueStore;
 import com.othersonline.kv.backends.ThriftKeyValueStore;
 import com.othersonline.kv.backends.TokyoTyrantKeyValueStore;
+import com.othersonline.kv.backends.VoldemortKeyValueStore;
 import com.othersonline.kv.gen.Constants;
 import com.othersonline.kv.server.ThriftKeyValueServer;
 import com.othersonline.kv.transcoder.LongTranscoder;
+import com.othersonline.kv.transcoder.StringTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 
 import junit.framework.TestCase;
@@ -87,6 +89,17 @@ public class ExamplesTestCase extends TestCase {
 		firstCache.delete(key);
 	}
 
+	public void testVoldemortClient() throws Exception {
+		VoldemortKeyValueStore store = new VoldemortKeyValueStore();
+		store.start();
+		
+		Transcoder transcoder = new StringTranscoder();
+		String key = "abc";
+		String value1 = "1234567890";
+		String value2 = "0987654321";
+		store.set(key, value1, transcoder);
+		store.set(key, value2, transcoder);
+	}
 	public void testThriftServer() throws Exception {
 		// Presumably (1) and (2) occurr on a different host from (3)
 		// (1) create backing store for thrift service
