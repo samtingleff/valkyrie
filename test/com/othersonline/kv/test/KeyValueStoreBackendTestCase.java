@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.management.MBeanInfo;
 import javax.management.MBeanServer;
@@ -23,6 +24,7 @@ import com.othersonline.kv.backends.FileSystemKeyValueStore;
 import com.othersonline.kv.backends.HashtableKeyValueStore;
 import com.othersonline.kv.backends.MemcachedKeyValueStore;
 import com.othersonline.kv.backends.OsCacheKeyValueStore;
+import com.othersonline.kv.backends.RateLimitingKeyValueStore;
 import com.othersonline.kv.backends.ReplicatingKeyValueStore;
 import com.othersonline.kv.backends.ThriftKeyValueStore;
 import com.othersonline.kv.backends.TokyoTyrantKeyValueStore;
@@ -31,6 +33,9 @@ import com.othersonline.kv.backends.WebDAVKeyValueStore;
 import com.othersonline.kv.mgmt.JMXMbeanServerFactory;
 import com.othersonline.kv.server.ThriftKeyValueServer;
 import com.othersonline.kv.transcoder.StringTranscoder;
+import com.othersonline.kv.util.MemcachedRateLimiter;
+import com.othersonline.kv.util.RateLimiter;
+import com.othersonline.kv.util.SimpleRateLimiter;
 
 import junit.framework.TestCase;
 
@@ -125,6 +130,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testVoldemortBackend() throws Exception {
 		VoldemortKeyValueStore store = new VoldemortKeyValueStore();
+		store.setBootstrapUrl("tcp://stanley:6666");
 		doTestBackend(store);
 	}
 
@@ -211,6 +217,50 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		replica.setStatus(KeyValueStoreStatus.Offline);
 		store.setStatus(KeyValueStoreStatus.Offline);
 		doTestBackend(store);
+	}
+
+	public void testRateLimitingKeyValueStore() throws Exception {
+		MemcachedKeyValueStore mcc = new MemcachedKeyValueStore();
+		mcc.setHosts("stanley:11211");
+		mcc.start();
+
+		RateLimitingKeyValueStore store = new RateLimitingKeyValueStore();
+		store.setMaster(mcc);
+		// test behavior w/ no limits
+		doTestBackend(store);
+
+		// add a write limit of one per 100ms
+		RateLimiter limiter = new SimpleRateLimiter(TimeUnit.MILLISECONDS, 100,
+				1);
+		store.setWriteRateLimiter(limiter);
+		store.set("test.key", "test.value");
+		try {
+			store.set("test.key2", "test.value2");
+			fail("Rate limit exceeded. Should have failed!");
+		} catch (KeyValueStoreUnavailable e) {
+			assertEquals(limiter.getCounter(), 1);
+		}
+		// sleep for 100ms - should succeed
+		Thread.sleep(100l);
+		store.set("test.key2", "test.value2");
+		assertEquals(limiter.getCounter(), 1);
+
+		// test a memcached rate limiter (2 per sec.)
+		limiter = new MemcachedRateLimiter(mcc);
+		limiter.setLimit(TimeUnit.SECONDS, 1, 2);
+		store.setWriteRateLimiter(limiter);
+		store.set("test.key", "test.value");
+		store.set("test.key", "test.value.2");
+		try {
+			store.set("test.key2", "test.value3");
+			fail("Rate limit exceeded. Should have failed!");
+		} catch (KeyValueStoreUnavailable e) {
+			assertEquals(limiter.getCounter(), 2);
+		}
+		// sleep for 1000ms - should succeed
+		Thread.sleep(1000l);
+		store.set("test.key2", "test.value2");
+		assertEquals(limiter.getCounter(), 1);
 	}
 
 	private void doTestBackend(KeyValueStore store) throws Exception {
