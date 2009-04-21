@@ -71,6 +71,17 @@
     </bean>
 
     <bean
+            id="kfs"
+            class="com.othersonline.kv.backends.KosmosfsKeyValueStore"
+            lazy-init="true"
+            init-method="start"
+            destroy-method="stop">
+        <property name="metaServerHost" value="${kfs.metaServerHost}"/>
+        <property name="metaServerPort" value="${kfs.metaServerPort}"/>
+        <property name="gcFrequency" value="${kfs.gcFrequency}"/>
+    </bean>
+
+    <bean
             id="thrift"
             class="com.othersonline.kv.backends.ThriftKeyValueStore"
             lazy-init="true"

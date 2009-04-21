@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.kosmix.kosmosfs.access.KfsAccess;
 import org.kosmix.kosmosfs.access.KfsInputChannel;
@@ -19,6 +20,8 @@ import com.othersonline.kv.transcoder.Transcoder;
 public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 	public static final String IDENTIFIER = "kosmosfs";
 
+	private static Random random = new Random();
+
 	private KfsAccess kfs;
 
 	private Transcoder defaultTranscoder = new SerializableTranscoder();
@@ -26,6 +29,8 @@ public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 	private String metaServerHost = "localhost";
 
 	private int metaServerPort = 20000;
+
+	private int gcFrequency = 5;
 
 	public String getIdentifier() {
 		return IDENTIFIER;
@@ -37,6 +42,10 @@ public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 
 	public void setMetaServerPort(int port) {
 		this.metaServerPort = port;
+	}
+
+	public void setGcFrequency(int gcFrequency) {
+		this.gcFrequency = gcFrequency;
 	}
 
 	@Override
@@ -73,7 +82,9 @@ public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 			long size = kfs.kfs_filesize(key);
 			ByteBuffer buffer = ByteBuffer.allocate((int) size);
 			int read = ch.read(buffer);
-			byte[] bytes = buffer.array();
+			byte[] bytes = new byte[read];
+			buffer.position(0);
+			buffer.get(bytes);
 			Object obj = transcoder.decode(bytes);
 			return obj;
 		} finally {
@@ -81,6 +92,7 @@ public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 				ch.close();
 			} catch (Exception e) {
 			}
+			gc();
 		}
 	}
 
@@ -143,6 +155,7 @@ public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 				ch.close();
 			} catch (Exception e) {
 			}
+			gc();
 		}
 	}
 
@@ -156,6 +169,17 @@ public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 		if (lastIndex > 0) {
 			String parent = key.substring(0, lastIndex);
 			kfs.kfs_mkdirs(parent);
+		}
+	}
+
+	/**
+	 * The KFS JNI wrapper likes to create lots of DirectByteBuffers. This will
+	 * cause OutOfMemory exceptions unless you call System.gc() once in a while.
+	 * Use the gcFrequency setting to control how often.
+	 */
+	private void gc() {
+		if (random.nextInt(100) < gcFrequency) {
+			System.gc();
 		}
 	}
 }

@@ -39,7 +39,7 @@
     </bean>
 
     <bean
-            id="fs"
+            id="voldemort"
             class="com.othersonline.kv.backends.VoldemortKeyValueStore"
             lazy-init="true"
             init-method="start"
@@ -52,6 +52,17 @@
         <property name="nodeBannage" value="${voldemort.nodeBannage}"/>
         <property name="bootstrapUrl" value="${voldemort.bootstrapUrl}"/>
         <property name="storeName" value="${voldemort.storeName}"/>
+    </bean>
+
+    <bean
+            id="kfs"
+            class="com.othersonline.kv.backends.KosmosfsKeyValueStore"
+            lazy-init="true"
+            init-method="start"
+            destroy-method="stop">
+        <property name="metaServerHost" value="${kfs.metaServerHost}"/>
+        <property name="metaServerPort" value="${kfs.metaServerPort}"/>
+        <property name="gcFrequency" value="${kfs.gcFrequency}"/>
     </bean>
 
     <bean
