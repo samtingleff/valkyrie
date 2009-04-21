@@ -24,5 +24,6 @@
 	<classpathentry kind="lib" path="lib/voldemort-0.4a.jar"/>
 	<classpathentry kind="lib" path="lib/jdom.jar"/>
 	<classpathentry kind="lib" path="lib/google-collect-snapshot-20090211.jar"/>
+	<classpathentry kind="lib" path="lib/kfs-0.2.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

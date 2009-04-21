@@ -22,6 +22,7 @@ import com.othersonline.kv.backends.BDBJEKeyValueStore;
 import com.othersonline.kv.backends.CachingKeyValueStore;
 import com.othersonline.kv.backends.FileSystemKeyValueStore;
 import com.othersonline.kv.backends.HashtableKeyValueStore;
+import com.othersonline.kv.backends.KosmosfsKeyValueStore;
 import com.othersonline.kv.backends.MemcachedKeyValueStore;
 import com.othersonline.kv.backends.OsCacheKeyValueStore;
 import com.othersonline.kv.backends.RateLimitingKeyValueStore;
@@ -54,7 +55,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 	public void testMemcachedBackend() throws Exception {
 		MemcachedKeyValueStore store = new MemcachedKeyValueStore();
 		store.setUseBinaryProtocol(false);
-		store.setHosts("stanley:11211");
+		store.setHosts("localhost:11211");
 		doTestBackend(store);
 
 		// test counters
@@ -91,7 +92,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testTokyoTyrantBackend() throws Exception {
 		TokyoTyrantKeyValueStore store = new TokyoTyrantKeyValueStore();
-		store.setHost("stanley");
+		store.setHost("localhost");
 		store.setPort(1978);
 		doTestBackend(store);
 	}
@@ -116,7 +117,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testWebDavBackend() throws Exception {
 		WebDAVKeyValueStore store = new WebDAVKeyValueStore();
-		store.setBaseUrl("http://stanley/dav/testing/");
+		store.setBaseUrl("http://localhost/dav/testing/");
 		doTestBackend(store);
 	}
 
@@ -130,7 +131,14 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testVoldemortBackend() throws Exception {
 		VoldemortKeyValueStore store = new VoldemortKeyValueStore();
-		store.setBootstrapUrl("tcp://stanley:6666");
+		store.setBootstrapUrl("tcp://localhost:6666");
+		doTestBackend(store);
+	}
+
+	public void testKosmosfsBackend() throws Exception {
+		KosmosfsKeyValueStore store = new KosmosfsKeyValueStore();
+		store.setMetaServerHost("localhost");
+		store.setMetaServerPort(20000);
 		doTestBackend(store);
 	}
 
@@ -150,12 +158,12 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testCachingStore() throws Exception {
 		TokyoTyrantKeyValueStore master = new TokyoTyrantKeyValueStore();
-		master.setHost("stanley");
+		master.setHost("localhost");
 		master.setPort(1978);
 		master.start();
 
 		MemcachedKeyValueStore cache = new MemcachedKeyValueStore();
-		cache.setHosts("stanley:11211");
+		cache.setHosts("localhost:11211");
 		cache.start();
 
 		CachingKeyValueStore store = new CachingKeyValueStore(master, cache);
@@ -169,7 +177,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testAsyncFlushCachingStore() throws Exception {
 		MemcachedKeyValueStore master = new MemcachedKeyValueStore();
-		master.setHosts("stanley:11211");
+		master.setHosts("localhost:11211");
 		master.start();
 
 		KeyValueStore cache = new HashtableKeyValueStore();
@@ -196,7 +204,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testReplicatingStore() throws Exception {
 		MemcachedKeyValueStore master = new MemcachedKeyValueStore();
-		master.setHosts("stanley:11211");
+		master.setHosts("localhost:11211");
 		master.start();
 
 		KeyValueStore replica = new HashtableKeyValueStore();
@@ -221,7 +229,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testRateLimitingKeyValueStore() throws Exception {
 		MemcachedKeyValueStore mcc = new MemcachedKeyValueStore();
-		mcc.setHosts("stanley:11211");
+		mcc.setHosts("localhost:11211");
 		mcc.start();
 
 		RateLimitingKeyValueStore store = new RateLimitingKeyValueStore();
@@ -264,7 +272,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 	}
 
 	private void doTestBackend(KeyValueStore store) throws Exception {
-		String key = "xyz";
+		String key = "some/key";
 		assertEquals(store.getStatus(), KeyValueStoreStatus.Offline);
 		try {
 			store.get(key);

@@ -16,6 +16,7 @@ Currently supported backends include:
 - [Project Voldemort](http://project-voldemort.com/ "Project Voldemort")
 - a simple file-system backed store
 - WebDAV (tested against Apache mod_dav, nginx and lighttpd)
+- [KosmosFS](http://kosmosfs.wiki.sourceforge.net/ "Kosmos File System")
 - A custom [thrift](http://incubator.apache.org/thrift/ "Apache Thrift")-based proxy server that uses any of the above as backend
 
 ## Examples ##
