@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,7 +91,9 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 				try {
 					cache.set(key, (Serializable) obj);
 				} catch (Exception e) {
-					log.warn("Unable to call set() on cache: " + e.getMessage());
+					log
+							.warn("Unable to call set() on cache: "
+									+ e.getMessage());
 				}
 			}
 		}
@@ -111,6 +114,16 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 			if ((obj != null) && (cacheOnMiss)) {
 				try {
 					cache.set(key, (Serializable) obj, transcoder);
+				} catch (KeyValueStoreException e) {
+					if ((e.getCause() != null)
+							&& (e.getCause().getClass()
+									.equals(TimeoutException.class))) {
+						log
+								.warn("Unable to call set() on cache due to TimeoutException: "
+										+ e.getMessage());
+					} else {
+						log.warn("Unable to call set() on cache", e);
+					}
 				} catch (Exception e) {
 					log.warn("Unable to call set() on cache", e);
 				}
