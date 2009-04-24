@@ -3,5 +3,7 @@ com.othersonline.kv.backends
 com.othersonline.kv.gen
 com.othersonline.kv.mgmt
 com.othersonline.kv.server
+com.othersonline.kv.server.main
 com.othersonline.kv.transcoder
+com.othersonline.kv.transcoder.spy
 com.othersonline.kv.util
