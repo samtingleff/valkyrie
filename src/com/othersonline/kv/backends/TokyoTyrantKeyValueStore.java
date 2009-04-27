@@ -38,12 +38,20 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 
 	private int port = 1978;
 
+	private int socketTimeout = 2000;
+
 	public TokyoTyrantKeyValueStore() {
 	}
 
 	public TokyoTyrantKeyValueStore(String host, int port) {
 		this.host = host;
 		this.port = port;
+	}
+
+	public TokyoTyrantKeyValueStore(String host, int port, int socketTimeout) {
+		this.host = host;
+		this.port = port;
+		this.socketTimeout = socketTimeout;
 	}
 
 	public void setHost(String host) {
@@ -54,13 +62,17 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		this.port = port;
 	}
 
+	public void setSocketTimeout(int millis) {
+		this.socketTimeout = millis;
+	}
+
 	public String getIdentifier() {
 		return IDENTIFIER;
 	}
 
 	public void start() throws IOException {
 		connectionPool = new StackObjectPool(new RDBConnectionFactory(host,
-				port), 10, 10);
+				port, socketTimeout), 10, 10);
 		super.start();
 	}
 
@@ -251,14 +263,17 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 
 		private int port;
 
-		public RDBConnectionFactory(String host, int port) {
+		private int socketTimeout;
+
+		public RDBConnectionFactory(String host, int port, int socketTimeout) {
 			this.host = host;
 			this.port = port;
+			this.socketTimeout = socketTimeout;
 		}
 
 		public Object makeObject() throws Exception {
 			RDB rdb = new RDB();
-			rdb.open(new InetSocketAddress(host, port));
+			rdb.open(new InetSocketAddress(host, port), socketTimeout);
 			return rdb;
 		}
 
