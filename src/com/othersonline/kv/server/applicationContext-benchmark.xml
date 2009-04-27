@@ -60,6 +60,8 @@
             init-method="start">
         <property name="host" value="${tokyoTyrant.host}"/>
         <property name="port" value="${tokyoTyrant.port}"/>
+        <property name="socketTimeout" value="${tokyoTyrant.socketTimeout}"/>
+        <property name="maxActive" value="${tokyoTyrant.maxActive}"/>
     </bean>
 
     <bean
