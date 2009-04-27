@@ -14,6 +14,7 @@ import com.othersonline.kv.transcoder.SerializingTranscoder;
 import com.othersonline.kv.transcoder.StringTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 import com.othersonline.kv.transcoder.FloatTranscoder;
+import com.othersonline.kv.transcoder.ZippingTranscoder;
 import com.othersonline.kv.util.StreamUtils;
 
 import junit.framework.AssertionFailedError;
@@ -102,6 +103,27 @@ public class TranscoderTestCase extends TestCase {
 
 		// try with an object
 		t = new GzippingTranscoder();
+		SomeSerializableObject obj = new SomeSerializableObject("hey man",
+				123123);
+		assertEquals(t.decode(t.encode(obj)), obj);
+	}
+
+	public void testZippingTranscoder() throws Exception {
+		// try with a string
+		Transcoder delegate = new StringTranscoder();
+		Transcoder t = new ZippingTranscoder(delegate);
+		String s = StreamUtils
+				.getResourceAsString("/com/othersonline/kv/test/resources/lorem-ipsum.txt");
+		byte[] raw = delegate.encode(s);
+		byte[] compressed = t.encode(s);
+		// length of compressed byte should be at least 1/3 the raw bytes
+		assertTrue(raw.length > compressed.length);
+		assertTrue((raw.length / 3) > compressed.length);
+		String recovered = (String) t.decode(compressed);
+		assertEquals(s, recovered);
+
+		// try with an object
+		t = new ZippingTranscoder();
 		SomeSerializableObject obj = new SomeSerializableObject("hey man",
 				123123);
 		assertEquals(t.decode(t.encode(obj)), obj);
