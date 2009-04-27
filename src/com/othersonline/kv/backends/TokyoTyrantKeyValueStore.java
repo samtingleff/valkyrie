@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.apache.commons.pool.ObjectPool;
+import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.commons.pool.impl.StackObjectPool;
 
 import tokyotyrant.RDB;
@@ -28,7 +29,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 
 	private Log log = LogFactory.getLog(getClass());
 
-	private ObjectPool connectionPool;
+	private GenericObjectPool connectionPool;
 
 	private tokyotyrant.transcoder.Transcoder tokyoDefaultTranscoder = new SerializingTranscoder();
 
@@ -39,6 +40,18 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	private int port = 1978;
 
 	private int socketTimeout = 2000;
+
+	private int maxActive = 10;
+
+	private int maxIdle = 10;
+
+	private long maxWait = 100l;
+
+	private long timeBetweenEvictionRunsMillis = 10000l;
+
+	private int numTestsPerEvictionRun = 3;
+
+	private long minEvictableIdleTimeMillis = -1;
 
 	public TokyoTyrantKeyValueStore() {
 	}
@@ -66,13 +79,41 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		this.socketTimeout = millis;
 	}
 
+	public void setMaxActive(int maxActive) {
+		this.maxActive = maxActive;
+	}
+
+	public void setMaxIdle(int maxIdle) {
+		this.maxIdle = maxIdle;
+	}
+
+	public void setMaxWait(long maxWait) {
+		this.maxWait = maxWait;
+	}
+
+	public void setTimeBetweenEvictionRunsMillis(
+			long timeBetweenEvictionRunsMillis) {
+		this.timeBetweenEvictionRunsMillis = timeBetweenEvictionRunsMillis;
+	}
+
+	public void setNumTestsPerEvictionRun(int numTestsPerEvictionRun) {
+		this.numTestsPerEvictionRun = numTestsPerEvictionRun;
+	}
+
+	public void setMinEvictableIdleTimeMillis(int minEvictableIdleTimeMillis) {
+		this.minEvictableIdleTimeMillis = minEvictableIdleTimeMillis;
+	}
+
 	public String getIdentifier() {
 		return IDENTIFIER;
 	}
 
 	public void start() throws IOException {
-		connectionPool = new StackObjectPool(new RDBConnectionFactory(host,
-				port, socketTimeout), 10, 10);
+		connectionPool = new GenericObjectPool(new RDBConnectionFactory(host,
+				port, socketTimeout), maxActive,
+				GenericObjectPool.WHEN_EXHAUSTED_BLOCK, maxWait, maxIdle,
+				false, false, timeBetweenEvictionRunsMillis,
+				numTestsPerEvictionRun, minEvictableIdleTimeMillis, true);
 		super.start();
 	}
 
@@ -259,6 +300,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	}
 
 	private static class RDBConnectionFactory extends BasePoolableObjectFactory {
+		private Log log = LogFactory.getLog(getClass());
+
 		private String host;
 
 		private int port;
@@ -275,6 +318,22 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			RDB rdb = new RDB();
 			rdb.open(new InetSocketAddress(host, port), socketTimeout);
 			return rdb;
+		}
+
+		public boolean validateObject(Object obj) {
+			boolean result = false;
+			try {
+				RDB rdb = (RDB) obj;
+				long rnum = rdb.rnum();
+				result = true;
+			} catch (Exception e) {
+				log
+						.error(
+								"validateObject() failed. Connection to Tokyo Tyrant is broken",
+								e);
+				result = false;
+			}
+			return result;
 		}
 
 	}
