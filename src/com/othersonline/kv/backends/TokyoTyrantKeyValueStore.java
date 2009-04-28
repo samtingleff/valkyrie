@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -177,15 +178,10 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	public Map<String, Object> getBulk(String... keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
-		Map<String, Object> results = new HashMap<String, Object>();
 		RDB rdb = null;
 		try {
 			rdb = getRDB();
-			for (String key : keys) {
-				Object obj = rdb.get(key, tokyoDefaultTranscoder);
-				if (obj != null)
-					results.put(key, obj);
-			}
+			Map results = rdb.mget(keys, tokyoDefaultTranscoder);
 			return results;
 		} catch (Exception e) {
 			log.error("Exception inside getBulk()", e);
@@ -198,15 +194,11 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	public Map<String, Object> getBulk(final List<String> keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
-		Map<String, Object> results = new HashMap<String, Object>();
 		RDB rdb = null;
 		try {
 			rdb = getRDB();
-			for (String key : keys) {
-				Object obj = rdb.get(key, tokyoDefaultTranscoder);
-				if (obj != null)
-					results.put(key, obj);
-			}
+			Map results = rdb.mget(keys.toArray(new String[keys.size()]),
+					tokyoDefaultTranscoder);
 			return results;
 		} catch (Exception e) {
 			log.error("Exception inside getBulk()", e);
@@ -220,16 +212,18 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			Transcoder transcoder) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
 		assertReadable();
-		Map<String, Object> results = new HashMap<String, Object>();
+		Map<String, Object> results = null;
 		RDB rdb = null;
 		try {
 			rdb = getRDB();
-			for (String key : keys) {
-				byte[] bytes = (byte[]) rdb.get(key, tokyoByteTranscoder);
-				if (bytes != null) {
-					Object obj = transcoder.decode(bytes);
-					results.put(key, obj);
-				}
+			Map byteResults = rdb.mget(keys.toArray(new String[keys.size()]),
+					tokyoByteTranscoder);
+			results = new HashMap<String, Object>(byteResults.size());
+
+			Set<Map.Entry<String, byte[]>> set = byteResults.entrySet();
+			for (Map.Entry<String, byte[]> entry : set) {
+				Object obj = transcoder.decode(entry.getValue());
+				results.put(entry.getKey(), obj);
 			}
 			return results;
 		} catch (Exception e) {

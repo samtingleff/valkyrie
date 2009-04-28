@@ -33,7 +33,12 @@ import com.othersonline.kv.backends.VoldemortKeyValueStore;
 import com.othersonline.kv.backends.WebDAVKeyValueStore;
 import com.othersonline.kv.mgmt.JMXMbeanServerFactory;
 import com.othersonline.kv.server.ThriftKeyValueServer;
+import com.othersonline.kv.transcoder.ByteArrayTranscoder;
+import com.othersonline.kv.transcoder.SerializableTranscoder;
 import com.othersonline.kv.transcoder.StringTranscoder;
+import com.othersonline.kv.transcoder.Transcoder;
+import com.othersonline.kv.tx.KeyValueStoreTransaction;
+import com.othersonline.kv.tx.TransactionalKeyValueStore;
 import com.othersonline.kv.util.MemcachedRateLimiter;
 import com.othersonline.kv.util.RateLimiter;
 import com.othersonline.kv.util.SimpleRateLimiter;
@@ -57,6 +62,9 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		store.setUseBinaryProtocol(false);
 		store.setHosts("localhost:11211");
 		doTestBackend(store);
+
+		// test transactions
+		// doTestTransactions(store);
 
 		// test counters
 		String counterKey = "test.counter";
@@ -298,7 +306,10 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		assertEquals(v2.someOptionalDouble, v.someOptionalDouble);
 
 		// test getBulk()
-		Map<String, Object> map = store.getBulk(key, "abcdefg");
+		Map<String, Object> map = store.getBulk("xyz123", "abcdefg",
+				"sdfdsfer", "weruiwer");
+		assertEquals(map.size(), 0);
+		map = store.getBulk(key, "abcdefg");
 		assertEquals(map.size(), 1);
 		assertEquals(((SampleV) map.get(key)).someRequiredInt,
 				v.someRequiredInt);
@@ -307,6 +318,10 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		assertEquals(map.size(), 1);
 		assertEquals(((SampleV) map.get(key)).someRequiredInt,
 				v.someRequiredInt);
+		map = store.getBulk(Arrays
+				.asList(new String[] { "12345", key, "sfdsdf" }),
+				new ByteArrayTranscoder());
+		assertEquals(map.size(), 1);
 
 		// set status to read only
 		store.setStatus(KeyValueStoreStatus.ReadOnly);
@@ -333,6 +348,27 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		assertNull(store.get(key));
 
 		doTestJMX(store);
+	}
+
+	private void doTestTransactions(TransactionalKeyValueStore store)
+			throws Exception {
+		String key = "test.tx.key";
+		SampleV v = new SampleV(10, "hello world", 12.2d);
+		Transcoder transcoder = new SerializableTranscoder();
+		KeyValueStoreTransaction<SampleV> tx = store.txGet(key, transcoder);
+		assertFalse(store.exists(key));
+		assertNull(tx.getObject());
+
+		tx.setObject(v);
+		store.txSet(tx, key, transcoder);
+		assertTrue(store.exists(key));
+
+		// start two transactions at once
+		tx = store.txGet(key, transcoder);
+		KeyValueStoreTransaction<SampleV> tx2 = store.txGet(key, transcoder);
+		// attempt to save the second
+		tx2.getObject().someRequiredInt = 13;
+		store.txSet(tx2, key);
 	}
 
 	private void doTestJMX(KeyValueStore store) throws Exception {
