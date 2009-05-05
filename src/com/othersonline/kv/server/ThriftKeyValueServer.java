@@ -155,9 +155,6 @@ public class ThriftKeyValueServer {
 			} catch (IOException e) {
 				log.error("IOException inside getValue()", e);
 				throw new KeyValueStoreIOException();
-			} catch (ClassNotFoundException e) {
-				log.error("ClassNotFoundException inside getValue()", e);
-				throw new KeyValueStoreException();
 			} finally {
 				if (accessLog.isInfoEnabled()) {
 					long time = System.currentTimeMillis() - start;
@@ -192,9 +189,6 @@ public class ThriftKeyValueServer {
 			} catch (IOException e) {
 				log.error("IOException inside getValue()", e);
 				throw new KeyValueStoreIOException();
-			} catch (ClassNotFoundException e) {
-				log.error("ClassNotFoundException inside getValue()", e);
-				throw new KeyValueStoreException();
 			} finally {
 				if (accessLog.isInfoEnabled()) {
 					long time = System.currentTimeMillis() - start;
