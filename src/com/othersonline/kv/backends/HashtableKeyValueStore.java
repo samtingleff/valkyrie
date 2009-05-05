@@ -1,7 +1,6 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -81,13 +80,13 @@ public class HashtableKeyValueStore extends BaseManagedKeyValueStore implements
 		return results;
 	}
 
-	public void set(String key, Serializable value)
+	public void set(String key, Object value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		map.put(key, value);
 	}
 
-	public void set(String key, Serializable value, Transcoder transcoder)
+	public void set(String key, Object value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		map.put(key, value);

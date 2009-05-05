@@ -1,7 +1,6 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -180,13 +179,13 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	public void set(String key, Serializable value)
+	public void set(String key, Object value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		client.put(key, value);
 	}
 
-	public void set(String key, Serializable value, Transcoder transcoder)
+	public void set(String key, Object value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		byte[] bytes = transcoder.encode(value);

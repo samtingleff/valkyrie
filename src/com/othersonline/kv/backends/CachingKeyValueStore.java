@@ -1,7 +1,6 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -89,7 +88,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 			obj = master.get(key);
 			if ((obj != null) && (cacheOnMiss)) {
 				try {
-					cache.set(key, (Serializable) obj);
+					cache.set(key, (Object) obj);
 				} catch (Exception e) {
 					log
 							.warn("Unable to call set() on cache: "
@@ -113,7 +112,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 			obj = master.get(key, transcoder);
 			if ((obj != null) && (cacheOnMiss)) {
 				try {
-					cache.set(key, (Serializable) obj, transcoder);
+					cache.set(key, (Object) obj, transcoder);
 				} catch (KeyValueStoreException e) {
 					if ((e.getCause() != null)
 							&& (e.getCause().getClass()
@@ -188,7 +187,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	public void set(String key, Serializable value)
+	public void set(String key, Object value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		try {
@@ -202,7 +201,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		master.set(key, value);
 	}
 
-	public void set(String key, Serializable value, Transcoder transcoder)
+	public void set(String key, Object value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		try {

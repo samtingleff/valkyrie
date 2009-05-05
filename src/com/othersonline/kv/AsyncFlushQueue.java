@@ -1,7 +1,5 @@
 package com.othersonline.kv;
 
-import java.io.Serializable;
-
 import com.othersonline.kv.transcoder.Transcoder;
 
 /**
@@ -13,9 +11,9 @@ import com.othersonline.kv.transcoder.Transcoder;
  */
 public interface AsyncFlushQueue {
 
-	public void set(String key, Serializable value);
+	public void set(String key, Object value);
 
-	public void set(String key, Serializable value, Transcoder transcoder);
+	public void set(String key, Object value, Transcoder transcoder);
 
 	public void delete(String key);
 }

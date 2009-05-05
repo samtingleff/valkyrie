@@ -1,7 +1,6 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -87,13 +86,13 @@ public class ReplicatingKeyValueStore extends ReadLoadBalancingKeyValueStore {
 		super.stop();
 	}
 
-	public void set(String key, Serializable value)
+	public void set(String key, Object value)
 			throws KeyValueStoreException, IOException {
 		super.set(key, value);
 		replicateWrite(key, value, null);
 	}
 
-	public void set(String key, Serializable value, Transcoder transcoder)
+	public void set(String key, Object value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		super.set(key, value, transcoder);
 		replicateWrite(key, value, transcoder);
@@ -104,7 +103,7 @@ public class ReplicatingKeyValueStore extends ReadLoadBalancingKeyValueStore {
 		replicateDelete(key);
 	}
 
-	private void replicateWrite(String key, Serializable value,
+	private void replicateWrite(String key, Object value,
 			Transcoder transcoder) {
 		for (KeyValueStore replica : readers) {
 			WriteReplicaRunnable runner = new WriteReplicaRunnable(replica,
@@ -129,12 +128,12 @@ public class ReplicatingKeyValueStore extends ReadLoadBalancingKeyValueStore {
 
 		protected String key;
 
-		protected Serializable value;
+		protected Object value;
 
 		protected Transcoder transcoder;
 
 		public WriteReplicaRunnable(KeyValueStore store, String key,
-				Serializable value, Transcoder transcoder) {
+				Object value, Transcoder transcoder) {
 			this.store = store;
 			this.key = key;
 			this.value = value;

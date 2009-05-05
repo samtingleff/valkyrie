@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -136,13 +135,13 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	public void set(String key, Serializable value)
+	public void set(String key, Object value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		set(key, value, defaultTranscoder);
 	}
 
-	public void set(String key, Serializable value, Transcoder transcoder)
+	public void set(String key, Object value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		File f = getFile(key);

@@ -2,7 +2,6 @@ package com.othersonline.kv.backends;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -214,13 +213,13 @@ public class BDBJEKeyValueStore extends BaseManagedKeyValueStore {
 		}
 	}
 
-	public void set(String key, Serializable value)
+	public void set(String key, Object value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		set(key, value, defaultTranscoder);
 	}
 
-	public void set(String key, Serializable value, Transcoder transcoder)
+	public void set(String key, Object value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		Transaction tx = null;

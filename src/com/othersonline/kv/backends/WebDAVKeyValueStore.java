@@ -3,14 +3,12 @@ package com.othersonline.kv.backends;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -202,12 +200,12 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 		return results;
 	}
 
-	public void set(String key, Serializable value)
+	public void set(String key, Object value)
 			throws KeyValueStoreException, IOException {
 		set(key, value, defaultTranscoder);
 	}
 
-	public void set(String key, Serializable value, Transcoder transcoder)
+	public void set(String key, Object value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		String uri = getUri(key);

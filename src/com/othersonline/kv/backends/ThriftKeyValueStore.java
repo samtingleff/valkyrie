@@ -1,7 +1,6 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -227,14 +226,14 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	public void set(String key, Serializable value)
+	public void set(String key, Object value)
 			throws KeyValueStoreException, IOException {
 		log.trace("set()");
 		assertWriteable();
 		set(key, value, defaultTranscoder);
 	}
 
-	public void set(String key, Serializable value, Transcoder transcoder)
+	public void set(String key, Object value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		log.trace("set()");
 		assertWriteable();

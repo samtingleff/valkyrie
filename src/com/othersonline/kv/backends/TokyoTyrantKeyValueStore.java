@@ -1,7 +1,6 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.HashMap;
@@ -234,7 +233,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
-	public void set(String key, Serializable value)
+	public void set(String key, Object value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		RDB rdb = null;
@@ -249,7 +248,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
-	public void set(String key, Serializable value, Transcoder transcoder)
+	public void set(String key, Object value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		RDB rdb = null;

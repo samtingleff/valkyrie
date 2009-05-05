@@ -1,7 +1,6 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
-import java.io.Serializable;
 
 import com.othersonline.kv.AsyncFlushQueue;
 import com.othersonline.kv.KeyValueStore;
@@ -39,7 +38,7 @@ public class AsyncFlushCachingKeyValueStore extends CachingKeyValueStore {
 	}
 
 	@Override
-	public void set(String key, Serializable value)
+	public void set(String key, Object value)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		cache.set(key, value);
@@ -48,7 +47,7 @@ public class AsyncFlushCachingKeyValueStore extends CachingKeyValueStore {
 	}
 
 	@Override
-	public void set(String key, Serializable value, Transcoder transcoder)
+	public void set(String key, Object value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
 		cache.set(key, value, transcoder);

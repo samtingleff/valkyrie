@@ -1,7 +1,6 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
@@ -9,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -22,16 +22,15 @@ import net.spy.memcached.HashAlgorithm;
 import net.spy.memcached.KetamaConnectionFactory;
 import net.spy.memcached.KetamaNodeLocator;
 import net.spy.memcached.MemcachedClient;
-import net.spy.memcached.MemcachedClientIF;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.NodeLocator;
 import net.spy.memcached.OperationFactory;
 import net.spy.memcached.protocol.binary.BinaryMemcachedNodeImpl;
 import net.spy.memcached.protocol.binary.BinaryOperationFactory;
 
+import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
-import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.mgmt.MemcachedImplMXBean;
 import com.othersonline.kv.transcoder.Transcoder;
 import com.othersonline.kv.transcoder.spy.SpyMemcachedByteArrayTranscoder;
@@ -49,7 +48,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 
 	private SpyMemcachedByteArrayTranscoder spyByteTranscoder = new SpyMemcachedByteArrayTranscoder();
 
-	private MemcachedClientIF mcc;
+	private MemcachedClient mcc;
 
 	private boolean useBinaryProtocol = false;
 
@@ -119,7 +118,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	public boolean exists(String key) throws KeyValueStoreException,
 			IOException {
 		assertReadable();
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			boolean value = (mcc.get(key) != null);
 			return value;
@@ -130,7 +129,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 
 	public Object get(String key) throws KeyValueStoreException, IOException {
 		assertReadable();
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			Future<Object> future = mcc.asyncGet(key);
 			Object value = future.get(getOperationTimeout,
@@ -150,7 +149,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	public Object get(String key, Transcoder transcoder)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			Future<byte[]> future = mcc.asyncGet(key, spyByteTranscoder);
 			byte[] bytes = future.get(getOperationTimeout,
@@ -175,7 +174,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	public Map<String, Object> getBulk(String... keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			Future<Map<String, Object>> future = mcc.asyncGetBulk(keys);
 			Map<String, Object> results = future.get(getOperationTimeout,
@@ -195,7 +194,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	public Map<String, Object> getBulk(final List<String> keys)
 			throws KeyValueStoreException, IOException, ClassNotFoundException {
 		assertReadable();
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			Future<Map<String, Object>> future = mcc.asyncGetBulk(keys);
 			Map<String, Object> results = future.get(getOperationTimeout,
@@ -216,19 +215,20 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 			Transcoder transcoder) throws KeyValueStoreException, IOException,
 			ClassNotFoundException {
 		assertReadable();
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
-			Future<Map<String, Object>> future = mcc.asyncGetBulk(keys);
-			Map<String, Object> results = future.get(getOperationTimeout,
+			Future<Map<String, byte[]>> future = mcc.asyncGetBulk(keys,
+					spyByteTranscoder);
+			Map<String, byte[]> results = future.get(getOperationTimeout,
 					TimeUnit.MILLISECONDS);
 			Map<String, Object> retval = new HashMap<String, Object>(results
 					.size());
-			for (Map.Entry<String, Object> entry : results.entrySet()) {
-				byte[] bytes = (byte[]) entry.getValue();
+			for (Entry<String, byte[]> entry : results.entrySet()) {
+				byte[] bytes = entry.getValue();
 				Object obj = transcoder.decode(bytes);
 				retval.put(entry.getKey(), obj);
 			}
-			return results;
+			return retval;
 		} catch (InterruptedException e) {
 			throw new KeyValueStoreException(e);
 		} catch (ExecutionException e) {
@@ -240,20 +240,20 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	public void set(String key, Serializable value)
-			throws KeyValueStoreException, IOException {
+	public void set(String key, Object value) throws KeyValueStoreException,
+			IOException {
 		set(key, value, 0);
 	}
 
-	public void set(String key, Serializable value, Transcoder transcoder)
+	public void set(String key, Object value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		set(key, value, transcoder, 0);
 	}
 
-	public void set(String key, Serializable value, int exp)
+	public void set(String key, Object value, int exp)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			Future<Boolean> future = mcc.set(key, exp, value);
 			future.get(setOperationTimeout, TimeUnit.MILLISECONDS);
@@ -268,10 +268,10 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	public void set(String key, Serializable value, Transcoder transcoder,
-			int exp) throws KeyValueStoreException, IOException {
+	public void set(String key, Object value, Transcoder transcoder, int exp)
+			throws KeyValueStoreException, IOException {
 		assertWriteable();
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			byte[] bytes = transcoder.encode(value);
 			Future<Boolean> future = mcc
@@ -290,7 +290,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 
 	public void delete(String key) throws KeyValueStoreException, IOException {
 		assertWriteable();
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			Future<Boolean> future = mcc.delete(key);
 			future.get(setOperationTimeout, TimeUnit.MILLISECONDS);
@@ -319,7 +319,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	 */
 	public long incr(String key, int by, long def)
 			throws KeyValueStoreException {
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			return mcc.incr(key, by, def);
 		} finally {
@@ -343,7 +343,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	 */
 	public long incr(String key, int by, long def, int exp)
 			throws KeyValueStoreException {
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			return mcc.incr(key, by, def, exp);
 		} finally {
@@ -365,7 +365,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	 */
 	public long decr(String key, int by, long def)
 			throws KeyValueStoreException {
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			return mcc.decr(key, by, def);
 		} finally {
@@ -389,7 +389,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	 */
 	public long decr(String key, int by, long def, int exp)
 			throws KeyValueStoreException {
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			return mcc.incr(key, by, def, exp);
 		} finally {
@@ -405,7 +405,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	 */
 	public Map<SocketAddress, Map<String, String>> getStats()
 			throws KeyValueStoreException {
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			return mcc.getStats();
 		} finally {
@@ -423,7 +423,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	 */
 	public Map<SocketAddress, Map<String, String>> getStats(String arg)
 			throws KeyValueStoreException {
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			return mcc.getStats(arg);
 		} finally {
@@ -443,7 +443,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	 */
 	public Collection<SocketAddress> getUnavailableServers()
 			throws KeyValueStoreException {
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			return mcc.getUnavailableServers();
 		} finally {
@@ -459,7 +459,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	 */
 	public Map<SocketAddress, String> getVersions()
 			throws KeyValueStoreException {
-		MemcachedClientIF mcc = getMemcachedClient();
+		MemcachedClient mcc = getMemcachedClient();
 		try {
 			return mcc.getVersions();
 		} finally {
@@ -471,8 +471,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		return new MemcachedImplMXBean(this);
 	}
 
-	private MemcachedClientIF getMemcachedClient()
-			throws KeyValueStoreException {
+	private MemcachedClient getMemcachedClient() throws KeyValueStoreException {
 		try {
 			return mcc;
 		} catch (Exception e) {
@@ -480,7 +479,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	private void releaseMemcachedClient(MemcachedClientIF client) {
+	private void releaseMemcachedClient(MemcachedClient client) {
 	}
 
 	/**

@@ -1,6 +1,5 @@
 package com.othersonline.kv;
 
-import java.io.Serializable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,11 +23,11 @@ public class ThreadPoolAsyncFlushQueue implements AsyncFlushQueue {
 				new DaemonThreadFactory());
 	}
 
-	public void set(String key, Serializable value) {
+	public void set(String key, Object value) {
 		executor.submit(new SetRunnable(store, key, value));
 	}
 
-	public void set(String key, Serializable value, Transcoder transcoder) {
+	public void set(String key, Object value, Transcoder transcoder) {
 		executor.submit(new SetTranscoderRunnable(store, key, value, transcoder));
 	}
 
@@ -49,9 +48,9 @@ public class ThreadPoolAsyncFlushQueue implements AsyncFlushQueue {
 	private static class SetRunnable extends QueueRunnable implements Runnable {
 		protected String key;
 
-		protected Serializable value;
+		protected Object value;
 
-		public SetRunnable(KeyValueStore store, String key, Serializable value) {
+		public SetRunnable(KeyValueStore store, String key, Object value) {
 			super(store);
 			this.key = key;
 			this.value = value;
@@ -71,7 +70,7 @@ public class ThreadPoolAsyncFlushQueue implements AsyncFlushQueue {
 		protected Transcoder transcoder;
 
 		public SetTranscoderRunnable(KeyValueStore store, String key,
-				Serializable value, Transcoder transcoder) {
+				Object value, Transcoder transcoder) {
 			super(store, key, value);
 			this.transcoder = transcoder;
 		}
