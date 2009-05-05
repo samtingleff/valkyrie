@@ -121,15 +121,14 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 		return (v != null);
 	}
 
-	public Object get(String key) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
+	public Object get(String key) throws KeyValueStoreException, IOException {
 		assertReadable();
 		Object obj = client.getValue(key);
 		return obj;
 	}
 
 	public Object get(String key, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		byte[] bytes = (byte[]) client.getValue(key);
 		Object obj = null;
@@ -140,7 +139,7 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Map<String, Object> getBulk(String... keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
@@ -153,7 +152,7 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Map<String, Object> getBulk(List<String> keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
@@ -166,7 +165,7 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
@@ -179,8 +178,8 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	public void set(String key, Object value)
-			throws KeyValueStoreException, IOException {
+	public void set(String key, Object value) throws KeyValueStoreException,
+			IOException {
 		assertWriteable();
 		client.put(key, value);
 	}
@@ -265,8 +264,6 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 			try {
 				return (T) transcoder.decode(bytes);
 			} catch (IOException e) {
-				throw new RuntimeException(e);
-			} catch (ClassNotFoundException e) {
 				throw new RuntimeException(e);
 			}
 		}

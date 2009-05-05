@@ -75,8 +75,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		return b;
 	}
 
-	public Object get(String key) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
+	public Object get(String key) throws KeyValueStoreException, IOException {
 		assertReadable();
 		Object obj = null;
 		try {
@@ -100,7 +99,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Object get(String key, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Object obj = null;
 		try {
@@ -132,13 +131,13 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Map<String, Object> getBulk(String... keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		List<String> coll = Arrays.asList(keys);
 		return getBulk(coll);
 	}
 
 	public Map<String, Object> getBulk(List<String> keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		try {
@@ -163,7 +162,7 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		try {
@@ -187,8 +186,8 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	public void set(String key, Object value)
-			throws KeyValueStoreException, IOException {
+	public void set(String key, Object value) throws KeyValueStoreException,
+			IOException {
 		assertWriteable();
 		try {
 			if (cacheOnSet) {

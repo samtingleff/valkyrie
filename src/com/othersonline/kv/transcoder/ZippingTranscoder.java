@@ -20,8 +20,7 @@ public class ZippingTranscoder implements Transcoder {
 		this.delegate = delegate;
 	}
 
-	public Object decode(byte[] bytes) throws IOException,
-			ClassNotFoundException {
+	public Object decode(byte[] bytes) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 		ZipInputStream unzip = new ZipInputStream(in);

@@ -125,8 +125,7 @@ public class SerializingTranscoder implements Transcoder {
 		return buf.array();
 	}
 
-	public Object decode(byte[] encoded) throws IOException,
-			ClassNotFoundException {
+	public Object decode(byte[] encoded) throws IOException {
 		Object decoded;
 		ByteBuffer buf = ByteBuffer.wrap(encoded);
 		byte flag = buf.get();

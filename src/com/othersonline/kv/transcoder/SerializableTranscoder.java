@@ -8,14 +8,17 @@ import java.io.ObjectOutputStream;
 
 public class SerializableTranscoder implements Transcoder {
 
-	public Object decode(byte[] bytes) throws IOException,
-			ClassNotFoundException {
+	public Object decode(byte[] bytes) throws IOException {
 		ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
 		ObjectInputStream ois = new ObjectInputStream(bais);
-		Object obj = ois.readObject();
-		ois.close();
-		bais.close();
-		return obj;
+		try {
+			Object obj = ois.readObject();
+			ois.close();
+			bais.close();
+			return obj;
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public byte[] encode(Object value) throws IOException {

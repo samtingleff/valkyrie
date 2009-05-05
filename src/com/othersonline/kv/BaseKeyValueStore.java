@@ -40,10 +40,10 @@ public abstract class BaseKeyValueStore implements KeyValueStore {
 			IOException;
 
 	public abstract Object get(String key) throws KeyValueStoreException,
-			IOException, ClassNotFoundException;
+			IOException;
 
 	public abstract Object get(String key, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException;
+			throws KeyValueStoreException, IOException;
 
 	public abstract void set(String key, Object value)
 			throws KeyValueStoreException, IOException;

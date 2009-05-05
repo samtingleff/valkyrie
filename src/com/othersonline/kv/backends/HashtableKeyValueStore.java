@@ -44,7 +44,7 @@ public class HashtableKeyValueStore extends BaseManagedKeyValueStore implements
 	}
 
 	public Map<String, Object> getBulk(String... keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
@@ -56,7 +56,7 @@ public class HashtableKeyValueStore extends BaseManagedKeyValueStore implements
 	}
 
 	public Map<String, Object> getBulk(final List<String> keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
@@ -68,8 +68,7 @@ public class HashtableKeyValueStore extends BaseManagedKeyValueStore implements
 	}
 
 	public Map<String, Object> getBulk(final List<String> keys,
-			Transcoder transcoder) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
+			Transcoder transcoder) throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
@@ -80,8 +79,8 @@ public class HashtableKeyValueStore extends BaseManagedKeyValueStore implements
 		return results;
 	}
 
-	public void set(String key, Object value)
-			throws KeyValueStoreException, IOException {
+	public void set(String key, Object value) throws KeyValueStoreException,
+			IOException {
 		assertWriteable();
 		map.put(key, value);
 	}

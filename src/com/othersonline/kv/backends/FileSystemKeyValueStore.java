@@ -78,14 +78,13 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 		return f.exists();
 	}
 
-	public Object get(String key) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
+	public Object get(String key) throws KeyValueStoreException, IOException {
 		assertReadable();
 		return get(key, defaultTranscoder);
 	}
 
 	public Object get(String key, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		File f = getFile(key);
 		if (!f.exists())
@@ -99,7 +98,7 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Map<String, Object> getBulk(String... keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
@@ -111,7 +110,7 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Map<String, Object> getBulk(final List<String> keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
@@ -123,8 +122,7 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Map<String, Object> getBulk(final List<String> keys,
-			Transcoder transcoder) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
+			Transcoder transcoder) throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
@@ -135,8 +133,8 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	public void set(String key, Object value)
-			throws KeyValueStoreException, IOException {
+	public void set(String key, Object value) throws KeyValueStoreException,
+			IOException {
 		assertWriteable();
 		set(key, value, defaultTranscoder);
 	}

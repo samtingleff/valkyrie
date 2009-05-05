@@ -136,15 +136,14 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	public Object get(String key) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
+	public Object get(String key) throws KeyValueStoreException, IOException {
 		log.trace("get()");
 		assertReadable();
 		return get(key, defaultTranscoder);
 	}
 
 	public Object get(String key, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		log.trace("get()");
 		assertReadable();
 		TConnection tconn = null;
@@ -179,19 +178,19 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 	}
 
 	public Map<String, Object> getBulk(String... keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		List<String> coll = Arrays.asList(keys);
 		return getBulk(coll);
 	}
 
 	public Map<String, Object> getBulk(List<String> keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		log.trace("getBulk()");
 		return getBulk(keys, defaultTranscoder);
 	}
 
 	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		log.trace("getBulk()");
 		assertReadable();
 		TConnection tconn = null;
@@ -226,8 +225,8 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	public void set(String key, Object value)
-			throws KeyValueStoreException, IOException {
+	public void set(String key, Object value) throws KeyValueStoreException,
+			IOException {
 		log.trace("set()");
 		assertWriteable();
 		set(key, value, defaultTranscoder);

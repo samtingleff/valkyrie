@@ -147,7 +147,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	}
 
 	public Object get(String key, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		MemcachedClient mcc = getMemcachedClient();
 		try {
@@ -172,7 +172,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	}
 
 	public Map<String, Object> getBulk(String... keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		MemcachedClient mcc = getMemcachedClient();
 		try {
@@ -192,7 +192,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	}
 
 	public Map<String, Object> getBulk(final List<String> keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		MemcachedClient mcc = getMemcachedClient();
 		try {
@@ -212,8 +212,7 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	}
 
 	public Map<String, Object> getBulk(final List<String> keys,
-			Transcoder transcoder) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
+			Transcoder transcoder) throws KeyValueStoreException, IOException {
 		assertReadable();
 		MemcachedClient mcc = getMemcachedClient();
 		try {

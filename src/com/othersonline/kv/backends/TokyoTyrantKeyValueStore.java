@@ -10,9 +10,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.BasePoolableObjectFactory;
-import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
-import org.apache.commons.pool.impl.StackObjectPool;
 
 import tokyotyrant.RDB;
 import tokyotyrant.transcoder.ByteArrayTranscoder;
@@ -156,7 +154,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	}
 
 	public Object get(String key, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		RDB rdb = null;
 		try {
@@ -175,7 +173,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	}
 
 	public Map<String, Object> getBulk(String... keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		RDB rdb = null;
 		try {
@@ -191,7 +189,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	}
 
 	public Map<String, Object> getBulk(final List<String> keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		RDB rdb = null;
 		try {
@@ -208,8 +206,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	}
 
 	public Map<String, Object> getBulk(final List<String> keys,
-			Transcoder transcoder) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
+			Transcoder transcoder) throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = null;
 		RDB rdb = null;
@@ -233,8 +230,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
-	public void set(String key, Object value)
-			throws KeyValueStoreException, IOException {
+	public void set(String key, Object value) throws KeyValueStoreException,
+			IOException {
 		assertWriteable();
 		RDB rdb = null;
 		try {

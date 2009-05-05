@@ -64,8 +64,7 @@ public class ReadLoadBalancingKeyValueStore extends BaseManagedKeyValueStore
 		return exists;
 	}
 
-	public Object get(String key) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
+	public Object get(String key) throws KeyValueStoreException, IOException {
 		assertReadable();
 		Object obj = null;
 		try {
@@ -77,7 +76,7 @@ public class ReadLoadBalancingKeyValueStore extends BaseManagedKeyValueStore
 	}
 
 	public Object get(String key, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Object obj = null;
 		try {
@@ -89,7 +88,7 @@ public class ReadLoadBalancingKeyValueStore extends BaseManagedKeyValueStore
 	}
 
 	public Map<String, Object> getBulk(String... keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = null;
 		try {
@@ -101,7 +100,7 @@ public class ReadLoadBalancingKeyValueStore extends BaseManagedKeyValueStore
 	}
 
 	public Map<String, Object> getBulk(List<String> keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = null;
 		try {
@@ -113,7 +112,7 @@ public class ReadLoadBalancingKeyValueStore extends BaseManagedKeyValueStore
 	}
 
 	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = null;
 		try {
@@ -124,8 +123,8 @@ public class ReadLoadBalancingKeyValueStore extends BaseManagedKeyValueStore
 		return results;
 	}
 
-	public void set(String key, Object value)
-			throws KeyValueStoreException, IOException {
+	public void set(String key, Object value) throws KeyValueStoreException,
+			IOException {
 		assertWriteable();
 		master.set(key, value);
 	}

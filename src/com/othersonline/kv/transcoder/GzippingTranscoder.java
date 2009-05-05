@@ -17,8 +17,7 @@ public class GzippingTranscoder implements Transcoder {
 		this.delegate = delegate;
 	}
 
-	public Object decode(byte[] bytes) throws IOException,
-			ClassNotFoundException {
+	public Object decode(byte[] bytes) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 		GZIPInputStream gunzip = new GZIPInputStream(in);

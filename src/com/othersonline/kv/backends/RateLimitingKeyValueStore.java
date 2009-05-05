@@ -7,7 +7,6 @@ import java.util.Map;
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
-import com.othersonline.kv.KeyValueStoreStatus;
 import com.othersonline.kv.KeyValueStoreUnavailable;
 import com.othersonline.kv.transcoder.Transcoder;
 import com.othersonline.kv.util.RateLimiter;
@@ -64,38 +63,37 @@ public class RateLimitingKeyValueStore extends BaseManagedKeyValueStore
 		return master.exists(key);
 	}
 
-	public Object get(String key) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
+	public Object get(String key) throws KeyValueStoreException, IOException {
 		assertReadable();
 		return master.get(key);
 	}
 
 	public Object get(String key, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		return master.get(key, transcoder);
 	}
 
 	public Map<String, Object> getBulk(String... keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		return master.getBulk(keys);
 	}
 
 	public Map<String, Object> getBulk(List<String> keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		return master.getBulk(keys);
 	}
 
 	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		return master.getBulk(keys, transcoder);
 	}
 
-	public void set(String key, Object value)
-			throws KeyValueStoreException, IOException {
+	public void set(String key, Object value) throws KeyValueStoreException,
+			IOException {
 		assertWriteable();
 		master.set(key, value);
 	}

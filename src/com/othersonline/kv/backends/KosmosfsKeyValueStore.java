@@ -66,13 +66,12 @@ public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 		return kfs.kfs_exists(key);
 	}
 
-	public Object get(String key) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
+	public Object get(String key) throws KeyValueStoreException, IOException {
 		return get(key, defaultTranscoder);
 	}
 
 	public Object get(String key, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		KfsInputChannel ch = kfs.kfs_open(key);
 		if (ch == null)
@@ -96,7 +95,7 @@ public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Map<String, Object> getBulk(String... keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
@@ -108,7 +107,7 @@ public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Map<String, Object> getBulk(List<String> keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
@@ -120,7 +119,7 @@ public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
@@ -131,8 +130,8 @@ public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	public void set(String key, Object value)
-			throws KeyValueStoreException, IOException {
+	public void set(String key, Object value) throws KeyValueStoreException,
+			IOException {
 		set(key, value, defaultTranscoder);
 	}
 

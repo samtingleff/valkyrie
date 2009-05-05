@@ -126,7 +126,7 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Map<String, Object> getBulk(String... keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
 			Object obj = get(key);
@@ -137,7 +137,7 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Map<String, Object> getBulk(final List<String> keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
 			Object obj = get(key);
@@ -148,8 +148,7 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public Map<String, Object> getBulk(final List<String> keys,
-			Transcoder transcoder) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
+			Transcoder transcoder) throws KeyValueStoreException, IOException {
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
 			Object obj = get(key, transcoder);
@@ -159,8 +158,8 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 		return results;
 	}
 
-	public void set(String key, Object value)
-			throws KeyValueStoreException, IOException {
+	public void set(String key, Object value) throws KeyValueStoreException,
+			IOException {
 		assertWriteable();
 		boolean updated = false;
 		try {

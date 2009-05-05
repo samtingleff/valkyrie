@@ -130,13 +130,12 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
-	public Object get(String key) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
+	public Object get(String key) throws KeyValueStoreException, IOException {
 		return get(key, defaultTranscoder);
 	}
 
 	public Object get(String key, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		GetMethod method = new GetMethod(getUri(key));
 		try {
@@ -168,13 +167,13 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 	}
 
 	public Map<String, Object> getBulk(String... keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		List<String> coll = Arrays.asList(keys);
 		return getBulk(coll);
 	}
 
 	public Map<String, Object> getBulk(final List<String> keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException {
+			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
@@ -187,8 +186,7 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 	}
 
 	public Map<String, Object> getBulk(final List<String> keys,
-			Transcoder transcoder) throws KeyValueStoreException, IOException,
-			ClassNotFoundException {
+			Transcoder transcoder) throws KeyValueStoreException, IOException {
 		assertReadable();
 		Map<String, Object> results = new HashMap<String, Object>();
 		for (String key : keys) {
@@ -200,8 +198,8 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 		return results;
 	}
 
-	public void set(String key, Object value)
-			throws KeyValueStoreException, IOException {
+	public void set(String key, Object value) throws KeyValueStoreException,
+			IOException {
 		set(key, value, defaultTranscoder);
 	}
 

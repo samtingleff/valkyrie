@@ -65,11 +65,9 @@ public interface KeyValueStore {
 	 * 
 	 * @throws KeyValueStoreException
 	 * @throws IOException
-	 * @throws ClassNotFoundException
 	 * 
 	 */
-	public Object get(String key) throws KeyValueStoreException, IOException,
-			ClassNotFoundException;
+	public Object get(String key) throws KeyValueStoreException, IOException;
 
 	/**
 	 * Retrieve an object from store for a given key using the specified
@@ -77,11 +75,10 @@ public interface KeyValueStore {
 	 * 
 	 * @throws KeyValueStoreException
 	 * @throws IOException
-	 * @throws ClassNotFoundException
 	 * 
 	 */
 	public Object get(String key, Transcoder transcoder)
-			throws KeyValueStoreException, IOException, ClassNotFoundException;
+			throws KeyValueStoreException, IOException;
 
 	/**
 	 * Perform bulk get operation.
@@ -90,10 +87,9 @@ public interface KeyValueStore {
 	 * @return map of key->object
 	 * @throws KeyValueStoreException
 	 * @throws IOException
-	 * @throws ClassNotFoundException
 	 */
 	public Map<String, Object> getBulk(String... keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException;
+			throws KeyValueStoreException, IOException;
 
 	/**
 	 * Perform bulk get operation.
@@ -102,10 +98,9 @@ public interface KeyValueStore {
 	 * @return map of key->object
 	 * @throws KeyValueStoreException
 	 * @throws IOException
-	 * @throws ClassNotFoundException
 	 */
 	public Map<String, Object> getBulk(final List<String> keys)
-			throws KeyValueStoreException, IOException, ClassNotFoundException;
+			throws KeyValueStoreException, IOException;
 
 	/**
 	 * Perform bulk get operation.
@@ -114,11 +109,9 @@ public interface KeyValueStore {
 	 * @return map of key->object
 	 * @throws KeyValueStoreException
 	 * @throws IOException
-	 * @throws ClassNotFoundException
 	 */
 	public Map<String, Object> getBulk(final List<String> keys,
-			Transcoder transcoder) throws KeyValueStoreException, IOException,
-			ClassNotFoundException;
+			Transcoder transcoder) throws KeyValueStoreException, IOException;
 
 	/**
 	 * Save an object for a given key.
@@ -126,8 +119,8 @@ public interface KeyValueStore {
 	 * @throws KeyValueStoreException
 	 * @throws IOException
 	 */
-	public void set(String key, Object value)
-			throws KeyValueStoreException, IOException;
+	public void set(String key, Object value) throws KeyValueStoreException,
+			IOException;
 
 	/**
 	 * Save an object for a given key using the specified transcoder.

@@ -24,8 +24,7 @@ public class StringTranscoder implements Transcoder {
 		this.encoding = encoding;
 	}
 
-	public Object decode(byte[] bytes) throws IOException,
-			ClassNotFoundException {
+	public Object decode(byte[] bytes) throws IOException {
 		try {
 			return new String(bytes, encoding);
 		} catch (UnsupportedEncodingException e) {
