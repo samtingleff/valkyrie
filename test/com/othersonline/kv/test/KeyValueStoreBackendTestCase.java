@@ -21,7 +21,7 @@ import com.othersonline.kv.backends.AsyncFlushCachingKeyValueStore;
 import com.othersonline.kv.backends.BDBJEKeyValueStore;
 import com.othersonline.kv.backends.CachingKeyValueStore;
 import com.othersonline.kv.backends.FileSystemKeyValueStore;
-import com.othersonline.kv.backends.HashtableKeyValueStore;
+import com.othersonline.kv.backends.ConcurrentHashMapKeyValueStore;
 import com.othersonline.kv.backends.KosmosfsKeyValueStore;
 import com.othersonline.kv.backends.MemcachedKeyValueStore;
 import com.othersonline.kv.backends.OsCacheKeyValueStore;
@@ -48,7 +48,7 @@ import junit.framework.TestCase;
 public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testHashtableBackend() throws Exception {
-		KeyValueStore store = new HashtableKeyValueStore();
+		KeyValueStore store = new ConcurrentHashMapKeyValueStore();
 		doTestBackend(store);
 	}
 
@@ -188,7 +188,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		master.setHosts("localhost:11211");
 		master.start();
 
-		KeyValueStore cache = new HashtableKeyValueStore();
+		KeyValueStore cache = new ConcurrentHashMapKeyValueStore();
 		cache.start();
 
 		AsyncFlushCachingKeyValueStore store = new AsyncFlushCachingKeyValueStore(
@@ -215,7 +215,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		master.setHosts("localhost:11211");
 		master.start();
 
-		KeyValueStore replica = new HashtableKeyValueStore();
+		KeyValueStore replica = new ConcurrentHashMapKeyValueStore();
 		replica.start();
 
 		ReplicatingKeyValueStore store = new ReplicatingKeyValueStore(master);

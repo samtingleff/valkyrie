@@ -3,19 +3,19 @@ package com.othersonline.kv.backends;
 import java.io.IOException;
 import java.util.List;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.transcoder.Transcoder;
 
-public class HashtableKeyValueStore extends BaseManagedKeyValueStore implements
-		KeyValueStore {
+public class ConcurrentHashMapKeyValueStore extends BaseManagedKeyValueStore
+		implements KeyValueStore {
 	public static final String IDENTIFIER = "hashtable";
 
-	private Map<String, Object> map = new Hashtable<String, Object>();
+	private Map<String, Object> map = new ConcurrentHashMap<String, Object>();
 
 	public String getIdentifier() {
 		return IDENTIFIER;

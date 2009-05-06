@@ -3,7 +3,7 @@ package com.othersonline.kv.test;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.backends.CachingKeyValueStore;
 import com.othersonline.kv.backends.FileSystemKeyValueStore;
-import com.othersonline.kv.backends.HashtableKeyValueStore;
+import com.othersonline.kv.backends.ConcurrentHashMapKeyValueStore;
 import com.othersonline.kv.backends.MemcachedKeyValueStore;
 import com.othersonline.kv.backends.OsCacheKeyValueStore;
 import com.othersonline.kv.backends.ReplicatingKeyValueStore;
@@ -131,7 +131,7 @@ public class ExamplesTestCase extends TestCase {
 		KeyValueStore replica1 = new OsCacheKeyValueStore();
 		replica1.start();
 
-		KeyValueStore replica2 = new HashtableKeyValueStore();
+		KeyValueStore replica2 = new ConcurrentHashMapKeyValueStore();
 		replica2.start();
 
 		ReplicatingKeyValueStore replicatingStore = new ReplicatingKeyValueStore();

@@ -8,7 +8,7 @@ It is meant to be easy to use and easily embedded into a Spring or other IoC con
 
 Currently supported backends include:
 
-- java.util.Hashtable (probably useful just as an example)
+- java.util.concurrent.ConcurrentHashMap
 - [OsCache](http://www.opensymphony.com/oscache/ "OsCache")
 - [memcached](http://www.danga.com/memcached/ "memcached") (and cousins [MemcacheQ](http://memcachedb.org/memcacheq/ "MemcacheQ") and [MemcacheDB](http://memcachedb.org/ "MemcacheDB"))
 - [BDB JE](http://www.oracle.com/database/berkeley-db/je/ "BDB Java Edition")
@@ -125,7 +125,7 @@ permanent storage:
 		KeyValueStore replica1 = new OsCacheKeyValueStore();
 		replica1.start();
 
-		KeyValueStore replica2 = new HashtableKeyValueStore();
+		KeyValueStore replica2 = new ConcurrentHashMapKeyValueStore();
 		replica2.start();
 
 		ReplicatingKeyValueStore replicatingStore = new ReplicatingKeyValueStore();
@@ -169,7 +169,7 @@ Using a [totally unscientific benchmark](http://github.com/samtingleff/oo-kv-sto
  </thead>
  <tbody>
   <tr>
-   <td>Hashtable</td>
+   <td>ConcurrentHashMap</td>
    <td>147ms</td>
    <td>20,408</td>
   </tr>

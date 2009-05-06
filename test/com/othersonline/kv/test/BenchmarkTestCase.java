@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.backends.FileSystemKeyValueStore;
-import com.othersonline.kv.backends.HashtableKeyValueStore;
+import com.othersonline.kv.backends.ConcurrentHashMapKeyValueStore;
 import com.othersonline.kv.backends.MemcachedKeyValueStore;
 import com.othersonline.kv.backends.OsCacheKeyValueStore;
 import com.othersonline.kv.backends.ThriftKeyValueStore;
@@ -47,7 +47,7 @@ public class BenchmarkTestCase extends TestCase {
 
 	public void testBenchmark() throws Exception {
 		KeyValueStore[] backends = new KeyValueStore[] {
-				new HashtableKeyValueStore(), new OsCacheKeyValueStore(),
+				new ConcurrentHashMapKeyValueStore(), new OsCacheKeyValueStore(),
 				new MemcachedKeyValueStore("stanley:11211"),
 				new MemcachedKeyValueStore("stanley:21201"),
 				new FileSystemKeyValueStore("tmp/fs"),
