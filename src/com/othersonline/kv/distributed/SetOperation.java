@@ -8,10 +8,13 @@ public class SetOperation<V> extends AbstractOperation<V> implements
 
 	private V value;
 
-	public SetOperation(OperationCallback<V> callback, Node node, String key,
-			V value) {
-		super(callback, node, key);
+	public SetOperation(String key, V value) {
+		super(key);
 		this.value = value;
+	}
+
+	public SetOperation<V> copy() {
+		return new SetOperation<V>(this.key, this.value);
 	}
 
 	public OperationResult<V> call() throws Exception {

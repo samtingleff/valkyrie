@@ -16,10 +16,7 @@ public abstract class AbstractOperation<V> implements Operation<V>,
 
 	protected String key;
 
-	public AbstractOperation(OperationCallback<V> callback, Node node,
-			String key) {
-		this.callback = callback;
-		this.node = node;
+	public AbstractOperation(String key) {
 		this.key = key;
 	}
 

@@ -6,6 +6,8 @@ import java.util.concurrent.Callable;
 import com.othersonline.kv.KeyValueStore;
 
 public interface Operation<V> extends Serializable {
+	public Operation<V> copy();
+
 	public OperationCallback<V> getCallback();
 
 	public void setCallback(OperationCallback<V> callback);

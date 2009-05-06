@@ -2,6 +2,7 @@ package com.othersonline.kv.backends;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,8 @@ import tokyotyrant.transcoder.SerializingTranscoder;
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
+import com.othersonline.kv.annotations.Configurable;
+import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.Transcoder;
 
 public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
@@ -65,39 +68,48 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		this.socketTimeout = socketTimeout;
 	}
 
+	@Configurable(name = "host", accepts = Type.StringType)
 	public void setHost(String host) {
 		this.host = host;
 	}
 
+	@Configurable(name = "port", accepts = Type.IntType)
 	public void setPort(int port) {
 		this.port = port;
 	}
 
+	@Configurable(name = "socketTimeout", accepts = Type.IntType)
 	public void setSocketTimeout(int millis) {
 		this.socketTimeout = millis;
 	}
 
+	@Configurable(name = "maxActive", accepts = Type.IntType)
 	public void setMaxActive(int maxActive) {
 		this.maxActive = maxActive;
 	}
 
+	@Configurable(name = "maxIdle", accepts = Type.IntType)
 	public void setMaxIdle(int maxIdle) {
 		this.maxIdle = maxIdle;
 	}
 
+	@Configurable(name = "maxWait", accepts = Type.LongType)
 	public void setMaxWait(long maxWait) {
 		this.maxWait = maxWait;
 	}
 
+	@Configurable(name = "timeBetweenEvictionRunsMillis", accepts = Type.LongType)
 	public void setTimeBetweenEvictionRunsMillis(
 			long timeBetweenEvictionRunsMillis) {
 		this.timeBetweenEvictionRunsMillis = timeBetweenEvictionRunsMillis;
 	}
 
+	@Configurable(name = "numTestsPerEvictionRun", accepts = Type.IntType)
 	public void setNumTestsPerEvictionRun(int numTestsPerEvictionRun) {
 		this.numTestsPerEvictionRun = numTestsPerEvictionRun;
 	}
 
+	@Configurable(name = "minEvictableIdleTimeMillis", accepts = Type.IntType)
 	public void setMinEvictableIdleTimeMillis(int minEvictableIdleTimeMillis) {
 		this.minEvictableIdleTimeMillis = minEvictableIdleTimeMillis;
 	}
@@ -316,6 +328,11 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 				RDB rdb = (RDB) obj;
 				long rnum = rdb.rnum();
 				result = true;
+			} catch (SocketTimeoutException e) {
+				log
+						.error("validateObject() failed due to java.net.SocketTimeoutException. Connection to Tokyo Tyrant is broken: "
+								+ e.getMessage());
+				result = false;
 			} catch (Exception e) {
 				log
 						.error(
