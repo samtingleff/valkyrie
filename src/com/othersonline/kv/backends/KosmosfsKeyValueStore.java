@@ -13,6 +13,8 @@ import org.kosmix.kosmosfs.access.KfsOutputChannel;
 
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
+import com.othersonline.kv.annotations.Configurable;
+import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.SerializableTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 
@@ -35,14 +37,17 @@ public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 		return IDENTIFIER;
 	}
 
+	@Configurable(name = "metaServerHost", accepts = Type.StringType)
 	public void setMetaServerHost(String host) {
 		this.metaServerHost = host;
 	}
 
+	@Configurable(name = "metaServerPort", accepts = Type.IntType)
 	public void setMetaServerPort(int port) {
 		this.metaServerPort = port;
 	}
 
+	@Configurable(name = "gcFrequency", accepts = Type.IntType)
 	public void setGcFrequency(int gcFrequency) {
 		this.gcFrequency = gcFrequency;
 	}

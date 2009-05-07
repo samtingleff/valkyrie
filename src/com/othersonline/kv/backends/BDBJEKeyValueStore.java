@@ -12,6 +12,8 @@ import org.apache.commons.logging.LogFactory;
 
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
+import com.othersonline.kv.annotations.Configurable;
+import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.SerializableTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 import com.sleepycat.bind.EntryBinding;
@@ -57,10 +59,12 @@ public class BDBJEKeyValueStore extends BaseManagedKeyValueStore {
 		this.dir = dir;
 	}
 
+	@Configurable(name = "directory", accepts = Type.StringType)
 	public void setDirectory(String directory) {
 		this.dir = new File(directory);
 	}
 
+	@Configurable(name = "cacheSize", accepts = Type.IntType)
 	public void setCacheSize(int cacheSize) {
 		this.cacheSize = cacheSize;
 	}
@@ -211,8 +215,8 @@ public class BDBJEKeyValueStore extends BaseManagedKeyValueStore {
 		}
 	}
 
-	public void set(String key, Object value)
-			throws KeyValueStoreException, IOException {
+	public void set(String key, Object value) throws KeyValueStoreException,
+			IOException {
 		assertWriteable();
 		set(key, value, defaultTranscoder);
 	}

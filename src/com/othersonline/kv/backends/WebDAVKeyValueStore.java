@@ -28,6 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.BaseManagedKeyValueStore;
+import com.othersonline.kv.annotations.Configurable;
+import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.SerializableTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 import com.othersonline.kv.util.StreamUtils;
@@ -53,8 +55,6 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 
 	private int connectionTimeout = 5000;
 
-	private int responseBufferSize = 1024;
-
 	public WebDAVKeyValueStore() {
 	}
 
@@ -62,28 +62,29 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 		this.baseUrl = baseUrl;
 	}
 
+	@Configurable(name="baseUrl", accepts=Type.StringType)
 	public void setBaseUrl(String baseUrl) {
 		this.baseUrl = baseUrl;
 	}
 
+	@Configurable(name="maxConnectionsPerHost", accepts=Type.IntType)
 	public void setMaxConnectionsPerHost(int maxConnectionsPerHost) {
 		this.maxConnectionsPerHost = maxConnectionsPerHost;
 	}
 
+	@Configurable(name="maxConnectionsPerHost", accepts=Type.IntType)
 	public void setMaxTotalConnections(int maxTotalConnections) {
 		this.maxTotalConnections = maxTotalConnections;
 	}
 
+	@Configurable(name="maxConnectionsPerHost", accepts=Type.IntType)
 	public void setSocketTimeout(int socketTimeout) {
 		this.socketTimeout = socketTimeout;
 	}
 
+	@Configurable(name="connectionTimeout", accepts=Type.IntType)
 	public void setConnectionTimeout(int connectionTimeout) {
 		this.connectionTimeout = connectionTimeout;
-	}
-
-	public void setResponseBufferSize(int responseBufferSize) {
-		this.responseBufferSize = responseBufferSize;
 	}
 
 	public String getIdentifier() {

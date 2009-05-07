@@ -11,6 +11,8 @@ import com.opensymphony.oscache.base.NeedsRefreshException;
 import com.opensymphony.oscache.general.GeneralCacheAdministrator;
 import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.BaseManagedKeyValueStore;
+import com.othersonline.kv.annotations.Configurable;
+import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.Transcoder;
 
 public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
@@ -37,35 +39,43 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 	public OsCacheKeyValueStore() {
 	}
 
+	@Configurable(name = "memoryCache", accepts = Type.BooleanType)
 	public void setMemoryCache(boolean enable) {
 		this.memoryCache = enable;
 	}
 
+	@Configurable(name = "cacheAlgorithm", accepts = Type.StringType)
 	public void cacheAlgorithm(String algo) {
 		this.cacheAlgorithm = algo;
 	}
 
+	@Configurable(name = "cacheCapacity", accepts = Type.IntType)
 	public void setCapacity(int capacity) {
 		this.cacheCapacity = capacity;
 	}
 
+	@Configurable(name = "diskPersistence", accepts = Type.IntType)
 	public void setRefreshPeriod(int refreshPeriod) {
 		this.refreshPeriod = refreshPeriod;
 	}
 
+	@Configurable(name = "diskPersistence", accepts = Type.BooleanType)
 	public void setDiskPersistence(boolean diskPersistence) {
 		this.diskPersistence = diskPersistence;
 	}
 
+	@Configurable(name = "diskPersistenceOverflowOnly", accepts = Type.BooleanType)
 	public void setDiskPersistenceOverflowOnly(
 			boolean diskPersistenceOverflowOnly) {
 		this.diskPersistenceOverflowOnly = diskPersistenceOverflowOnly;
 	}
 
+	@Configurable(name = "diskPersistenceClass", accepts = Type.StringType)
 	public void setDiskPersistenceClass(String cls) {
 		this.diskPersistenceClass = cls;
 	}
 
+	@Configurable(name = "diskPersistencePath", accepts = Type.StringType)
 	public void setDiskPersistencePath(String diskPersistencePath) {
 		this.diskPersistencePath = diskPersistencePath;
 	}

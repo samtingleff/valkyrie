@@ -21,6 +21,8 @@ import org.apache.thrift.transport.TTransportException;
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.ManagedKeyValueStore;
+import com.othersonline.kv.annotations.Configurable;
+import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.gen.Constants;
 import com.othersonline.kv.gen.GetResult;
 import com.othersonline.kv.gen.KeyValueService;
@@ -62,34 +64,42 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 		this.port = port;
 	}
 
+	@Configurable(name = "server", accepts = Type.StringType)
 	public void setServer(String server) {
 		this.server = server;
 	}
 
+	@Configurable(name = "port", accepts = Type.IntType)
 	public void setPort(int port) {
 		this.port = port;
 	}
 
+	@Configurable(name = "lifo", accepts = Type.BooleanType)
 	public void setLifo(boolean lifo) {
 		this.lifo = lifo;
 	}
 
+	@Configurable(name = "maxActive", accepts = Type.IntType)
 	public void setMaxActive(int maxActive) {
 		this.maxActive = maxActive;
 	}
 
+	@Configurable(name = "maxIdle", accepts = Type.IntType)
 	public void setMaxIdle(int maxIdle) {
 		this.maxIdle = maxIdle;
 	}
 
+	@Configurable(name = "testWhileIdle", accepts = Type.LongType)
 	public void setMaxWait(long maxWait) {
 		this.maxWait = maxWait;
 	}
 
+	@Configurable(name = "testWhileIdle", accepts = Type.BooleanType)
 	public void setTestWhileIdle(boolean testWhileIdle) {
 		this.testWhileIdle = testWhileIdle;
 	}
 
+	@Configurable(name = "timeBetweenEvictionRunsMillis", accepts = Type.LongType)
 	public void setTimeBetweenEvictionRunsMillis(long millis) {
 		this.timeBetweenEvictionRunsMillis = millis;
 	}

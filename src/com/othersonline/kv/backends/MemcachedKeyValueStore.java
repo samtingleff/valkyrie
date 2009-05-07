@@ -31,6 +31,8 @@ import net.spy.memcached.protocol.binary.BinaryOperationFactory;
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
+import com.othersonline.kv.annotations.Configurable;
+import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.mgmt.MemcachedImplMXBean;
 import com.othersonline.kv.transcoder.Transcoder;
 import com.othersonline.kv.transcoder.spy.SpyMemcachedByteArrayTranscoder;
@@ -71,22 +73,27 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		this.hosts = hosts;
 	}
 
+	@Configurable(name = "hosts", accepts = Type.StringType)
 	public void setHosts(String hosts) {
 		this.hosts = AddrUtil.getAddresses(hosts);
 	}
 
+	@Configurable(name = "hosts", accepts = Type.StringType)
 	public void setUseBinaryProtocol(boolean useBinaryProtocol) {
 		this.useBinaryProtocol = useBinaryProtocol;
 	}
 
+	@Configurable(name = "useKetama", accepts = Type.BooleanType)
 	public void setUseKetama(boolean useKetama) {
 		this.useKetama = useKetama;
 	}
 
+	@Configurable(name = "getOperationTimeout", accepts = Type.LongType)
 	public void setGetOperationTimeout(long millis) {
 		this.getOperationTimeout = millis;
 	}
 
+	@Configurable(name = "setOperationTimeout", accepts = Type.LongType)
 	public void setSetOperationTimeout(long millis) {
 		this.setOperationTimeout = millis;
 	}

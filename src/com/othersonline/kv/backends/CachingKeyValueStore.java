@@ -14,6 +14,8 @@ import org.apache.commons.logging.LogFactory;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.BaseManagedKeyValueStore;
+import com.othersonline.kv.annotations.Configurable;
+import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.Transcoder;
 
 public class CachingKeyValueStore extends BaseManagedKeyValueStore {
@@ -45,10 +47,12 @@ public class CachingKeyValueStore extends BaseManagedKeyValueStore {
 		this.cache = cache;
 	}
 
+	@Configurable(name = "cacheOnMiss", accepts = Type.BooleanType)
 	public void setCacheOnMiss(boolean cacheOnMiss) {
 		this.cacheOnMiss = cacheOnMiss;
 	}
 
+	@Configurable(name = "cacheOnSet", accepts = Type.BooleanType)
 	public void setCacheOnSet(boolean cacheOnSet) {
 		this.cacheOnSet = cacheOnSet;
 	}

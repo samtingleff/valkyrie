@@ -10,6 +10,8 @@ import java.util.Map;
 
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
+import com.othersonline.kv.annotations.Configurable;
+import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.SerializableTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 import com.othersonline.kv.util.StreamUtils;
@@ -44,14 +46,17 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 		this.rootDirectory = root.getAbsolutePath();
 	}
 
+	@Configurable(name = "root", accepts = Type.StringType)
 	public void setRoot(String rootDirectory) {
 		this.rootDirectory = rootDirectory;
 	}
 
+	@Configurable(name = "sanitizeKeys", accepts = Type.BooleanType)
 	public void setSanitizeKeys(boolean sanitizeKeys) {
 		this.sanitizeKeys = sanitizeKeys;
 	}
 
+	@Configurable(name = "cleanEmptyDirectories", accepts = Type.BooleanType)
 	public void setCleanEmptyDirectories(boolean removeEmptyDirectories) {
 		this.removeEmptyDirectories = removeEmptyDirectories;
 	}

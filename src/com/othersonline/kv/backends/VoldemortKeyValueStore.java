@@ -19,6 +19,8 @@ import voldemort.versioning.Versioned;
 
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
+import com.othersonline.kv.annotations.Configurable;
+import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.SerializableTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 import com.othersonline.kv.util.DaemonThreadFactory;
@@ -54,34 +56,42 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 		this.executor = executor;
 	}
 
+	@Configurable(name="threadPoolSize", accepts=Type.IntType)
 	public void setThreadPoolSize(int threadPoolSize) {
 		this.threadPoolSize = threadPoolSize;
 	}
 
+	@Configurable(name="maxConnectionsPerNode", accepts=Type.IntType)
 	public void setMaxConnectionsPerNode(int maxConnectionsPerNode) {
 		this.maxConnectionsPerNode = maxConnectionsPerNode;
 	}
 
+	@Configurable(name="maxTotalConnections", accepts=Type.IntType)
 	public void setMaxTotalConnections(int maxTotalConnections) {
 		this.maxTotalConnections = maxTotalConnections;
 	}
 
+	@Configurable(name="socketTimeout", accepts=Type.IntType)
 	public void setSocketTimeout(int socketTimeout) {
 		this.socketTimeout = socketTimeout;
 	}
 
+	@Configurable(name="routingTimeout", accepts=Type.IntType)
 	public void setRoutingTimeout(int routingTimeout) {
 		this.routingTimeout = routingTimeout;
 	}
 
+	@Configurable(name="nodeBannage", accepts=Type.IntType)
 	public void setNodeBannage(int nodeBannage) {
 		this.nodeBannage = nodeBannage;
 	}
 
+	@Configurable(name="bootstrapUrl", accepts=Type.StringType)
 	public void setBootstrapUrl(String bootstrapUrl) {
 		this.bootstrapUrl = bootstrapUrl;
 	}
 
+	@Configurable(name="storeName", accepts=Type.StringType)
 	public void setStoreName(String storeName) {
 		this.storeName = storeName;
 	}
