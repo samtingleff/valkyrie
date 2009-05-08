@@ -8,6 +8,7 @@ import com.othersonline.kv.distributed.Context;
 import com.othersonline.kv.distributed.NodeStore;
 import com.othersonline.kv.distributed.backends.TokyoTyrantConnectionFactory;
 import com.othersonline.kv.distributed.impl.DefaultDistributedKeyValueStore;
+import com.othersonline.kv.distributed.impl.NonPersistentThreadPoolOperationQueue;
 import com.othersonline.kv.distributed.impl.PassthroughContextSerializer;
 
 import junit.framework.TestCase;
@@ -19,6 +20,8 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		config.setRequiredReads(1);
 		config.setRequiredWrites(1);
 		config.setReplicas(1);
+		config.setWriteOperationTimeout(500l);
+		config.setReadOperationTimeout(300l);
 		ConnectionFactory cf = new TokyoTyrantConnectionFactory();
 		NodeStore nodeStore = new DummyNodeStore();
 		DefaultDistributedKeyValueStore kv = new DefaultDistributedKeyValueStore();
@@ -29,7 +32,8 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		kv.setHashAlgorithm(new HashCodeHashAlgorithm());
 		kv.setNodeLocator(new DummyNodeLocator(nodeStore));
 		kv.setNodeStore(nodeStore);
-		kv.setSyncOperationQueue(new DummyOperationQueue(cf));
+		kv.setSyncOperationQueue(new NonPersistentThreadPoolOperationQueue(cf)
+				.start());
 
 		String key = "test.key";
 		String value = "hello world 2";
