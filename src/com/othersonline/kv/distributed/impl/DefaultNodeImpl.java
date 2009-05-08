@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.othersonline.kv.distributed.Node;
 
-public class DefaultNodeImpl implements Node {
+public class DefaultNodeImpl implements Node, Comparable<Node> {
 	private static final long serialVersionUID = 4061874101050720157L;
 
 	private int id;
@@ -15,15 +15,18 @@ public class DefaultNodeImpl implements Node {
 
 	private List<Integer> logicalPartitionList;
 
-	public DefaultNodeImpl() { 
-		
+	public DefaultNodeImpl() {
+
 	}
-	public DefaultNodeImpl(int id, int phsyicalId, String connectionURI, List<Integer> logicalPartitions) {
+
+	public DefaultNodeImpl(int id, int phsyicalId, String connectionURI,
+			List<Integer> logicalPartitions) {
 		this.id = id;
 		this.phsyicalId = phsyicalId;
 		this.connectionURI = connectionURI;
 		this.logicalPartitionList = logicalPartitions;
 	}
+
 	public int getId() {
 		return id;
 	}
@@ -54,6 +57,14 @@ public class DefaultNodeImpl implements Node {
 
 	public void setLogicalPartitionList(List<Integer> logicalPartitionList) {
 		this.logicalPartitionList = logicalPartitionList;
+	}
+
+	public boolean equals(Object obj) {
+		return (this.compareTo(((Node) obj)) == 0);
+	}
+
+	public int compareTo(Node o) {
+		return new Integer(this.id).compareTo(new Integer(o.getId()));
 	}
 
 }

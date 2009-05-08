@@ -20,7 +20,8 @@ public class GetOperation<V> extends AbstractOperation<V> implements
 
 	public OperationResult<V> call() throws Exception {
 		try {
-			V v = (V) store.get(key);
+			V v = (transcoder == null) ? (V) store.get(key) : (V) store.get(
+					key, transcoder);
 			OperationResult<V> result = new DefaultOperationResult<V>(this,
 					node, v);
 			return result;

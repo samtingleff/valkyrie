@@ -4,9 +4,14 @@ import java.io.Serializable;
 import java.util.concurrent.Callable;
 
 import com.othersonline.kv.KeyValueStore;
+import com.othersonline.kv.transcoder.Transcoder;
 
 public interface Operation<V> extends Serializable {
 	public Operation<V> copy();
+
+	public Transcoder getTranscoder();
+
+	public void setTranscoder(Transcoder transcoder);
 
 	public OperationCallback<V> getCallback();
 

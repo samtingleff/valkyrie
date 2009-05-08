@@ -12,6 +12,7 @@ import com.othersonline.kv.distributed.ConnectionFactory;
 import com.othersonline.kv.distributed.Context;
 import com.othersonline.kv.distributed.ContextSerializer;
 import com.othersonline.kv.distributed.DistributedKeyValueStore;
+import com.othersonline.kv.distributed.ExtractedContext;
 import com.othersonline.kv.distributed.HashAlgorithm;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeLocator;
@@ -94,9 +95,9 @@ public class DefaultDistributedKeyValueStore implements
 				.size());
 		for (OperationResult<byte[]> result : results) {
 			Node node = result.getNode();
-			int rank = nodeList.indexOf(node);
-			byte[] value = result.getValue();
-			retval.add(new DefaultContext<byte[]>(0, value));
+			ExtractedContext<byte[]> ec = contextSerializer.extractContext(node, result.getValue());
+			// TODO: add any operations from ec to async work queue
+			retval.add(ec.getContext());
 		}
 		return retval;
 	}
@@ -109,6 +110,7 @@ public class DefaultDistributedKeyValueStore implements
 		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key,
 				config.getReplicas());
 
+		byte[] serializedData = contextSerializer.addContext(object);
 		Operation<byte[]> op = new SetOperation<byte[]>(key, object);
 		List<OperationResult<byte[]>> results = operationHelper.call(
 				syncOperationQueue, op, nodeList, config.getRequiredWrites(),

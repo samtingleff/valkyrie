@@ -23,7 +23,10 @@ public class SetOperation<V> extends AbstractOperation<V> implements
 
 	public OperationResult<V> call() throws Exception {
 		try {
-			store.set(key, value);
+			if (transcoder == null)
+				store.set(key, value);
+			else
+				store.set(key, value, transcoder);
 			OperationResult<V> result = new DefaultOperationResult<V>(this,
 					node, null);
 			return result;

@@ -8,6 +8,7 @@ import com.othersonline.kv.distributed.Context;
 import com.othersonline.kv.distributed.NodeStore;
 import com.othersonline.kv.distributed.backends.TokyoTyrantConnectionFactory;
 import com.othersonline.kv.distributed.impl.DefaultDistributedKeyValueStore;
+import com.othersonline.kv.distributed.impl.PassthroughContextSerializer;
 
 import junit.framework.TestCase;
 
@@ -24,7 +25,7 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		kv.setAsyncOperationQueue(new DummyOperationQueue(cf));
 		kv.setConfiguration(config);
 		kv.setConnectionFactory(cf);
-		kv.setContextSerializer(null);
+		kv.setContextSerializer(new PassthroughContextSerializer());
 		kv.setHashAlgorithm(new HashCodeHashAlgorithm());
 		kv.setNodeLocator(new DummyNodeLocator(nodeStore));
 		kv.setNodeStore(nodeStore);

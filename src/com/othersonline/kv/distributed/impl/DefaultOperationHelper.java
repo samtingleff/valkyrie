@@ -64,6 +64,7 @@ public class DefaultOperationHelper {
 				Operation<V> op = operation.copy();
 				op.setCallback(callback);
 				op.setNode(node);
+				op.setTranscoder(op.getTranscoder());
 				Future<OperationResult<V>> future = operationQueue.submit(op);
 				futures.add(future);
 			} finally {

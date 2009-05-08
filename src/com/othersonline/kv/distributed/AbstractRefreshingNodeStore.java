@@ -42,5 +42,13 @@ public abstract class AbstractRefreshingNodeStore implements NodeStore {
 		this.listeners.add(listener);
 	}
 
+	public void addNode(Node node) {
+		this.activeNodes.add(node);
+	}
+
+	public void removeNode(Node node) {
+		this.activeNodes.remove(node);
+	}
+
 	public abstract List<Node> getActiveNodes();
 }
