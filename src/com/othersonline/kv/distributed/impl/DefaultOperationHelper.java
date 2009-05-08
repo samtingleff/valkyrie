@@ -50,8 +50,8 @@ public class DefaultOperationHelper {
 
 			public void success(OperationResult<V> result) {
 				resultCollecter.add(result);
-				latch.countDown();
 				successCounter.incrementAndGet();
+				latch.countDown();
 			}
 
 			public void error(OperationResult<V> result, Exception e) {
@@ -60,15 +60,11 @@ public class DefaultOperationHelper {
 			}
 		}.init(latch, successCounter, resultCollecter);
 		for (Node node : nodeList) {
-			try {
-				Operation<V> op = operation.copy();
-				op.setCallback(callback);
-				op.setNode(node);
-				op.setTranscoder(op.getTranscoder());
-				Future<OperationResult<V>> future = operationQueue.submit(op);
-				futures.add(future);
-			} finally {
-			}
+			Operation<V> op = operation.copy();
+			op.setCallback(callback);
+			op.setNode(node);
+			Future<OperationResult<V>> future = operationQueue.submit(op);
+			futures.add(future);
 		}
 		try {
 			latch.await(operationTimeout, TimeUnit.MILLISECONDS);

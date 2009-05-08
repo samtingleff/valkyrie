@@ -5,17 +5,18 @@ import java.util.concurrent.Callable;
 import com.othersonline.kv.distributed.AbstractOperation;
 import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationResult;
+import com.othersonline.kv.transcoder.Transcoder;
 
 public class GetOperation<V> extends AbstractOperation<V> implements
 		Operation<V>, Callable<OperationResult<V>> {
 	private static final long serialVersionUID = -3908847991063100534L;
 
-	public GetOperation(String key) {
-		super(key);
+	public GetOperation(Transcoder transcoder, String key) {
+		super(transcoder, key);
 	}
 
 	public GetOperation<V> copy() {
-		return new GetOperation<V>(this.key);
+		return new GetOperation<V>(this.transcoder, this.key);
 	}
 
 	public OperationResult<V> call() throws Exception {

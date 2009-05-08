@@ -21,6 +21,10 @@ public class DummyOperationQueue implements OperationQueue {
 		this.connectionFactory = connectionFactory;
 	}
 
+	public void setConnectionFactory(ConnectionFactory factory) {
+		this.connectionFactory = factory;
+	}
+
 	public <V> Future<OperationResult<V>> submit(Operation<V> operation) {
 		OperationResult<V> result = null;
 		Exception e = null;

@@ -19,7 +19,8 @@ public abstract class AbstractOperation<V> implements Operation<V>,
 
 	protected String key;
 
-	public AbstractOperation(String key) {
+	public AbstractOperation(Transcoder transcoder, String key) {
+		this.transcoder = transcoder;
 		this.key = key;
 	}
 

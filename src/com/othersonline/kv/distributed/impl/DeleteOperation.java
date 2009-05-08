@@ -7,7 +7,7 @@ public class DeleteOperation<V> extends AbstractOperation<V> {
 	private static final long serialVersionUID = -918401158100309347L;
 
 	public DeleteOperation(String key) {
-		super(key);
+		super(null, key);
 	}
 
 	public DeleteOperation<V> copy() {

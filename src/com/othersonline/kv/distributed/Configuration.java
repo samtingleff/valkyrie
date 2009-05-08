@@ -13,10 +13,10 @@ public class Configuration {
 	private int replicas = 3;
 
 	// max wait time for reads
-	private long getOperationTimeout = 1000l;
+	private long readOperationTimeout = 1000l;
 
 	// max wait time for writes
-	private long setOperationTimeout = 1000l;
+	private long writeOperationTimeout = 1000l;
 
 	// max errors in a given period before a node is evicted
 	private int maxErrorCount = 10;
@@ -48,20 +48,20 @@ public class Configuration {
 		this.replicas = replicas;
 	}
 
-	public long getGetOperationTimeout() {
-		return getOperationTimeout;
+	public long getReadOperationTimeout() {
+		return readOperationTimeout;
 	}
 
-	public void setGetOperationTimeout(long getOperationTimeout) {
-		this.getOperationTimeout = getOperationTimeout;
+	public void setReadOperationTimeout(long readOperationTimeout) {
+		this.readOperationTimeout = readOperationTimeout;
 	}
 
-	public long getSetOperationTimeout() {
-		return setOperationTimeout;
+	public long getWriteOperationTimeout() {
+		return writeOperationTimeout;
 	}
 
-	public void setSetOperationTimeout(long setOperationTimeout) {
-		this.setOperationTimeout = setOperationTimeout;
+	public void setWriteOperationTimeout(long writeOperationTimeout) {
+		this.writeOperationTimeout = writeOperationTimeout;
 	}
 
 	public int getMaxErrorCount() {

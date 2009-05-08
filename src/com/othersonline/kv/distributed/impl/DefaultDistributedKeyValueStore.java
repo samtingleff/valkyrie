@@ -20,6 +20,8 @@ import com.othersonline.kv.distributed.NodeStore;
 import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationQueue;
 import com.othersonline.kv.distributed.OperationResult;
+import com.othersonline.kv.transcoder.ByteArrayTranscoder;
+import com.othersonline.kv.transcoder.Transcoder;
 
 public class DefaultDistributedKeyValueStore implements
 		DistributedKeyValueStore {
@@ -42,6 +44,8 @@ public class DefaultDistributedKeyValueStore implements
 	private ContextSerializer contextSerializer;
 
 	private DefaultOperationHelper operationHelper = new DefaultOperationHelper();
+
+	private Transcoder transcoder = new ByteArrayTranscoder();
 
 	public DefaultDistributedKeyValueStore() {
 	}
@@ -81,22 +85,27 @@ public class DefaultDistributedKeyValueStore implements
 	public List<Context<byte[]>> get(String key) throws KeyValueStoreException {
 		if (log.isTraceEnabled())
 			log.trace(String.format("get(%1$s)", key));
-		;
 
 		// ask for a response from n nodes
-		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key, config.getReplicas());
+		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key, config
+				.getReplicas());
 
-		Operation<byte[]> op = new GetOperation<byte[]>(key);
+		Operation<byte[]> op = new GetOperation<byte[]>(transcoder, key);
 		List<OperationResult<byte[]>> results = operationHelper.call(
 				syncOperationQueue, op, nodeList, config.getRequiredReads(),
-				config.getGetOperationTimeout());
+				config.getReadOperationTimeout());
 
 		List<Context<byte[]>> retval = new ArrayList<Context<byte[]>>(results
 				.size());
 		for (OperationResult<byte[]> result : results) {
 			Node node = result.getNode();
-			ExtractedContext<byte[]> ec = contextSerializer.extractContext(node, result.getValue());
-			// TODO: add any operations from ec to async work queue
+			ExtractedContext<byte[]> ec = contextSerializer.extractContext(
+					node, result.getValue());
+			if (ec.getAdditionalOperations() != null) {
+				for (Operation<byte[]> work : ec.getAdditionalOperations()) {
+					asyncOperationQueue.submit(work);
+				}
+			}
 			retval.add(ec.getContext());
 		}
 		return retval;
@@ -107,14 +116,14 @@ public class DefaultDistributedKeyValueStore implements
 			log.trace(String.format("set(%1$s, %2$s)", key, object));
 
 		// ask for a response from x nodes
-		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key,
-				config.getReplicas());
+		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key, config
+				.getReplicas());
 
 		byte[] serializedData = contextSerializer.addContext(object);
-		Operation<byte[]> op = new SetOperation<byte[]>(key, object);
+		Operation<byte[]> op = new SetOperation<byte[]>(transcoder, key, serializedData);
 		List<OperationResult<byte[]>> results = operationHelper.call(
 				syncOperationQueue, op, nodeList, config.getRequiredWrites(),
-				config.getSetOperationTimeout());
+				config.getWriteOperationTimeout());
 	}
 
 	public void set(String key, Context<byte[]> bytes) {
@@ -129,13 +138,13 @@ public class DefaultDistributedKeyValueStore implements
 			log.trace(String.format("delete(%1$s)", key));
 
 		// ask for a response from x nodes
-		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key,
-				config.getReplicas());
+		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key, config
+				.getReplicas());
 
 		Operation<byte[]> op = new DeleteOperation<byte[]>(key);
 		List<OperationResult<byte[]>> results = operationHelper.call(
 				syncOperationQueue, op, nodeList, config.getRequiredWrites(),
-				config.getSetOperationTimeout());
+				config.getWriteOperationTimeout());
 	}
 
 	private static class DefaultContext<V> implements Context<V> {
