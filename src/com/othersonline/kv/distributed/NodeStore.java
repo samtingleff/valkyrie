@@ -1,5 +1,7 @@
 package com.othersonline.kv.distributed;
 
-public interface NodeStore {
+import java.util.List;
 
+public interface NodeStore {
+	public List<Node> getActiveNodes();
 }

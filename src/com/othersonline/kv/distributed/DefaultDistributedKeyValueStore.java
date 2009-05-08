@@ -24,6 +24,8 @@ public class DefaultDistributedKeyValueStore implements
 
 	private HashAlgorithm hash;
 
+	private NodeStore nodeStore;
+
 	private NodeLocator nodeLocator;
 
 	private OperationQueue syncOperationQueue;
@@ -45,6 +47,10 @@ public class DefaultDistributedKeyValueStore implements
 
 	public void setHashAlgorithm(HashAlgorithm hash) {
 		this.hash = hash;
+	}
+
+	public void setNodeStore(NodeStore nodeStore) {
+		this.nodeStore = nodeStore;
 	}
 
 	public void setNodeLocator(NodeLocator locator) {
@@ -70,12 +76,11 @@ public class DefaultDistributedKeyValueStore implements
 	public List<Context<byte[]>> get(String key) throws KeyValueStoreException {
 		if (log.isTraceEnabled())
 			log.trace(String.format("get(%1$s)", key));
-
-		long hashCode = hash.hash(key);
+		;
 
 		// ask for a response from n nodes
-		List<Node> nodeList = nodeLocator.getPreferenceList(hashCode, config
-				.getReplicas());
+		List<Node> nodeList = nodeLocator.getPreferenceList(key, nodeStore
+				.getActiveNodes(), config.getReplicas());
 
 		Operation<byte[]> op = new GetOperation<byte[]>(key);
 		List<OperationResult<byte[]>> results = operationHelper.call(
@@ -97,11 +102,9 @@ public class DefaultDistributedKeyValueStore implements
 		if (log.isTraceEnabled())
 			log.trace(String.format("set(%1$s, %2$s)", key, object));
 
-		long hashCode = hash.hash(key);
-
 		// ask for a response from x nodes
-		List<Node> nodeList = nodeLocator.getPreferenceList(hashCode, config
-				.getReplicas());
+		List<Node> nodeList = nodeLocator.getPreferenceList(key, nodeStore
+				.getActiveNodes(), config.getReplicas());
 
 		Operation<byte[]> op = new SetOperation<byte[]>(key, object);
 		List<OperationResult<byte[]>> results = operationHelper.call(
@@ -120,11 +123,9 @@ public class DefaultDistributedKeyValueStore implements
 		if (log.isTraceEnabled())
 			log.trace(String.format("delete(%1$s)", key));
 
-		long hashCode = hash.hash(key);
-
 		// ask for a response from x nodes
-		List<Node> nodeList = nodeLocator.getPreferenceList(hashCode, config
-				.getReplicas());
+		List<Node> nodeList = nodeLocator.getPreferenceList(key, nodeStore
+				.getActiveNodes(), config.getReplicas());
 
 		Operation<byte[]> op = new DeleteOperation<byte[]>(key);
 		List<OperationResult<byte[]>> results = operationHelper.call(

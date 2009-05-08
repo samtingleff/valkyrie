@@ -25,6 +25,7 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		kv.setContextSerializer(null);
 		kv.setHashAlgorithm(new HashCodeHashAlgorithm());
 		kv.setNodeLocator(new DummyNodeLocator());
+		kv.setNodeStore(new DummyNodeStore());
 		kv.setSyncOperationQueue(new DummyOperationQueue(cf));
 
 		String key = "test.key";
