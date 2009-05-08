@@ -11,7 +11,7 @@ import org.apache.commons.logging.LogFactory;
 public abstract class AbstractRefreshingNodeStore implements NodeStore {
 	public static final Long DEFAULT_DELAY = 0l;
 
-	public static final Long DEFAULT_PERIOD = 1000l * 60l * 5l;
+	public static final Long DEFAULT_PERIOD = 1000l * 60l;
 
 	private Log log = LogFactory.getLog(getClass());
 
