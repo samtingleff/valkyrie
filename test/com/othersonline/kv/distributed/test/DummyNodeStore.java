@@ -3,9 +3,9 @@ package com.othersonline.kv.distributed.test;
 import java.util.Arrays;
 import java.util.List;
 
-import com.othersonline.kv.distributed.DefaultNodeImpl;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeStore;
+import com.othersonline.kv.distributed.impl.DefaultNodeImpl;
 
 public class DummyNodeStore implements NodeStore {
 

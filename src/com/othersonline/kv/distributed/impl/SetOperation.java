@@ -1,6 +1,10 @@
-package com.othersonline.kv.distributed;
+package com.othersonline.kv.distributed.impl;
 
 import java.util.concurrent.Callable;
+
+import com.othersonline.kv.distributed.AbstractOperation;
+import com.othersonline.kv.distributed.Operation;
+import com.othersonline.kv.distributed.OperationResult;
 
 public class SetOperation<V> extends AbstractOperation<V> implements
 		Operation<V>, Callable<OperationResult<V>> {

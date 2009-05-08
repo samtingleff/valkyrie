@@ -5,8 +5,8 @@ import java.util.List;
 import com.othersonline.kv.distributed.Configuration;
 import com.othersonline.kv.distributed.ConnectionFactory;
 import com.othersonline.kv.distributed.Context;
-import com.othersonline.kv.distributed.DefaultDistributedKeyValueStore;
 import com.othersonline.kv.distributed.backends.TokyoTyrantConnectionFactory;
+import com.othersonline.kv.distributed.impl.DefaultDistributedKeyValueStore;
 
 import junit.framework.TestCase;
 

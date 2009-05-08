@@ -1,20 +1,24 @@
-package com.othersonline.kv.distributed;
+package com.othersonline.kv.distributed.impl;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.othersonline.kv.KeyValueStoreException;
+import com.othersonline.kv.distributed.Configuration;
+import com.othersonline.kv.distributed.ConnectionFactory;
+import com.othersonline.kv.distributed.Context;
+import com.othersonline.kv.distributed.ContextSerializer;
+import com.othersonline.kv.distributed.DistributedKeyValueStore;
+import com.othersonline.kv.distributed.HashAlgorithm;
+import com.othersonline.kv.distributed.Node;
+import com.othersonline.kv.distributed.NodeLocator;
+import com.othersonline.kv.distributed.NodeStore;
+import com.othersonline.kv.distributed.Operation;
+import com.othersonline.kv.distributed.OperationQueue;
+import com.othersonline.kv.distributed.OperationResult;
 
 public class DefaultDistributedKeyValueStore implements
 		DistributedKeyValueStore {
@@ -79,8 +83,8 @@ public class DefaultDistributedKeyValueStore implements
 		;
 
 		// ask for a response from n nodes
-		List<Node> nodeList = nodeLocator.getPreferenceList(key, nodeStore
-				.getActiveNodes(), config.getReplicas());
+		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key,
+				nodeStore.getActiveNodes(), config.getReplicas());
 
 		Operation<byte[]> op = new GetOperation<byte[]>(key);
 		List<OperationResult<byte[]>> results = operationHelper.call(
@@ -103,8 +107,8 @@ public class DefaultDistributedKeyValueStore implements
 			log.trace(String.format("set(%1$s, %2$s)", key, object));
 
 		// ask for a response from x nodes
-		List<Node> nodeList = nodeLocator.getPreferenceList(key, nodeStore
-				.getActiveNodes(), config.getReplicas());
+		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key,
+				nodeStore.getActiveNodes(), config.getReplicas());
 
 		Operation<byte[]> op = new SetOperation<byte[]>(key, object);
 		List<OperationResult<byte[]>> results = operationHelper.call(
@@ -124,8 +128,8 @@ public class DefaultDistributedKeyValueStore implements
 			log.trace(String.format("delete(%1$s)", key));
 
 		// ask for a response from x nodes
-		List<Node> nodeList = nodeLocator.getPreferenceList(key, nodeStore
-				.getActiveNodes(), config.getReplicas());
+		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key,
+				nodeStore.getActiveNodes(), config.getReplicas());
 
 		Operation<byte[]> op = new DeleteOperation<byte[]>(key);
 		List<OperationResult<byte[]>> results = operationHelper.call(

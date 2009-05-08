@@ -1,10 +1,14 @@
-package com.othersonline.kv.distributed;
+package com.othersonline.kv.distributed.impl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import com.othersonline.kv.distributed.HashAlgorithm;
+import com.othersonline.kv.distributed.Node;
+import com.othersonline.kv.distributed.NodeLocator;
 
 /**
  * From the spy memcached client, which has the following license.
@@ -37,7 +41,8 @@ public class KetamaNodeLocator implements NodeLocator {
 
 	private SortedMap<Long, Node> ketamaNodes = null;
 
-	public List<Node> getPreferenceList(String key, List<Node> nodes, int count) {
+	public List<Node> getPreferenceList(final HashAlgorithm hashAlg,
+			final String key, final List<Node> nodes, int count) {
 		if (ketamaNodes == null)
 			ketamaNodes = build(nodes);
 		Iterator<Node> iter = new KetamaIterator(ketamaNodes, key, count);

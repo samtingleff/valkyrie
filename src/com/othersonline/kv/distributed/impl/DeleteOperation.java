@@ -1,4 +1,7 @@
-package com.othersonline.kv.distributed;
+package com.othersonline.kv.distributed.impl;
+
+import com.othersonline.kv.distributed.AbstractOperation;
+import com.othersonline.kv.distributed.OperationResult;
 
 public class DeleteOperation<V> extends AbstractOperation<V> {
 	private static final long serialVersionUID = -918401158100309347L;

@@ -6,12 +6,12 @@ import java.util.Random;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import com.othersonline.kv.distributed.DefaultNodeImpl;
 import com.othersonline.kv.distributed.HashAlgorithm;
-import com.othersonline.kv.distributed.KetamaHashAlgorithm;
-import com.othersonline.kv.distributed.KetamaNodeLocator;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeLocator;
+import com.othersonline.kv.distributed.impl.DefaultNodeImpl;
+import com.othersonline.kv.distributed.impl.KetamaHashAlgorithm;
+import com.othersonline.kv.distributed.impl.KetamaNodeLocator;
 
 import junit.framework.TestCase;
 
@@ -31,7 +31,8 @@ public class KetamaTestCase extends TestCase {
 			long hashCode = hashAlgorithm.hash(key);
 			assertTrue(hashCode > 0);
 
-			List<Node> nodeList = nodeLocator.getPreferenceList(key, nodes, 1);
+			List<Node> nodeList = nodeLocator.getPreferenceList(hashAlgorithm,
+					key, nodes, 1);
 			Node node = nodeList.get(0);
 			++keyAssignments[node.getId() - 1];
 		}

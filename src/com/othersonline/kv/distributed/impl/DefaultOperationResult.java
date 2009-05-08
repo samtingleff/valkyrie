@@ -1,4 +1,8 @@
-package com.othersonline.kv.distributed;
+package com.othersonline.kv.distributed.impl;
+
+import com.othersonline.kv.distributed.Node;
+import com.othersonline.kv.distributed.Operation;
+import com.othersonline.kv.distributed.OperationResult;
 
 public class DefaultOperationResult<V> implements OperationResult<V> {
 	private Operation<V> operation;
