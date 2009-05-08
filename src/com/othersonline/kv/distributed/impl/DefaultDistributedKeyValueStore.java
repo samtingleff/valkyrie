@@ -83,8 +83,7 @@ public class DefaultDistributedKeyValueStore implements
 		;
 
 		// ask for a response from n nodes
-		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key,
-				nodeStore.getActiveNodes(), config.getReplicas());
+		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key, config.getReplicas());
 
 		Operation<byte[]> op = new GetOperation<byte[]>(key);
 		List<OperationResult<byte[]>> results = operationHelper.call(
@@ -108,7 +107,7 @@ public class DefaultDistributedKeyValueStore implements
 
 		// ask for a response from x nodes
 		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key,
-				nodeStore.getActiveNodes(), config.getReplicas());
+				config.getReplicas());
 
 		Operation<byte[]> op = new SetOperation<byte[]>(key, object);
 		List<OperationResult<byte[]>> results = operationHelper.call(
@@ -129,7 +128,7 @@ public class DefaultDistributedKeyValueStore implements
 
 		// ask for a response from x nodes
 		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key,
-				nodeStore.getActiveNodes(), config.getReplicas());
+				config.getReplicas());
 
 		Operation<byte[]> op = new DeleteOperation<byte[]>(key);
 		List<OperationResult<byte[]>> results = operationHelper.call(

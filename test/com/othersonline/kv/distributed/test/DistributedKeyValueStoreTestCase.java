@@ -5,6 +5,7 @@ import java.util.List;
 import com.othersonline.kv.distributed.Configuration;
 import com.othersonline.kv.distributed.ConnectionFactory;
 import com.othersonline.kv.distributed.Context;
+import com.othersonline.kv.distributed.NodeStore;
 import com.othersonline.kv.distributed.backends.TokyoTyrantConnectionFactory;
 import com.othersonline.kv.distributed.impl.DefaultDistributedKeyValueStore;
 
@@ -18,14 +19,15 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		config.setRequiredWrites(1);
 		config.setReplicas(1);
 		ConnectionFactory cf = new TokyoTyrantConnectionFactory();
+		NodeStore nodeStore = new DummyNodeStore();
 		DefaultDistributedKeyValueStore kv = new DefaultDistributedKeyValueStore();
 		kv.setAsyncOperationQueue(new DummyOperationQueue(cf));
 		kv.setConfiguration(config);
 		kv.setConnectionFactory(cf);
 		kv.setContextSerializer(null);
 		kv.setHashAlgorithm(new HashCodeHashAlgorithm());
-		kv.setNodeLocator(new DummyNodeLocator());
-		kv.setNodeStore(new DummyNodeStore());
+		kv.setNodeLocator(new DummyNodeLocator(nodeStore));
+		kv.setNodeStore(nodeStore);
 		kv.setSyncOperationQueue(new DummyOperationQueue(cf));
 
 		String key = "test.key";
