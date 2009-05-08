@@ -1,6 +1,8 @@
-package com.othersonline.kv.distributed;
+package com.othersonline.kv.distributed.impl;
 
 import java.util.List;
+
+import com.othersonline.kv.distributed.Node;
 
 public class DefaultNodeImpl implements Node {
 	private static final long serialVersionUID = 4061874101050720157L;

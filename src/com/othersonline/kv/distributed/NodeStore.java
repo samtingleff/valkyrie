@@ -4,4 +4,6 @@ import java.util.List;
 
 public interface NodeStore {
 	public List<Node> getActiveNodes();
+
+	public void addChangeListener(NodeChangeListener listener);
 }

@@ -4,34 +4,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-
-import com.othersonline.kv.distributed.DefaultNodeImpl;
-import com.othersonline.kv.distributed.HashAlgorithm;
-import com.othersonline.kv.distributed.KetamaHashAlgorithm;
-import com.othersonline.kv.distributed.KetamaNodeLocator;
-import com.othersonline.kv.distributed.Node;
-import com.othersonline.kv.distributed.NodeLocator;
-
 import junit.framework.TestCase;
 
-public class KetamaTestCase extends TestCase {
-	public void testKetamaNodeLocator() {
-		Random random = new Random();
-		HashAlgorithm hashAlgorithm = new KetamaHashAlgorithm();
-		NodeLocator nodeLocator = new KetamaNodeLocator();
-		List<Node> nodes = createNodeList(10, 3, 6);
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
+import com.othersonline.kv.distributed.HashAlgorithm;
+import com.othersonline.kv.distributed.Node;
+import com.othersonline.kv.distributed.NodeLocator;
+import com.othersonline.kv.distributed.impl.DefaultNodeImpl;
+import com.othersonline.kv.distributed.impl.KetamaHashAlgorithm;
+import com.othersonline.kv.distributed.impl.KetamaNodeLocator;
+
+public class NodeLocatorTestCase extends TestCase {
+	public void testKetamaNodeLocator() {
+		testNodeLocator(new KetamaNodeLocator(new DummyNodeStore(createNodeList(10, 3, 6))), new KetamaHashAlgorithm());
+	}
+
+	public void testNodeLocator(NodeLocator nodeLocator, HashAlgorithm hashAlg) {
+		Random random = new Random();
 		// array to count key assignments
 		int[] keyAssignments = new int[10 * 3];
 		for (int i = 0; i < 100000; ++i) {
 			String key = String.format("/blobs/users/%1$d/%2$d/%3$d", random
 					.nextInt(100), random.nextInt(10000), random
 					.nextInt(Integer.MAX_VALUE));
-			long hashCode = hashAlgorithm.hash(key);
+			long hashCode = hashAlg.hash(key);
 			assertTrue(hashCode > 0);
 
-			List<Node> nodeList = nodeLocator.getPreferenceList(key, nodes, 1);
+			List<Node> nodeList = nodeLocator.getPreferenceList(hashAlg, key, 1);
 			Node node = nodeList.get(0);
 			++keyAssignments[node.getId() - 1];
 		}

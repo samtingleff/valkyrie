@@ -1,7 +1,9 @@
-package com.othersonline.kv.distributed;
+package com.othersonline.kv.distributed.impl;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import com.othersonline.kv.distributed.HashAlgorithm;
 
 /**
  * Borrowed from the spy memcached client, which has the following license.

@@ -1,13 +1,19 @@
-package com.othersonline.kv.distributed;
+package com.othersonline.kv.distributed.impl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SortedMap;
+import java.util.Map;
 import java.util.TreeMap;
 
+import com.othersonline.kv.distributed.HashAlgorithm;
+import com.othersonline.kv.distributed.Node;
+import com.othersonline.kv.distributed.NodeChangeListener;
+import com.othersonline.kv.distributed.NodeLocator;
+import com.othersonline.kv.distributed.NodeStore;
+
 /**
- * From the spy memcached client, which has the following license.
+ * Modified from the spy memcached client, which has the following license.
  * 
  * Copyright (c) 2006-2009 Dustin Sallings <dustin@spy.net>
  * 
@@ -29,17 +35,39 @@ import java.util.TreeMap;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  * 
+ * @author Dustin Sallings <dustin@spy.net>
+ * @author Sam Tingleff <sam@tingleff.com>
  */
-public class KetamaNodeLocator implements NodeLocator {
+public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 	private static final int NUM_REPS = 160;
 
 	private KetamaHashAlgorithm hashAlg = new KetamaHashAlgorithm();
 
-	private SortedMap<Long, Node> ketamaNodes = null;
+	private NodeStore nodeStore = null;
 
-	public List<Node> getPreferenceList(String key, List<Node> nodes, int count) {
-		if (ketamaNodes == null)
-			ketamaNodes = build(nodes);
+	private volatile TreeMap<Long, Node> ketamaNodes = null;
+
+	public KetamaNodeLocator() {
+	}
+
+	public KetamaNodeLocator(NodeStore nodeStore) {
+		this.nodeStore = nodeStore;
+		activeNodes(nodeStore.getActiveNodes());
+		this.nodeStore.addChangeListener(this);
+	}
+
+	public void setNodeStore(NodeStore store) {
+		this.nodeStore = store;
+		activeNodes(store.getActiveNodes());
+		this.nodeStore.addChangeListener(this);
+	}
+
+	public void activeNodes(List<Node> nodes) {
+		ketamaNodes = build(nodes);
+	}
+
+	public List<Node> getPreferenceList(final HashAlgorithm hashAlg,
+			final String key, int count) {
 		Iterator<Node> iter = new KetamaIterator(ketamaNodes, key, count);
 		List<Node> results = new ArrayList<Node>(count);
 		while (iter.hasNext()) {
@@ -49,8 +77,8 @@ public class KetamaNodeLocator implements NodeLocator {
 		return results;
 	}
 
-	private SortedMap<Long, Node> build(List<Node> nodes) {
-		SortedMap<Long, Node> ketamaNodes = new TreeMap<Long, Node>();
+	private TreeMap<Long, Node> build(List<Node> nodes) {
+		TreeMap<Long, Node> ketamaNodes = new TreeMap<Long, Node>();
 		for (Node node : nodes) {
 			String nodeIdentifier = node.getConnectionURI();
 			for (int i = 0; i < NUM_REPS / 4; i++) {
@@ -68,33 +96,24 @@ public class KetamaNodeLocator implements NodeLocator {
 		return ketamaNodes;
 	}
 
-	private Node getPrimary(final SortedMap<Long, Node> ketamaNodes,
-			final String k) {
-		Node rv = getNodeForKey(ketamaNodes, hashAlg.hash(k));
-		assert rv != null : "Found no node for key " + k;
-		return rv;
-	}
+	private Node getNodeForKey(final TreeMap<Long, Node> ketamaNodes, long hash) {
+		Node rv = null;
+		// Java 1.6 adds a ceilingKey method, but I'm still stuck in 1.5
+		// in a lot of places, so I'm doing this myself.
+		// sam: I'm not. modified to use jdk 1.6 ceilingEntry
+		Map.Entry<Long, Node> entry = ketamaNodes.ceilingEntry(hash);
+		if (entry == null)
+			entry = ketamaNodes.firstEntry();
 
-	private Node getNodeForKey(final SortedMap<Long, Node> ketamaNodes,
-			long hash) {
-		final Node rv;
-		if (!ketamaNodes.containsKey(hash)) {
-			// Java 1.6 adds a ceilingKey method, but I'm still stuck in 1.5
-			// in a lot of places, so I'm doing this myself.
-			SortedMap<Long, Node> tailMap = ketamaNodes.tailMap(hash);
-			if (tailMap.isEmpty()) {
-				hash = ketamaNodes.firstKey();
-			} else {
-				hash = tailMap.firstKey();
-			}
-		}
-		rv = ketamaNodes.get(hash);
+		if (entry != null)
+			rv = entry.getValue();
+		assert rv != null : "Found no node for hash " + hash;
 		return rv;
 	}
 
 	class KetamaIterator implements Iterator<Node> {
 
-		private SortedMap<Long, Node> iteratorNodes;
+		private TreeMap<Long, Node> iteratorNodes;
 
 		final String key;
 
@@ -104,8 +123,8 @@ public class KetamaNodeLocator implements NodeLocator {
 
 		int numTries = 0;
 
-		public KetamaIterator(final SortedMap<Long, Node> nodes,
-				final String k, final int t) {
+		public KetamaIterator(final TreeMap<Long, Node> nodes, final String k,
+				final int t) {
 			super();
 			iteratorNodes = nodes;
 			hashVal = hashAlg.hash(k);
