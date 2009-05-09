@@ -8,6 +8,8 @@ public interface Node extends Serializable {
 
 	public int getPhysicalId();
 
+	//public String getIdentifier();
+
 	public String getConnectionURI();
 
 	public List<Integer> getLogicalPartitionList();

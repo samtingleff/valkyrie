@@ -17,7 +17,8 @@ import com.othersonline.kv.distributed.impl.KetamaNodeLocator;
 
 public class NodeLocatorTestCase extends TestCase {
 	public void testKetamaNodeLocator() {
-		testNodeLocator(new KetamaNodeLocator(new DummyNodeStore(createNodeList(10, 3, 6))), new KetamaHashAlgorithm());
+		testNodeLocator(new KetamaNodeLocator(new DummyNodeStore(
+				createNodeList(10, 3, 10))), new KetamaHashAlgorithm());
 	}
 
 	public void testNodeLocator(NodeLocator nodeLocator, HashAlgorithm hashAlg) {
@@ -31,9 +32,11 @@ public class NodeLocatorTestCase extends TestCase {
 			long hashCode = hashAlg.hash(key);
 			assertTrue(hashCode > 0);
 
-			List<Node> nodeList = nodeLocator.getPreferenceList(hashAlg, key, 1);
-			Node node = nodeList.get(0);
-			++keyAssignments[node.getId() - 1];
+			List<Node> nodeList = nodeLocator
+					.getPreferenceList(hashAlg, key, 3);
+			for (Node node : nodeList) {
+				++keyAssignments[node.getId() - 1];	
+			}
 		}
 
 		DescriptiveStatistics stats = new DescriptiveStatistics();

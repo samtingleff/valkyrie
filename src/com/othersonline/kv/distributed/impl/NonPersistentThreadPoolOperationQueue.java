@@ -1,9 +1,8 @@
 package com.othersonline.kv.distributed.impl;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.distributed.ConnectionFactory;
@@ -12,49 +11,28 @@ import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationCallback;
 import com.othersonline.kv.distributed.OperationQueue;
 import com.othersonline.kv.distributed.OperationResult;
-import com.othersonline.kv.util.DaemonThreadFactory;
 
-public class NonPersistentThreadPoolOperationQueue implements OperationQueue {
-	private static final int DEFAULT_THREAD_POOL_COUNT = 5;
-
-	private ExecutorService executor;
-
-	private ConnectionFactory connectionFactory;
-
-	private int threadPoolCount = DEFAULT_THREAD_POOL_COUNT;
-
+public class NonPersistentThreadPoolOperationQueue extends
+		AbstractThreadPoolOperationQueue implements OperationQueue {
 	public NonPersistentThreadPoolOperationQueue() {
 		this(null);
 	}
 
 	public NonPersistentThreadPoolOperationQueue(
 			ConnectionFactory connectionFactory) {
-		this(connectionFactory, DEFAULT_THREAD_POOL_COUNT);
+		this(connectionFactory, DEFAULT_THREAD_POOL_COUNT,
+				DEFAULT_MAX_QUEUE_DEPTH);
 	}
 
 	public NonPersistentThreadPoolOperationQueue(
-			ConnectionFactory connectionFactory, int threadPoolCount) {
-		this.connectionFactory = connectionFactory;
-		this.threadPoolCount = threadPoolCount;
+			ConnectionFactory connectionFactory, int threadPoolCount,
+			int maxQueueDepth) {
+		super(connectionFactory, threadPoolCount, maxQueueDepth);
 	}
 
-	public void setConnectionFactory(ConnectionFactory connectionFactory) {
-		this.connectionFactory = connectionFactory;
-	}
-
-	public OperationQueue start() {
-		executor = Executors.newFixedThreadPool(threadPoolCount,
-				new DaemonThreadFactory());
-		return this;
-	}
-
-	public <V> Future<V> execute(Callable<V> callable) {
-		return executor.submit(callable);
-	}
-
-	public <V> Future<OperationResult<V>> submit(Operation<V> operation) {
-		CallbackCallable<V> callable = new CallbackCallable<V>(operation);
-		return execute(callable);
+	public <V> Future<OperationResult<V>> submit(Operation<V> operation)
+			throws RejectedExecutionException {
+		return super.execute(new CallbackCallable<V>(operation));
 	}
 
 	private class CallbackCallable<V> implements Callable<OperationResult<V>> {

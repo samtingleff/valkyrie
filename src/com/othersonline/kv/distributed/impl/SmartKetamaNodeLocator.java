@@ -41,7 +41,7 @@ import com.othersonline.kv.distributed.NodeStore;
  * @author Dustin Sallings <dustin@spy.net>
  * @author Sam Tingleff <sam@tingleff.com>
  */
-public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
+public class SmartKetamaNodeLocator implements NodeLocator, NodeChangeListener {
 
 	private KetamaHashAlgorithm hashAlg = new KetamaHashAlgorithm();
 
@@ -50,10 +50,10 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 	private int activeNodeCount = 0;
 	private volatile TreeMap<Long, Node> ketamaNodes = null;
 
-	public KetamaNodeLocator() {
+	public SmartKetamaNodeLocator() {
 	}
 
-	public KetamaNodeLocator(NodeStore nodeStore) {
+	public SmartKetamaNodeLocator(NodeStore nodeStore) {
 		this.nodeStore = nodeStore;
 		activeNodes(nodeStore.getActiveNodes());
 		this.nodeStore.addChangeListener(this);

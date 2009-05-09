@@ -25,6 +25,10 @@ public class DummyOperationQueue implements OperationQueue {
 		this.connectionFactory = factory;
 	}
 
+	public int getQueueSize() {
+		return 0;
+	}
+
 	public <V> Future<OperationResult<V>> submit(Operation<V> operation) {
 		OperationResult<V> result = null;
 		Exception e = null;
@@ -33,7 +37,9 @@ public class DummyOperationQueue implements OperationQueue {
 			KeyValueStore store = connectionFactory.getStore(node);
 			Callable<OperationResult<V>> callable = operation
 					.getCallable(store);
-			Future<OperationResult<V>> future = execute(callable);
+			result = callable.call();
+			Future<OperationResult<V>> future = new DummyFuture<OperationResult<V>>(
+					result, null);
 			result = future.get();
 			return future;
 		} catch (Exception e1) {
@@ -48,15 +54,6 @@ public class DummyOperationQueue implements OperationQueue {
 				else
 					callback.error(result, e);
 			}
-		}
-	}
-
-	public <V> Future<V> execute(Callable<V> callable) {
-		try {
-			V v = callable.call();
-			return new DummyFuture<V>(v, null);
-		} catch (Exception e) {
-			return new DummyFuture<V>(null, e);
 		}
 	}
 
