@@ -12,16 +12,23 @@ import com.othersonline.kv.distributed.HashAlgorithm;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeLocator;
 import com.othersonline.kv.distributed.impl.DefaultNodeImpl;
+import com.othersonline.kv.distributed.impl.DynamoNodeLocator;
 import com.othersonline.kv.distributed.impl.KetamaHashAlgorithm;
 import com.othersonline.kv.distributed.impl.KetamaNodeLocator;
+import com.othersonline.kv.distributed.impl.MD5HashAlgorithm;
 
 public class NodeLocatorTestCase extends TestCase {
 	public void testKetamaNodeLocator() {
-		testNodeLocator(new KetamaNodeLocator(new DummyNodeStore(
+		testKeyDistribution(new KetamaNodeLocator(new DummyNodeStore(
 				createNodeList(10, 3, 10))), new KetamaHashAlgorithm());
 	}
 
-	public void testNodeLocator(NodeLocator nodeLocator, HashAlgorithm hashAlg) {
+	public void testDynamoNodeLocator() {
+		testKeyDistribution(new DynamoNodeLocator(new DummyNodeStore(
+				createNodeList(10, 3, 10))), new MD5HashAlgorithm());
+	}
+
+	private void testKeyDistribution(NodeLocator nodeLocator, HashAlgorithm hashAlg) {
 		Random random = new Random();
 		// array to count key assignments
 		int[] keyAssignments = new int[10 * 3];
@@ -30,12 +37,12 @@ public class NodeLocatorTestCase extends TestCase {
 					.nextInt(100), random.nextInt(10000), random
 					.nextInt(Integer.MAX_VALUE));
 			long hashCode = hashAlg.hash(key);
-			assertTrue(hashCode > 0);
+			assertTrue(hashCode != 0);
 
 			List<Node> nodeList = nodeLocator
 					.getPreferenceList(hashAlg, key, 3);
 			for (Node node : nodeList) {
-				++keyAssignments[node.getId() - 1];	
+				++keyAssignments[node.getId() - 1];
 			}
 		}
 
@@ -66,6 +73,7 @@ public class NodeLocatorTestCase extends TestCase {
 					++counter;
 				}
 				Node n = new DefaultNodeImpl(nodeId, i, String.format(
+						"salt:%1$d:%2$d", i, j), String.format(
 						"uri://host#%1$s:%2$d", i, r.nextInt(1024)), logicals);
 				results.add(n);
 				++nodeId;

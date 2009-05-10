@@ -12,7 +12,8 @@ public class DummyNodeStore extends AbstractRefreshingNodeStore implements
 		NodeStore {
 
 	private List<Node> nodes = Arrays.asList(new Node[] { new DefaultNodeImpl(
-			1, 1, "tcp://localhost:1978?socketTimeout=200&maxActive=20", Arrays
+			1, 1, "salt",
+			"tcp://localhost:1978?socketTimeout=200&maxActive=20", Arrays
 					.asList(new Integer[] { new Integer(200) })) });
 
 	public DummyNodeStore() {

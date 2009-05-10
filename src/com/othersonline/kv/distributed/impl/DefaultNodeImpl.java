@@ -11,6 +11,8 @@ public class DefaultNodeImpl implements Node, Comparable<Node> {
 
 	private int phsyicalId;
 
+	private String salt;
+
 	private String connectionURI;
 
 	private List<Integer> logicalPartitionList;
@@ -19,10 +21,11 @@ public class DefaultNodeImpl implements Node, Comparable<Node> {
 
 	}
 
-	public DefaultNodeImpl(int id, int phsyicalId, String connectionURI,
-			List<Integer> logicalPartitions) {
+	public DefaultNodeImpl(int id, int phsyicalId, String salt,
+			String connectionURI, List<Integer> logicalPartitions) {
 		this.id = id;
 		this.phsyicalId = phsyicalId;
+		this.salt = salt;
 		this.connectionURI = connectionURI;
 		this.logicalPartitionList = logicalPartitions;
 	}
@@ -41,6 +44,14 @@ public class DefaultNodeImpl implements Node, Comparable<Node> {
 
 	public void setPhysicalId(int phsyicalId) {
 		this.phsyicalId = phsyicalId;
+	}
+
+	public String getSalt() {
+		return salt;
+	}
+
+	public void setSalt(String salt) {
+		this.salt = salt;
 	}
 
 	public String getConnectionURI() {

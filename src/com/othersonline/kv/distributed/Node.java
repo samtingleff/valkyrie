@@ -8,7 +8,7 @@ public interface Node extends Serializable {
 
 	public int getPhysicalId();
 
-	//public String getIdentifier();
+	public String getSalt();
 
 	public String getConnectionURI();
 
