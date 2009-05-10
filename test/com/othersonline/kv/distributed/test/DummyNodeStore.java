@@ -1,6 +1,8 @@
 package com.othersonline.kv.distributed.test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.othersonline.kv.distributed.AbstractRefreshingNodeStore;
@@ -11,10 +13,10 @@ import com.othersonline.kv.distributed.impl.DefaultNodeImpl;
 public class DummyNodeStore extends AbstractRefreshingNodeStore implements
 		NodeStore {
 
-	private List<Node> nodes = Arrays.asList(new Node[] { new DefaultNodeImpl(
-			1, 1, "salt",
-			"tcp://localhost:1978?socketTimeout=200&maxActive=20", Arrays
-					.asList(new Integer[] { new Integer(200) })) });
+	private volatile List<Node> nodes = Arrays
+			.asList(new Node[] { new DefaultNodeImpl(1, 1, "salt",
+					"tcp://stanley:1978?socketTimeout=200&maxActive=20", Arrays
+							.asList(new Integer[] { new Integer(200) })) });
 
 	public DummyNodeStore() {
 	}
@@ -25,5 +27,19 @@ public class DummyNodeStore extends AbstractRefreshingNodeStore implements
 
 	public List<Node> getActiveNodes() {
 		return nodes;
+	}
+
+	public void addNode(Node n) {
+		List<Node> newNodes = new ArrayList<Node>(nodes.size() + 1);
+		for (Node x : nodes) {
+			newNodes.add(x);
+		}
+		// Collections.copy(newNodes, nodes);
+		newNodes.add(n);
+		nodes = newNodes;
+	}
+
+	public void removeNode(Node n) {
+		nodes.remove(n);
 	}
 }

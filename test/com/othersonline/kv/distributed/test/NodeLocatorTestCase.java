@@ -11,6 +11,7 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import com.othersonline.kv.distributed.HashAlgorithm;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeLocator;
+import com.othersonline.kv.distributed.NodeStore;
 import com.othersonline.kv.distributed.impl.DefaultNodeImpl;
 import com.othersonline.kv.distributed.impl.DynamoNodeLocator;
 import com.othersonline.kv.distributed.impl.KetamaHashAlgorithm;
@@ -28,6 +29,27 @@ public class NodeLocatorTestCase extends TestCase {
 				createNodeList(10, 3, 10))), new MD5HashAlgorithm());
 	}
 
+	private void testFailureResiliance(NodeStore nodeStore, NodeLocator nodeLocator, HashAlgorithm hashAlg) {
+		int numKeys = 10;
+		Random random = new Random();
+		List<String> keys = new ArrayList<String>(numKeys);
+		for (int i = 0; i < numKeys; ++i) {
+			String key = String.format("/blobs/users/%1$d/%2$d/%3$d", random
+					.nextInt(100), random.nextInt(10000), random
+					.nextInt(Integer.MAX_VALUE));
+			
+			long hashCode = hashAlg.hash(key);
+			List<Node> nodeList = nodeLocator
+			.getPreferenceList(hashAlg, key, 3);
+			for (Node node : nodeList) {
+				// set some value
+				
+			}
+			keys.add(key);
+	
+		}
+		
+	}
 	private void testKeyDistribution(NodeLocator nodeLocator, HashAlgorithm hashAlg) {
 		Random random = new Random();
 		// array to count key assignments
@@ -37,7 +59,6 @@ public class NodeLocatorTestCase extends TestCase {
 					.nextInt(100), random.nextInt(10000), random
 					.nextInt(Integer.MAX_VALUE));
 			long hashCode = hashAlg.hash(key);
-			assertTrue(hashCode != 0);
 
 			List<Node> nodeList = nodeLocator
 					.getPreferenceList(hashAlg, key, 3);
