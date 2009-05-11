@@ -10,7 +10,7 @@ public class MD5HashAlgorithm implements HashAlgorithm {
 	public long hash(final String key) {
 		byte[] bytes = md5(key);
 		long l = 0;
-		for (int i = 8; i < 16; i++) {
+		for (int i = 0; i < 8; i++) {
 			l <<= 8;
 			l ^= (long) bytes[i] & 0xFF;
 		}
