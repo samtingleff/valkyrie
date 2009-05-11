@@ -11,7 +11,6 @@ import com.othersonline.kv.distributed.Context;
 import com.othersonline.kv.distributed.DistributedKeyValueStore;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeStore;
-import com.othersonline.kv.distributed.backends.TokyoTyrantConnectionFactory;
 import com.othersonline.kv.distributed.backends.UriConnectionFactory;
 import com.othersonline.kv.distributed.impl.DefaultDistributedKeyValueStore;
 import com.othersonline.kv.distributed.impl.DefaultNodeImpl;
@@ -26,21 +25,21 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 
 	public void testSimpleDistributedKeyValueStore() throws Exception {
 		Configuration config = new Configuration();
-		config.setRequiredReads(1);
-		config.setRequiredWrites(1);
-		config.setReplicas(1);
+		config.setRequiredReads(2);
+		config.setRequiredWrites(2);
+		config.setReplicas(3);
 		config.setWriteOperationTimeout(500l);
 		config.setReadOperationTimeout(300l);
 		ConnectionFactory cf = new UriConnectionFactory();
 		NodeStore nodeStore = new DummyNodeStore(Arrays.asList(new Node[] {
 				new DefaultNodeImpl(1, 1, "salt:1:1",
-						"tyrant://localhost:1978?socketTimeout=200&maxActive=20&id=1",
+						"hash://localhost?id=1",
 						Arrays.asList(new Integer[] { new Integer(200) })),
 				new DefaultNodeImpl(2, 2, "salt:2:2",
-						"tyrant://localhost:1978?socketTimeout=200&maxActive=20&id=2",
+						"hash://localhost?id=2",
 						Arrays.asList(new Integer[] { new Integer(400) })),
 				new DefaultNodeImpl(3, 3, "salt:3:3",
-						"tyrant://localhost:1978?socketTimeout=200&maxActive=20&id=3",
+						"hash://localhost?id=3",
 						Arrays.asList(new Integer[] { new Integer(600) }))
 
 		}));
@@ -61,7 +60,7 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		kv.set(key, value.getBytes());
 
 		List<Context<byte[]>> values = kv.get(key);
-		assertEquals(values.size(), 1);
+		assertTrue(values.size() >= 2);
 		Context<byte[]> context = values.get(0);
 		String s = new String(context.getValue());
 		assertEquals(s, value);
@@ -69,14 +68,14 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		kv.delete(key);
 
 		values = kv.get(key);
-		assertEquals(values.size(), 1);
+		assertTrue(values.size() >= 2);
 		context = values.get(0);
 		assertNull(context.getValue());
 
-		testScalability(nodeStore, kv);
+		testIncrementalScalability(nodeStore, kv);
 	}
 
-	private void testScalability(NodeStore nodeStore,
+	private void testIncrementalScalability(NodeStore nodeStore,
 			DistributedKeyValueStore store) throws Exception {
 		int numKeys = 1000;
 		Random random = new Random();
@@ -88,9 +87,10 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 			store.set(key, "Hello world".getBytes());
 			keys.add(key);
 		}
+
 		// now add a new node and attempt to retrieve values
-		nodeStore.addNode(new DefaultNodeImpl(2, 2, "salt:2:2",
-				"tcp://stanley:1978", Arrays.asList(new Integer[] {})));
+		nodeStore.addNode(new DefaultNodeImpl(4, 4, "salt:4:4",
+				"hash://localhost?id=4", Arrays.asList(new Integer[] {})));
 		for (String key : keys) {
 			List<Context<byte[]>> contexts = store.get(key);
 			assertNotNull(contexts);

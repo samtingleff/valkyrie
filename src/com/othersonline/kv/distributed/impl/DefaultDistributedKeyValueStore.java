@@ -1,6 +1,8 @@
 package com.othersonline.kv.distributed.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -95,9 +97,12 @@ public class DefaultDistributedKeyValueStore implements
 				syncOperationQueue, op, nodeList, config.getRequiredReads(),
 				config.getReadOperationTimeout());
 
-		List<Context<byte[]>> retval = new ArrayList<Context<byte[]>>(results
+		// copy to new list to avoid ConcurrentModificationException
+		List<OperationResult<byte[]>> resultCopy = new LinkedList<OperationResult<byte[]>>();
+		resultCopy.addAll(results);
+		List<Context<byte[]>> retval = new ArrayList<Context<byte[]>>(resultCopy
 				.size());
-		for (OperationResult<byte[]> result : results) {
+		for (OperationResult<byte[]> result : resultCopy) {
 			Node node = result.getNode();
 			ExtractedContext<byte[]> ec = contextSerializer.extractContext(
 					node, result.getValue());
