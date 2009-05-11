@@ -40,7 +40,7 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 
 	private Transcoder defaultTranscoder = new SerializableTranscoder();
 
-	private String server = "localhost";
+	private String host = "localhost";
 
 	private int port = Constants.DEFAULT_PORT;
 
@@ -59,14 +59,14 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 	public ThriftKeyValueStore() {
 	}
 
-	public ThriftKeyValueStore(String server, int port) {
-		this.server = server;
+	public ThriftKeyValueStore(String host, int port) {
+		this.host = host;
 		this.port = port;
 	}
 
-	@Configurable(name = "server", accepts = Type.StringType)
-	public void setServer(String server) {
-		this.server = server;
+	@Configurable(name = "host", accepts = Type.StringType)
+	public void setHost(String host) {
+		this.host = host;
 	}
 
 	@Configurable(name = "port", accepts = Type.IntType)
@@ -110,7 +110,7 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 
 	public void start() throws IOException {
 		log.trace("start()");
-		connectionPool = new GenericObjectPool(new TConnectionFactory(server,
+		connectionPool = new GenericObjectPool(new TConnectionFactory(host,
 				port), maxActive, GenericObjectPool.WHEN_EXHAUSTED_FAIL,
 				maxWait, maxIdle);
 		connectionPool.setLifo(lifo);

@@ -37,12 +37,12 @@ public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 		return IDENTIFIER;
 	}
 
-	@Configurable(name = "metaServerHost", accepts = Type.StringType)
+	@Configurable(name = "host", accepts = Type.StringType)
 	public void setMetaServerHost(String host) {
 		this.metaServerHost = host;
 	}
 
-	@Configurable(name = "metaServerPort", accepts = Type.IntType)
+	@Configurable(name = "port", accepts = Type.IntType)
 	public void setMetaServerPort(int port) {
 		this.metaServerPort = port;
 	}

@@ -45,6 +45,10 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 
 	private HttpClient httpClient;
 
+	private String host;
+
+	private int port;
+
 	private String baseUrl;
 
 	private int maxConnectionsPerHost = 500;
@@ -62,27 +66,37 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 		this.baseUrl = baseUrl;
 	}
 
-	@Configurable(name="baseUrl", accepts=Type.StringType)
+	@Configurable(name = "host", accepts = Type.StringType)
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	@Configurable(name = "port", accepts = Type.IntType)
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	@Configurable(name = "baseUrl", accepts = Type.StringType)
 	public void setBaseUrl(String baseUrl) {
 		this.baseUrl = baseUrl;
 	}
 
-	@Configurable(name="maxConnectionsPerHost", accepts=Type.IntType)
+	@Configurable(name = "maxConnectionsPerHost", accepts = Type.IntType)
 	public void setMaxConnectionsPerHost(int maxConnectionsPerHost) {
 		this.maxConnectionsPerHost = maxConnectionsPerHost;
 	}
 
-	@Configurable(name="maxConnectionsPerHost", accepts=Type.IntType)
+	@Configurable(name = "maxConnectionsPerHost", accepts = Type.IntType)
 	public void setMaxTotalConnections(int maxTotalConnections) {
 		this.maxTotalConnections = maxTotalConnections;
 	}
 
-	@Configurable(name="maxConnectionsPerHost", accepts=Type.IntType)
+	@Configurable(name = "maxConnectionsPerHost", accepts = Type.IntType)
 	public void setSocketTimeout(int socketTimeout) {
 		this.socketTimeout = socketTimeout;
 	}
 
-	@Configurable(name="connectionTimeout", accepts=Type.IntType)
+	@Configurable(name = "connectionTimeout", accepts = Type.IntType)
 	public void setConnectionTimeout(int connectionTimeout) {
 		this.connectionTimeout = connectionTimeout;
 	}
@@ -98,6 +112,9 @@ public class WebDAVKeyValueStore extends BaseManagedKeyValueStore implements
 		mgr.getParams().setSoTimeout(socketTimeout);
 		mgr.getParams().setConnectionTimeout(connectionTimeout);
 		httpClient = new HttpClient(mgr);
+
+		if (baseUrl == null)
+			baseUrl = String.format("http://%1$s:%2$d", host, port);
 		super.start();
 	}
 

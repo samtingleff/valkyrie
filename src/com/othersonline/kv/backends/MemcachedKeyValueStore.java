@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -62,6 +63,10 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 
 	private List<InetSocketAddress> hosts;
 
+	private String host = "localhost";
+
+	private int port = 11211;
+
 	public MemcachedKeyValueStore() {
 	}
 
@@ -73,12 +78,22 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		this.hosts = hosts;
 	}
 
+	@Configurable(name = "host", accepts = Type.StringType)
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	@Configurable(name = "port", accepts = Type.IntType)
+	public void setPort(int port) {
+		this.port = port;
+	}
+
 	@Configurable(name = "hosts", accepts = Type.StringType)
 	public void setHosts(String hosts) {
 		this.hosts = AddrUtil.getAddresses(hosts);
 	}
 
-	@Configurable(name = "hosts", accepts = Type.StringType)
+	@Configurable(name = "useBinaryProtocol", accepts = Type.BooleanType)
 	public void setUseBinaryProtocol(boolean useBinaryProtocol) {
 		this.useBinaryProtocol = useBinaryProtocol;
 	}
@@ -108,6 +123,8 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 			cf = new KetamaConnectionFactory();
 		else
 			cf = new DefaultConnectionFactory();
+		if (hosts == null)
+			hosts = Arrays.asList(new InetSocketAddress(host, port));
 		mcc = new MemcachedClient(cf, hosts);
 		super.start();
 	}

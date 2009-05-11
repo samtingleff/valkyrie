@@ -12,6 +12,7 @@ import com.othersonline.kv.distributed.DistributedKeyValueStore;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeStore;
 import com.othersonline.kv.distributed.backends.TokyoTyrantConnectionFactory;
+import com.othersonline.kv.distributed.backends.UriConnectionFactory;
 import com.othersonline.kv.distributed.impl.DefaultDistributedKeyValueStore;
 import com.othersonline.kv.distributed.impl.DefaultNodeImpl;
 import com.othersonline.kv.distributed.impl.KetamaHashAlgorithm;
@@ -30,16 +31,16 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		config.setReplicas(1);
 		config.setWriteOperationTimeout(500l);
 		config.setReadOperationTimeout(300l);
-		ConnectionFactory cf = new TokyoTyrantConnectionFactory();
+		ConnectionFactory cf = new UriConnectionFactory();
 		NodeStore nodeStore = new DummyNodeStore(Arrays.asList(new Node[] {
 				new DefaultNodeImpl(1, 1, "salt:1:1",
-						"tcp://stanley:1978?socketTimeout=200&maxActive=20",
+						"tyrant://localhost:1978?socketTimeout=200&maxActive=20&id=1",
 						Arrays.asList(new Integer[] { new Integer(200) })),
 				new DefaultNodeImpl(2, 2, "salt:2:2",
-						"tcp://stanley:1978?socketTimeout=200&maxActive=20",
+						"tyrant://localhost:1978?socketTimeout=200&maxActive=20&id=2",
 						Arrays.asList(new Integer[] { new Integer(400) })),
 				new DefaultNodeImpl(3, 3, "salt:3:3",
-						"tcp://stanley:1978?socketTimeout=200&maxActive=20",
+						"tyrant://localhost:1978?socketTimeout=200&maxActive=20&id=3",
 						Arrays.asList(new Integer[] { new Integer(600) }))
 
 		}));

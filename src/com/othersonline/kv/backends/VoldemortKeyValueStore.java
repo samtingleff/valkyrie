@@ -42,6 +42,10 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 	// how long nodes are banned after a socket timeout
 	private int nodeBannage = SocketStoreClientFactory.DEFAULT_NODE_BANNAGE_MS;
 
+	private String host = null;
+
+	private int port = 6666;
+
 	private String bootstrapUrl = "tcp://localhost:6666";
 
 	private String storeName = "test";
@@ -52,46 +56,63 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 
 	private StoreClient<String, Object> client;
 
+	public VoldemortKeyValueStore(String bootstrapUrl) {
+		this.bootstrapUrl = bootstrapUrl;
+	}
+
+	public VoldemortKeyValueStore() {
+	}
+
 	public void setExecutorService(ExecutorService executor) {
 		this.executor = executor;
 	}
 
-	@Configurable(name="threadPoolSize", accepts=Type.IntType)
+	@Configurable(name = "host", accepts = Type.StringType)
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	@Configurable(name = "port", accepts = Type.IntType)
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	@Configurable(name = "threadPoolSize", accepts = Type.IntType)
 	public void setThreadPoolSize(int threadPoolSize) {
 		this.threadPoolSize = threadPoolSize;
 	}
 
-	@Configurable(name="maxConnectionsPerNode", accepts=Type.IntType)
+	@Configurable(name = "maxConnectionsPerNode", accepts = Type.IntType)
 	public void setMaxConnectionsPerNode(int maxConnectionsPerNode) {
 		this.maxConnectionsPerNode = maxConnectionsPerNode;
 	}
 
-	@Configurable(name="maxTotalConnections", accepts=Type.IntType)
+	@Configurable(name = "maxTotalConnections", accepts = Type.IntType)
 	public void setMaxTotalConnections(int maxTotalConnections) {
 		this.maxTotalConnections = maxTotalConnections;
 	}
 
-	@Configurable(name="socketTimeout", accepts=Type.IntType)
+	@Configurable(name = "socketTimeout", accepts = Type.IntType)
 	public void setSocketTimeout(int socketTimeout) {
 		this.socketTimeout = socketTimeout;
 	}
 
-	@Configurable(name="routingTimeout", accepts=Type.IntType)
+	@Configurable(name = "routingTimeout", accepts = Type.IntType)
 	public void setRoutingTimeout(int routingTimeout) {
 		this.routingTimeout = routingTimeout;
 	}
 
-	@Configurable(name="nodeBannage", accepts=Type.IntType)
+	@Configurable(name = "nodeBannage", accepts = Type.IntType)
 	public void setNodeBannage(int nodeBannage) {
 		this.nodeBannage = nodeBannage;
 	}
 
-	@Configurable(name="bootstrapUrl", accepts=Type.StringType)
+	@Configurable(name = "bootstrapUrl", accepts = Type.StringType)
 	public void setBootstrapUrl(String bootstrapUrl) {
 		this.bootstrapUrl = bootstrapUrl;
 	}
 
-	@Configurable(name="storeName", accepts=Type.StringType)
+	@Configurable(name = "storeName", accepts = Type.StringType)
 	public void setStoreName(String storeName) {
 		this.storeName = storeName;
 	}
@@ -107,10 +128,12 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 			iOwnThreadPool = true;
 		} else
 			iOwnThreadPool = false;
+		String url = (host == null) ? bootstrapUrl : String.format(
+				"tcp://%1$s:%2$d", host, port);
 		StoreClientFactory factory = new SocketStoreClientFactory(executor,
 				maxConnectionsPerNode, maxTotalConnections, socketTimeout,
 				routingTimeout, nodeBannage, new DefaultSerializerFactory(),
-				bootstrapUrl);
+				url);
 		client = factory.getStoreClient(storeName);
 		super.start();
 	}
