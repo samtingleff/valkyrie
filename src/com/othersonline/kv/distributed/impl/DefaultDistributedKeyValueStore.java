@@ -1,7 +1,6 @@
 package com.othersonline.kv.distributed.impl;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,15 +9,12 @@ import org.apache.commons.logging.LogFactory;
 
 import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.distributed.Configuration;
-import com.othersonline.kv.distributed.ConnectionFactory;
 import com.othersonline.kv.distributed.Context;
 import com.othersonline.kv.distributed.ContextSerializer;
 import com.othersonline.kv.distributed.DistributedKeyValueStore;
-import com.othersonline.kv.distributed.ExtractedContext;
 import com.othersonline.kv.distributed.HashAlgorithm;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeLocator;
-import com.othersonline.kv.distributed.NodeStore;
 import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationQueue;
 import com.othersonline.kv.distributed.OperationResult;
@@ -33,15 +29,11 @@ public class DefaultDistributedKeyValueStore implements
 
 	private HashAlgorithm hash;
 
-	private NodeStore nodeStore;
-
 	private NodeLocator nodeLocator;
 
 	private OperationQueue syncOperationQueue;
 
 	private OperationQueue asyncOperationQueue;
-
-	private ConnectionFactory connectionFactory;
 
 	private ContextSerializer contextSerializer;
 
@@ -60,10 +52,6 @@ public class DefaultDistributedKeyValueStore implements
 		this.hash = hash;
 	}
 
-	public void setNodeStore(NodeStore nodeStore) {
-		this.nodeStore = nodeStore;
-	}
-
 	public void setNodeLocator(NodeLocator locator) {
 		this.nodeLocator = locator;
 	}
@@ -74,10 +62,6 @@ public class DefaultDistributedKeyValueStore implements
 
 	public void setAsyncOperationQueue(OperationQueue queue) {
 		this.asyncOperationQueue = queue;
-	}
-
-	public void setConnectionFactory(ConnectionFactory factory) {
-		this.connectionFactory = factory;
 	}
 
 	public void setContextSerializer(ContextSerializer contextSerializer) {
@@ -100,18 +84,13 @@ public class DefaultDistributedKeyValueStore implements
 		// copy to new list to avoid ConcurrentModificationException
 		List<OperationResult<byte[]>> resultCopy = new LinkedList<OperationResult<byte[]>>();
 		resultCopy.addAll(results);
-		List<Context<byte[]>> retval = new ArrayList<Context<byte[]>>(resultCopy
-				.size());
+		List<Context<byte[]>> retval = new ArrayList<Context<byte[]>>(
+				resultCopy.size());
 		for (OperationResult<byte[]> result : resultCopy) {
 			Node node = result.getNode();
-			ExtractedContext<byte[]> ec = contextSerializer.extractContext(
-					node, result.getValue());
-			if (ec.getAdditionalOperations() != null) {
-				for (Operation<byte[]> work : ec.getAdditionalOperations()) {
-					asyncOperationQueue.submit(work);
-				}
-			}
-			retval.add(ec.getContext());
+			Context<byte[]> context = contextSerializer.extractContext(node,
+					result.getValue());
+			retval.add(context);
 		}
 		return retval;
 	}
@@ -125,7 +104,8 @@ public class DefaultDistributedKeyValueStore implements
 				.getReplicas());
 
 		byte[] serializedData = contextSerializer.addContext(object);
-		Operation<byte[]> op = new SetOperation<byte[]>(transcoder, key, serializedData);
+		Operation<byte[]> op = new SetOperation<byte[]>(transcoder, key,
+				serializedData);
 		List<OperationResult<byte[]>> results = operationHelper.call(
 				syncOperationQueue, op, nodeList, config.getRequiredWrites(),
 				config.getWriteOperationTimeout());

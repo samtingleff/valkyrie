@@ -47,11 +47,9 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		DefaultDistributedKeyValueStore kv = new DefaultDistributedKeyValueStore();
 		kv.setAsyncOperationQueue(new DummyOperationQueue(cf));
 		kv.setConfiguration(config);
-		kv.setConnectionFactory(cf);
 		kv.setContextSerializer(new PassthroughContextSerializer());
 		kv.setHashAlgorithm(new KetamaHashAlgorithm());
 		kv.setNodeLocator(new KetamaNodeLocator(nodeStore));
-		kv.setNodeStore(nodeStore);
 		kv.setSyncOperationQueue(new NonPersistentThreadPoolOperationQueue(cf)
 				.start());
 
