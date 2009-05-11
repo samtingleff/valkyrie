@@ -17,6 +17,8 @@ public abstract class AbstractOperation<V> implements Operation<V>,
 
 	protected Node node;
 
+	protected int nodeRank;
+
 	protected String key;
 
 	public AbstractOperation(Transcoder transcoder, String key) {
@@ -46,6 +48,14 @@ public abstract class AbstractOperation<V> implements Operation<V>,
 
 	public void setNode(Node node) {
 		this.node = node;
+	}
+
+	public int getNodeRank() {
+		return nodeRank;
+	}
+
+	public void setNodeRank(int nodeRank) {
+		this.nodeRank = nodeRank;
 	}
 
 	public Callable<OperationResult<V>> getCallable(KeyValueStore store) {

@@ -59,10 +59,11 @@ public class DefaultOperationHelper {
 				latch.countDown();
 			}
 		}.init(latch, successCounter, resultCollecter);
-		for (Node node : nodeList) {
+		for (int i = 0; i < nodeList.size(); ++i) {
 			Operation<V> op = operation.copy();
 			op.setCallback(callback);
-			op.setNode(node);
+			op.setNode(nodeList.get(i));
+			op.setNodeRank(i);
 			Future<OperationResult<V>> future = operationQueue.submit(op);
 			futures.add(future);
 		}

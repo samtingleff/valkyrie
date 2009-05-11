@@ -29,7 +29,7 @@ public class SetOperation<V> extends AbstractOperation<V> implements
 			else
 				store.set(key, value, transcoder);
 			OperationResult<V> result = new DefaultOperationResult<V>(this,
-					node, null);
+					node, nodeRank, null);
 			return result;
 		} finally {
 		}

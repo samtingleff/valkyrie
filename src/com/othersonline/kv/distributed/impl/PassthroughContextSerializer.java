@@ -10,8 +10,9 @@ public class PassthroughContextSerializer implements ContextSerializer {
 		return objectData;
 	}
 
-	public Context<byte[]> extractContext(Node source, byte[] rawData) {
-		return new DefaultContext<byte[]>(0, rawData);
+	public Context<byte[]> extractContext(Node source, int nodeRank,
+			String key, byte[] rawData) {
+		return new DefaultContext<byte[]>(source, nodeRank, 0, key, rawData);
 	}
 
 }

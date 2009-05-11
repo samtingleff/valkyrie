@@ -24,7 +24,7 @@ public class GetOperation<V> extends AbstractOperation<V> implements
 			V v = (transcoder == null) ? (V) store.get(key) : (V) store.get(
 					key, transcoder);
 			OperationResult<V> result = new DefaultOperationResult<V>(this,
-					node, v);
+					node, nodeRank, v);
 			return result;
 		} finally {
 		}

@@ -1,7 +1,7 @@
 package com.othersonline.kv.distributed;
 
 public class InsufficientResponsesException extends
-		DistrubutedKeyValueStoreException {
+		DistributedKeyValueStoreException {
 	private static final long serialVersionUID = -3845940900100650405L;
 
 	private int required;

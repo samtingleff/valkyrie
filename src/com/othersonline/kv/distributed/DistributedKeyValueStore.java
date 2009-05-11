@@ -5,7 +5,10 @@ import java.util.List;
 import com.othersonline.kv.KeyValueStoreException;
 
 public interface DistributedKeyValueStore {
-	public List<Context<byte[]>> get(String key) throws KeyValueStoreException;
+
+	public List<Context<byte[]>> getContexts(String key) throws KeyValueStoreException;
+
+	public Context<byte[]> get(String key) throws KeyValueStoreException;
 
 	public void set(String key, byte[] bytes) throws KeyValueStoreException;
 

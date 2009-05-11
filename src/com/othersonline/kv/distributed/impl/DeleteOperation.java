@@ -18,7 +18,7 @@ public class DeleteOperation<V> extends AbstractOperation<V> {
 		try {
 			store.delete(key);
 			OperationResult<V> result = new DefaultOperationResult<V>(this,
-					node, null);
+					node, nodeRank, null);
 			return result;
 		} finally {
 		}

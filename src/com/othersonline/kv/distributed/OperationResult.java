@@ -6,5 +6,7 @@ public interface OperationResult<V> {
 
 	public Node getNode();
 
+	public int getNodeRank();
+
 	public V getValue();
 }

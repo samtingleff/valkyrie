@@ -21,5 +21,9 @@ public interface Operation<V> extends Serializable {
 
 	public void setNode(Node node);
 
+	public int getNodeRank();
+
+	public void setNodeRank(int index);
+
 	public Callable<OperationResult<V>> getCallable(KeyValueStore store);
 }

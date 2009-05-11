@@ -10,6 +10,8 @@ import org.apache.commons.logging.LogFactory;
 import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.distributed.Configuration;
 import com.othersonline.kv.distributed.Context;
+import com.othersonline.kv.distributed.ContextFilter;
+import com.othersonline.kv.distributed.ContextFilterResult;
 import com.othersonline.kv.distributed.ContextSerializer;
 import com.othersonline.kv.distributed.DistributedKeyValueStore;
 import com.othersonline.kv.distributed.HashAlgorithm;
@@ -36,6 +38,8 @@ public class DefaultDistributedKeyValueStore implements
 	private OperationQueue asyncOperationQueue;
 
 	private ContextSerializer contextSerializer;
+
+	private ContextFilter<byte[]> contextFilter;
 
 	private DefaultOperationHelper operationHelper = new DefaultOperationHelper();
 
@@ -68,9 +72,17 @@ public class DefaultDistributedKeyValueStore implements
 		this.contextSerializer = contextSerializer;
 	}
 
-	public List<Context<byte[]>> get(String key) throws KeyValueStoreException {
+	public void setContextFilter(ContextFilter<byte[]> filter) {
+		this.contextFilter = filter;
+	}
+
+	/**
+	 * Low-level method to retrieve all versions for a given key.
+	 */
+	public List<Context<byte[]>> getContexts(String key)
+			throws KeyValueStoreException {
 		if (log.isTraceEnabled())
-			log.trace(String.format("get(%1$s)", key));
+			log.trace(String.format("getContexts(%1$s)", key));
 
 		// ask for a response from n nodes
 		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key, config
@@ -89,10 +101,26 @@ public class DefaultDistributedKeyValueStore implements
 		for (OperationResult<byte[]> result : resultCopy) {
 			Node node = result.getNode();
 			Context<byte[]> context = contextSerializer.extractContext(node,
-					result.getValue());
+					result.getNodeRank(), key, result.getValue());
 			retval.add(context);
 		}
 		return retval;
+	}
+
+	public Context<byte[]> get(String key) throws KeyValueStoreException {
+		if (log.isTraceEnabled())
+			log.trace(String.format("get(%1$s)", key));
+		List<Context<byte[]>> contexts = getContexts(key);
+		ContextFilterResult<byte[]> filtered = contextFilter.filter(contexts);
+		List<Operation<byte[]>> additionalOperations = filtered
+				.getAdditionalOperations();
+		if (additionalOperations != null) {
+			for (Operation<byte[]> op : additionalOperations) {
+				asyncOperationQueue.submit(op);
+			}
+		}
+		Context<byte[]> result = filtered.getContext();
+		return result;
 	}
 
 	public void set(String key, byte[] object) throws KeyValueStoreException {
@@ -114,8 +142,7 @@ public class DefaultDistributedKeyValueStore implements
 	public void set(String key, Context<byte[]> bytes) {
 		if (log.isTraceEnabled())
 			log.trace(String.format("set(%1$s, %2$s, %3$s)", key, bytes));
-		// TODO Auto-generated method stub
-
+		// TODO
 	}
 
 	public void delete(String key) throws KeyValueStoreException {
@@ -130,29 +157,5 @@ public class DefaultDistributedKeyValueStore implements
 		List<OperationResult<byte[]>> results = operationHelper.call(
 				syncOperationQueue, op, nodeList, config.getRequiredWrites(),
 				config.getWriteOperationTimeout());
-	}
-
-	private static class DefaultContext<V> implements Context<V> {
-		private int version;
-
-		private V value;
-
-		public DefaultContext(int version, V value) {
-			this.version = version;
-			this.value = value;
-		}
-
-		public int getVersion() {
-			return version;
-		}
-
-		public V getValue() {
-			return value;
-		}
-
-		public void setValue(V value) {
-			this.value = value;
-		}
-
 	}
 }

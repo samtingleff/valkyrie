@@ -16,6 +16,7 @@ import com.othersonline.kv.distributed.impl.DefaultDistributedKeyValueStore;
 import com.othersonline.kv.distributed.impl.DefaultNodeImpl;
 import com.othersonline.kv.distributed.impl.KetamaHashAlgorithm;
 import com.othersonline.kv.distributed.impl.KetamaNodeLocator;
+import com.othersonline.kv.distributed.impl.NodeRankContextFilter;
 import com.othersonline.kv.distributed.impl.NonPersistentThreadPoolOperationQueue;
 import com.othersonline.kv.distributed.impl.PassthroughContextSerializer;
 
@@ -48,6 +49,7 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		kv.setAsyncOperationQueue(new DummyOperationQueue(cf));
 		kv.setConfiguration(config);
 		kv.setContextSerializer(new PassthroughContextSerializer());
+		kv.setContextFilter(new NodeRankContextFilter<byte[]>());
 		kv.setHashAlgorithm(new KetamaHashAlgorithm());
 		kv.setNodeLocator(new KetamaNodeLocator(nodeStore));
 		kv.setSyncOperationQueue(new NonPersistentThreadPoolOperationQueue(cf)
@@ -57,15 +59,19 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		String value = "hello world 2";
 		kv.set(key, value.getBytes());
 
-		List<Context<byte[]>> values = kv.get(key);
+		List<Context<byte[]>> values = kv.getContexts(key);
 		assertTrue(values.size() >= 2);
 		Context<byte[]> context = values.get(0);
 		String s = new String(context.getValue());
 		assertEquals(s, value);
 
+		context = kv.get(key);
+		s = new String(context.getValue());
+		assertEquals(s, value);
+
 		kv.delete(key);
 
-		values = kv.get(key);
+		values = kv.getContexts(key);
 		assertTrue(values.size() >= 2);
 		context = values.get(0);
 		assertNull(context.getValue());
@@ -90,7 +96,7 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		nodeStore.addNode(new DefaultNodeImpl(4, 4, "salt:4:4",
 				"hash://localhost?id=4", Arrays.asList(new Integer[] {})));
 		for (String key : keys) {
-			List<Context<byte[]>> contexts = store.get(key);
+			List<Context<byte[]>> contexts = store.getContexts(key);
 			assertNotNull(contexts);
 			assertTrue(contexts.size() >= 1);
 			for (Context<byte[]> context : contexts) {

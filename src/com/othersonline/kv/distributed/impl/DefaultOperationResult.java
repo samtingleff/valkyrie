@@ -9,16 +9,24 @@ public class DefaultOperationResult<V> implements OperationResult<V> {
 
 	private Node node;
 
+	private int nodeRank;
+
 	private V value;
 
-	public DefaultOperationResult(Operation<V> operation, Node node, V value) {
+	public DefaultOperationResult(Operation<V> operation, Node node,
+			int nodeRank, V value) {
 		this.operation = operation;
 		this.node = node;
+		this.nodeRank = nodeRank;
 		this.value = value;
 	}
 
 	public Node getNode() {
 		return node;
+	}
+
+	public int getNodeRank() {
+		return nodeRank;
 	}
 
 	public V getValue() {
