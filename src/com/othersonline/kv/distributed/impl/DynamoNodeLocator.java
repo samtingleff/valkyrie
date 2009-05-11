@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import com.othersonline.kv.distributed.HashAlgorithm;
 import com.othersonline.kv.distributed.Node;
@@ -21,9 +20,9 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 
 	private int nodeCount = 0;
 
-	private TreeMap<Long, Token> outerRing = new TreeMap<Long, Token>();
+	private HashRing<Long, Token> outerRing = new HashRing<Long, Token>();
 
-	private TreeMap<Long, Node> innerRing = new TreeMap<Long, Node>();
+	private HashRing<Long, Node> innerRing = new HashRing<Long, Node>();
 
 	public DynamoNodeLocator(NodeStore store) {
 		setNodeStore(store);
@@ -52,15 +51,10 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 		rebuild(nodes);
 	}
 
-	private Node getNodeForKey(final TreeMap<Long, Token> outer,
-			final TreeMap<Long, Node> inner, final long key) {
-		Map.Entry<Long, Token> outerEntry = outer.ceilingEntry(key);
-		if (outerEntry == null) {
-			outerEntry = outer.firstEntry();
-		}
-		Node n = inner.ceilingEntry(outerEntry.getValue().pointer).getValue();
-		if (n == null)
-			n = inner.firstEntry().getValue();
+	private Node getNodeForKey(final HashRing<Long, Token> outer,
+			final HashRing<Long, Node> inner, final long key) {
+		Map.Entry<Long, Token> outerEntry = outer.place(key);
+		Node n = inner.place(outerEntry.getValue().pointer).getValue();
 		return n;
 	}
 
@@ -85,14 +79,12 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 		}
 	}
 
-	private void place(long hashCode, Node node, TreeMap<Long, Token> outer,
-			TreeMap<Long, Node> inner) {
-		Map.Entry<Long, Token> ceilingEntry = outer.ceilingEntry(hashCode);
-		if (ceilingEntry == null) {
-			ceilingEntry = outer.firstEntry();
-		}
+	private void place(long hashCode, Node node, HashRing<Long, Token> outer,
+			HashRing<Long, Node> inner) {
+		Map.Entry<Long, Token> ceilingEntry = outer.place(hashCode);
 		Token t = ceilingEntry.getValue();
 		while (t.pointer != null) {
+			
 			ceilingEntry = outer.higherEntry(ceilingEntry.getKey());
 			if (ceilingEntry == null)
 				ceilingEntry = outer.firstEntry();
@@ -108,9 +100,9 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 
 	class DynamoIterator implements Iterator<Node> {
 
-		private TreeMap<Long, Token> outer;
+		private HashRing<Long, Token> outer;
 
-		private TreeMap<Long, Node> inner;
+		private HashRing<Long, Node> inner;
 
 		final String key;
 
@@ -120,8 +112,8 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 
 		int numTries = 0;
 
-		public DynamoIterator(final TreeMap<Long, Token> outer,
-				final TreeMap<Long, Node> inner, final String k, final int t) {
+		public DynamoIterator(final HashRing<Long, Token> outer,
+				final HashRing<Long, Node> inner, final String k, final int t) {
 			super();
 			this.outer = outer;
 			this.inner = inner;

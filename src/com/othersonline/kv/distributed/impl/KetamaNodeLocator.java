@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import com.othersonline.kv.distributed.HashAlgorithm;
 import com.othersonline.kv.distributed.Node;
@@ -48,7 +47,7 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 	private NodeStore nodeStore = null;
 
 	private int activeNodeCount = 0;
-	private volatile TreeMap<Long, Node> ketamaNodes = null;
+	private volatile HashRing<Long, Node> ketamaNodes = null;
 
 	public KetamaNodeLocator() {
 	}
@@ -82,8 +81,8 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 		return results;
 	}
 
-	private TreeMap<Long, Node> build(List<Node> nodes) {
-		TreeMap<Long, Node> ketamaNodes = new TreeMap<Long, Node>();
+	private HashRing<Long, Node> build(List<Node> nodes) {
+		HashRing<Long, Node> ketamaNodes = new HashRing<Long, Node>();
 		int lowerBoundary = 0;
 		for (Node node : nodes) {
 			// modified from spy memcached to 1) use connectionURI as the
@@ -111,15 +110,12 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 		return ketamaNodes;
 	}
 
-	private Node getNodeForKey(final TreeMap<Long, Node> ketamaNodes, long hash) {
+	private Node getNodeForKey(final HashRing<Long, Node> ketamaNodes, long hash) {
 		Node rv = null;
 		// Java 1.6 adds a ceilingKey method, but I'm still stuck in 1.5
 		// in a lot of places, so I'm doing this myself.
 		// sam: I'm not. modified to use jdk 1.6 ceilingEntry
-		Map.Entry<Long, Node> entry = ketamaNodes.ceilingEntry(hash);
-		if (entry == null)
-			entry = ketamaNodes.firstEntry();
-
+		Map.Entry<Long, Node> entry = ketamaNodes.place(hash);
 		if (entry != null)
 			rv = entry.getValue();
 		assert rv != null : "Found no node for hash " + hash;
@@ -128,7 +124,7 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 
 	class KetamaIterator implements Iterator<Node> {
 
-		private TreeMap<Long, Node> iteratorNodes;
+		private HashRing<Long, Node> iteratorNodes;
 
 		final String key;
 
@@ -138,7 +134,7 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 
 		int numTries = 0;
 
-		public KetamaIterator(final TreeMap<Long, Node> nodes, final String k,
+		public KetamaIterator(final HashRing<Long, Node> nodes, final String k,
 				final int t) {
 			super();
 			iteratorNodes = nodes;
