@@ -26,7 +26,7 @@ public abstract class AbstractRefreshingNodeStore implements NodeStore {
 				activeNodes = getActiveNodes();
 				for (NodeChangeListener listener : listeners) {
 					try {
-						listener.activeNodes(activeNodes);
+						listener.setActiveNodes(activeNodes);
 					} catch (Exception e) {
 						log
 								.warn(

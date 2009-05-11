@@ -46,7 +46,6 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 
 	private NodeStore nodeStore = null;
 
-	private int activeNodeCount = 0;
 	private volatile HashRing<Long, Node> ketamaNodes = null;
 
 	public KetamaNodeLocator() {
@@ -54,19 +53,22 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 
 	public KetamaNodeLocator(NodeStore nodeStore) {
 		this.nodeStore = nodeStore;
-		activeNodes(nodeStore.getActiveNodes());
+		setActiveNodes(nodeStore.getActiveNodes());
 		this.nodeStore.addChangeListener(this);
 	}
 
 	public void setNodeStore(NodeStore store) {
 		this.nodeStore = store;
-		activeNodes(store.getActiveNodes());
+		setActiveNodes(store.getActiveNodes());
 		this.nodeStore.addChangeListener(this);
 	}
 
-	public void activeNodes(List<Node> nodes) {
-		activeNodeCount = nodes.size();
+	public void setActiveNodes(List<Node> nodes) {
 		ketamaNodes = build(nodes);
+	}
+
+	public int getPrimaryNode(HashAlgorithm hashAlg, String key) {
+		return 0;
 	}
 
 	public List<Node> getPreferenceList(final HashAlgorithm hashAlg,
@@ -82,7 +84,8 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 	}
 
 	private HashRing<Long, Node> build(List<Node> nodes) {
-		HashRing<Long, Node> ketamaNodes = new HashRing<Long, Node>();
+		HashRing<Long, Node> ketamaNodes = new HashRing<Long, Node>(nodes.size());
+
 		int lowerBoundary = 0;
 		for (Node node : nodes) {
 			// modified from spy memcached to 1) use connectionURI as the

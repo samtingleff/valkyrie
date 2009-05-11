@@ -11,7 +11,6 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import com.othersonline.kv.distributed.HashAlgorithm;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeLocator;
-import com.othersonline.kv.distributed.NodeStore;
 import com.othersonline.kv.distributed.impl.DefaultNodeImpl;
 import com.othersonline.kv.distributed.impl.DynamoNodeLocator;
 import com.othersonline.kv.distributed.impl.KetamaHashAlgorithm;
@@ -20,37 +19,49 @@ import com.othersonline.kv.distributed.impl.MD5HashAlgorithm;
 
 public class NodeLocatorTestCase extends TestCase {
 	public void testKetamaNodeLocator() {
-		testKeyDistribution(new KetamaNodeLocator(new DummyNodeStore(
-				createNodeList(10, 3, 10))), new KetamaHashAlgorithm());
+		testPhysicalNodeKeyDistribution(new KetamaNodeLocator(
+				new DummyNodeStore(createNodeList(10, 3, 10))),
+				new KetamaHashAlgorithm());
 	}
 
 	public void testDynamoNodeLocator() {
-		testKeyDistribution(new DynamoNodeLocator(new DummyNodeStore(
-				createNodeList(10, 3, 10))), new MD5HashAlgorithm());
+		int physicalHosts = 10, nodesPerHost = 3, logicalsPerNode = 100;
+		NodeLocator locator = new DynamoNodeLocator(new DummyNodeStore(
+				createNodeList(physicalHosts, nodesPerHost, logicalsPerNode)));
+		HashAlgorithm hashAlg = new MD5HashAlgorithm();
+
+		testPhysicalNodeKeyDistribution(locator, hashAlg);
+		testTokenKeyDistribution(locator, hashAlg, physicalHosts * nodesPerHost
+				* logicalsPerNode);
 	}
 
-	private void testFailureResiliance(NodeStore nodeStore, NodeLocator nodeLocator, HashAlgorithm hashAlg) {
-		int numKeys = 10;
+	private void testTokenKeyDistribution(NodeLocator nodeLocator,
+			HashAlgorithm hashAlg, int nodeCount) {
 		Random random = new Random();
-		List<String> keys = new ArrayList<String>(numKeys);
-		for (int i = 0; i < numKeys; ++i) {
+		// array to count key assignments
+		int[] keyAssignments = new int[nodeCount];
+		for (int i = 0; i < 100000; ++i) {
 			String key = String.format("/blobs/users/%1$d/%2$d/%3$d", random
 					.nextInt(100), random.nextInt(10000), random
 					.nextInt(Integer.MAX_VALUE));
-			
-			long hashCode = hashAlg.hash(key);
-			List<Node> nodeList = nodeLocator
-			.getPreferenceList(hashAlg, key, 3);
-			for (Node node : nodeList) {
-				// set some value
-				
-			}
-			keys.add(key);
-	
+
+			int primary = nodeLocator.getPrimaryNode(hashAlg, key);
+			++keyAssignments[primary];
 		}
-		
+
+		DescriptiveStatistics stats = new DescriptiveStatistics();
+		for (int i = 0; i < keyAssignments.length; ++i) {
+			stats.addValue((double) keyAssignments[i]);
+		}
+		System.out.println("min:      " + stats.getMin());
+		System.out.println("max:      " + stats.getMax());
+		System.out.println("avg:      " + stats.getMean());
+		System.out.println("stdev:    " + stats.getStandardDeviation());
+		System.out.println("variance: " + stats.getVariance());
 	}
-	private void testKeyDistribution(NodeLocator nodeLocator, HashAlgorithm hashAlg) {
+
+	private void testPhysicalNodeKeyDistribution(NodeLocator nodeLocator,
+			HashAlgorithm hashAlg) {
 		Random random = new Random();
 		// array to count key assignments
 		int[] keyAssignments = new int[10 * 3];
@@ -58,8 +69,6 @@ public class NodeLocatorTestCase extends TestCase {
 			String key = String.format("/blobs/users/%1$d/%2$d/%3$d", random
 					.nextInt(100), random.nextInt(10000), random
 					.nextInt(Integer.MAX_VALUE));
-			long hashCode = hashAlg.hash(key);
-
 			List<Node> nodeList = nodeLocator
 					.getPreferenceList(hashAlg, key, 3);
 			for (Node node : nodeList) {
@@ -76,6 +85,7 @@ public class NodeLocatorTestCase extends TestCase {
 		System.out.println("avg:      " + stats.getMean());
 		System.out.println("stdev:    " + stats.getStandardDeviation());
 		System.out.println("variance: " + stats.getVariance());
+		assertEquals(stats.getMean(), 10000.0d);
 		assertTrue(stats.getStandardDeviation() <= 4000);
 	}
 
@@ -93,13 +103,18 @@ public class NodeLocatorTestCase extends TestCase {
 					logicals.add(new Integer(20 * counter));
 					++counter;
 				}
-				Node n = new DefaultNodeImpl(nodeId, i, String.format(
-						"salt:%1$d:%2$d", i, j), String.format(
-						"uri://host#%1$s:%2$d", i, r.nextInt(1024)), logicals);
-				results.add(n);
+				addNode(results, nodeId, i, String.format("salt:%1$d:%2$d", i,
+						j), String.format("uri://host#%1$s:%2$d", i, r
+						.nextInt(1024)), logicals);
 				++nodeId;
 			}
 		}
 		return results;
+	}
+
+	private void addNode(List<Node> nodes, int nodeId, int physicalId,
+			String salt, String uri, List<Integer> logicals) {
+		Node n = new DefaultNodeImpl(nodeId, physicalId, salt, uri, logicals);
+		nodes.add(n);
 	}
 }

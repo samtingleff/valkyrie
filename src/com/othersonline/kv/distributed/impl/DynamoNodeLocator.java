@@ -1,7 +1,8 @@
 package com.othersonline.kv.distributed.impl;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -10,22 +11,34 @@ import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeChangeListener;
 import com.othersonline.kv.distributed.NodeLocator;
 import com.othersonline.kv.distributed.NodeStore;
+import com.othersonline.kv.tuple.Tuple;
+import com.othersonline.kv.tuple.Tuple2;
 
+/**
+ * A node locator roughly comparable to Strategy 3 from the dynamo paper.
+ * 
+ * @author sam
+ *
+ */
 public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 	private NodeStore nodeStore;
 
-	private int tokensPerNode = 3;
+	private int tokensPerNode = 100;
 
-	private HashAlgorithm hashAlg = new MD5HashAlgorithm();
+	private HashAlgorithm md5 = new MD5HashAlgorithm();
 
-	private int nodeCount = 0;
+	private volatile HashRing<Long, Token> outerRing;
 
-	private HashRing<Long, Token> outerRing = new HashRing<Long, Token>();
-
-	private HashRing<Long, Node> innerRing = new HashRing<Long, Node>();
+	public DynamoNodeLocator(NodeStore store, int tokensPerNode) {
+		this.tokensPerNode = tokensPerNode;
+		setNodeStore(store);
+	}
 
 	public DynamoNodeLocator(NodeStore store) {
 		setNodeStore(store);
+	}
+
+	public DynamoNodeLocator() {
 	}
 
 	public void setNodeStore(NodeStore store) {
@@ -36,111 +49,96 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 
 	public List<Node> getPreferenceList(HashAlgorithm hashAlg, String key,
 			int count) {
-		Iterator<Node> iter = new DynamoIterator(outerRing, innerRing, key,
-				outerRing.size());
+		if (count > outerRing.getNodeCount())
+			throw new IllegalArgumentException(String.format(
+					"Requested count (%1$d) is greater than node count (%2$d)",
+					count, outerRing.getNodeCount()));
+
+		long hashCode = hashAlg.hash(key);
+
 		List<Node> results = new ArrayList<Node>(count);
-		while ((results.size() < count) && (iter.hasNext())) {
-			Node n = iter.next();
+		Map.Entry<Long, Token> entry = outerRing.place(hashCode);
+		results.add(entry.getValue().node);
+
+		while (results.size() < count) {
+			entry = outerRing.lowerEntry(hashCode);
+			if (entry == null)
+				entry = outerRing.lastEntry();
+			Node n = entry.getValue().node;
 			if (!results.contains(n))
 				results.add(n);
+			hashCode = entry.getKey();
 		}
 		return results;
 	}
 
-	public void activeNodes(List<Node> nodes) {
+	/**
+	 * Return the primary token for a given key. Provided for unit testing.
+	 * 
+	 * @param hashAlg
+	 * @param key
+	 * @return
+	 */
+	public int getPrimaryNode(HashAlgorithm hashAlg, String key) {
+		if (outerRing.getNodeCount() == 0)
+			throw new IllegalArgumentException("Ring is currently empty");
+		long hashCode = hashAlg.hash(key);
+		Map.Entry<Long, Token> entry = outerRing.place(hashCode);
+		return entry.getValue().id;
+
+	}
+
+	/**
+	 * Callback from the node store when the active node list has changed.
+	 * 
+	 * @param nodes
+	 */
+	public void setActiveNodes(List<Node> nodes) {
 		rebuild(nodes);
 	}
 
-	private Node getNodeForKey(final HashRing<Long, Token> outer,
-			final HashRing<Long, Node> inner, final long key) {
-		Map.Entry<Long, Token> outerEntry = outer.place(key);
-		Node n = inner.place(outerEntry.getValue().pointer).getValue();
-		return n;
-	}
-
 	private void rebuild(List<Node> nodes) {
-		nodeCount = nodes.size();
+		HashRing<Long, Token> newRing = new HashRing<Long, Token>(nodes.size());
+
 		// build the outer ring from Long.MIN_VALUE to Long.MAX_VALUE
-		int tokens = tokensPerNode * nodeCount;
-		long tokenSize = (Long.MAX_VALUE / tokens) * 2;
-		for (int i = 1; i <= tokens; ++i) {
+		int tokenCount = tokensPerNode * newRing.getNodeCount();
+		long tokenSize = (Long.MAX_VALUE / tokenCount) * 2;
+		for (int i = 1; i <= tokenCount; ++i) {
 			long index = Long.MIN_VALUE + (i * tokenSize);
-			Token token = new Token();
-			outerRing.put(index, token);
+			Token token = new Token(i - 1, null);
+			newRing.put(index, token);
 		}
+		List<Tuple2<Long, Node>> tokens = new ArrayList<Tuple2<Long, Node>>(
+				newRing.size());
 		for (Node node : nodes) {
-			for (int i = 0; i < tokensPerNode; ++i) {
+			for (int i = 1; i <= tokensPerNode; ++i) {
 				// assign T tokens to this node
-				String identifier = i + node.getSalt();
-				long hashCode = hashAlg.hash(identifier);
-				// place hashCode on inner ring
-				place(hashCode, node, outerRing, innerRing);
+				String identifier = node.getSalt() + i;
+				long hashCode = md5.hash(identifier);
+				tokens.add(Tuple2.from(new Long(hashCode), node));
 			}
 		}
-	}
-
-	private void place(long hashCode, Node node, HashRing<Long, Token> outer,
-			HashRing<Long, Node> inner) {
-		Map.Entry<Long, Token> ceilingEntry = outer.place(hashCode);
-		Token t = ceilingEntry.getValue();
-		while (t.pointer != null) {
-			
-			ceilingEntry = outer.higherEntry(ceilingEntry.getKey());
-			if (ceilingEntry == null)
-				ceilingEntry = outer.firstEntry();
-			t = ceilingEntry.getValue();
+		Collections.sort(tokens, new Comparator<Tuple2<Long, Node>>() {
+			public int compare(Tuple2<Long, Node> o1, Tuple2<Long, Node> o2) {
+				return Tuple.get1(o1).compareTo(Tuple.get1(o2));
+			}
+		});
+		int i = 0;
+		for (Token token : newRing.values()) {
+			token.node = Tuple.get2(tokens.get(i));
+			++i;
 		}
-		t.pointer = hashCode;
-		innerRing.put(hashCode, node);
+		outerRing = newRing;
 	}
 
 	private static class Token {
-		public Long pointer;
-	}
+		private int id;
 
-	class DynamoIterator implements Iterator<Node> {
+		private Node node;
 
-		private HashRing<Long, Token> outer;
-
-		private HashRing<Long, Node> inner;
-
-		final String key;
-
-		long hashVal;
-
-		int remainingTries;
-
-		int numTries = 0;
-
-		public DynamoIterator(final HashRing<Long, Token> outer,
-				final HashRing<Long, Node> inner, final String k, final int t) {
-			super();
-			this.outer = outer;
-			this.inner = inner;
-			hashVal = hashAlg.hash(k);
-			remainingTries = t;
-			key = k;
-		}
-
-		private void nextHash() {
-			hashVal = hashAlg.hash((numTries++) + key);
-			remainingTries--;
-		}
-
-		public boolean hasNext() {
-			return remainingTries > 0;
-		}
-
-		public Node next() {
-			try {
-				return getNodeForKey(outer, inner, hashVal);
-			} finally {
-				nextHash();
-			}
-		}
-
-		public void remove() {
-			throw new UnsupportedOperationException("remove not supported");
+		public Token(int id, Node node) {
+			this.id = id;
+			this.node = node;
 		}
 	}
 }
