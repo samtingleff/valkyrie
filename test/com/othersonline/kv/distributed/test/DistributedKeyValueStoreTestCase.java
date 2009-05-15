@@ -58,28 +58,32 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		kv.setSyncOperationQueue(new NonPersistentThreadPoolOperationQueue(cf)
 				.start());
 
+		testBasicOperations(kv);
+		testIncrementalScalability(nodeStore, kv);
+	}
+
+	private void testBasicOperations(DistributedKeyValueStore store)
+			throws Exception {
 		String key = "test.key";
 		String value = "hello world 2";
-		kv.set(key, value.getBytes());
+		store.set(key, value.getBytes());
 
-		List<Context<byte[]>> values = kv.getContexts(key);
+		List<Context<byte[]>> values = store.getContexts(key);
 		assertTrue(values.size() >= 2);
 		Context<byte[]> context = values.get(0);
 		String s = new String(context.getValue());
 		assertEquals(s, value);
 
-		context = kv.get(key);
+		context = store.get(key);
 		s = new String(context.getValue());
 		assertEquals(s, value);
 
-		kv.delete(key);
+		store.delete(key);
 
-		values = kv.getContexts(key);
+		values = store.getContexts(key);
 		assertTrue(values.size() >= 2);
 		context = values.get(0);
 		assertNull(context.getValue());
-
-		testIncrementalScalability(nodeStore, kv);
 	}
 
 	private void testIncrementalScalability(NodeStore nodeStore,
@@ -119,7 +123,6 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		for (String key : keys) {
 			Context<byte[]> context = store.get(key);
 			assertNotNull(context);
-			// at least one should have non-null data
 			assertNotNull(context.getKey());
 			assertNotNull(context.getValue());
 		}
