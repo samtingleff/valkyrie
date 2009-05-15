@@ -23,17 +23,7 @@ public abstract class AbstractRefreshingNodeStore implements NodeStore {
 		Timer t = new Timer(true);
 		t.scheduleAtFixedRate(new TimerTask() {
 			public void run() {
-				activeNodes = getActiveNodes();
-				for (NodeChangeListener listener : listeners) {
-					try {
-						listener.setActiveNodes(activeNodes);
-					} catch (Exception e) {
-						log
-								.warn(
-										"Exception calling activeNodes() on listener class.",
-										e);
-					}
-				}
+				publish();
 			}
 		}, delay, period);
 	}
@@ -51,4 +41,16 @@ public abstract class AbstractRefreshingNodeStore implements NodeStore {
 	}
 
 	public abstract List<Node> getActiveNodes();
+
+	protected void publish() {
+		activeNodes = getActiveNodes();
+		for (NodeChangeListener listener : listeners) {
+			try {
+				listener.setActiveNodes(activeNodes);
+			} catch (Exception e) {
+				log.warn("Exception calling activeNodes() on listener class.",
+						e);
+			}
+		}
+	}
 }

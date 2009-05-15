@@ -2,7 +2,6 @@ package com.othersonline.kv.distributed.impl;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
@@ -16,7 +15,6 @@ import com.othersonline.kv.distributed.ConnectionFactory;
 import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationQueue;
 import com.othersonline.kv.distributed.OperationResult;
-import com.othersonline.kv.util.DaemonThreadFactory;
 
 public abstract class AbstractThreadPoolOperationQueue implements
 		OperationQueue {

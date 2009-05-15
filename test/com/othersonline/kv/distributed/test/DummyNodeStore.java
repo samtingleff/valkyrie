@@ -34,9 +34,9 @@ public class DummyNodeStore extends AbstractRefreshingNodeStore implements
 		for (Node x : nodes) {
 			newNodes.add(x);
 		}
-		// Collections.copy(newNodes, nodes);
 		newNodes.add(n);
 		nodes = newNodes;
+		publish();
 	}
 
 	public void removeNode(Node n) {

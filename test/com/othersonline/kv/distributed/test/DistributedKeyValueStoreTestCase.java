@@ -48,7 +48,7 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		nodeStore.addChangeListener(locator);
 
 		DefaultDistributedKeyValueStore kv = new DefaultDistributedKeyValueStore();
-		kv.setAsyncOperationQueue(new DummyOperationQueue(cf));
+		kv.setAsyncOperationQueue(new NonPersistentThreadPoolOperationQueue(cf));
 		kv.setConfiguration(config);
 		kv.setContextSerializer(new PassthroughContextSerializer());
 		kv.setContextFilter(new NodeRankContextFilter<byte[]>());
@@ -97,14 +97,26 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		// now add a new node and attempt to retrieve values
 		nodeStore.addNode(new DefaultNodeImpl(4, 4, "salt:4:4",
 				"hash://localhost?id=4", Arrays.asList(new Integer[] {})));
+		int threeCount = 0, twoCount = 0;
 		for (String key : keys) {
 			List<Context<byte[]>> contexts = store.getContexts(key);
 			assertNotNull(contexts);
 			assertTrue(contexts.size() >= 1);
+			if (contexts.size() == 2)
+				twoCount++;
+			else if (contexts.size() == 3)
+				threeCount++;
+			// at least one should have non-null data
+			boolean foundData = false;
 			for (Context<byte[]> context : contexts) {
+				assertNotNull(context);
+				String k = context.getKey();
 				byte[] data = context.getValue();
-				assertNotNull(data);
+				assertNotNull(k);
+				if (data != null)
+					foundData = true;
 			}
+			assertTrue(foundData);
 		}
 	}
 }
