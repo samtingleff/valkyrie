@@ -9,7 +9,6 @@ import com.othersonline.kv.distributed.HashAlgorithm;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeChangeListener;
 import com.othersonline.kv.distributed.NodeLocator;
-import com.othersonline.kv.distributed.NodeStore;
 
 /**
  * Modified from the spy memcached client, which has the following license.
@@ -44,23 +43,9 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 
 	private KetamaHashAlgorithm hashAlg = new KetamaHashAlgorithm();
 
-	private NodeStore nodeStore = null;
-
 	private volatile HashRing<Long, Node> ketamaNodes = null;
 
 	public KetamaNodeLocator() {
-	}
-
-	public KetamaNodeLocator(NodeStore nodeStore) {
-		this.nodeStore = nodeStore;
-		setActiveNodes(nodeStore.getActiveNodes());
-		this.nodeStore.addChangeListener(this);
-	}
-
-	public void setNodeStore(NodeStore store) {
-		this.nodeStore = store;
-		setActiveNodes(store.getActiveNodes());
-		this.nodeStore.addChangeListener(this);
 	}
 
 	public void setActiveNodes(List<Node> nodes) {

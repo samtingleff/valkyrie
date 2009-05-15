@@ -10,6 +10,8 @@ public interface DistributedKeyValueStore {
 
 	public Context<byte[]> get(String key) throws KeyValueStoreException;
 
+	public Context<byte[]> get(String key, ContextFilter<byte[]> contextFilter) throws KeyValueStoreException;
+
 	public void set(String key, byte[] bytes) throws KeyValueStoreException;
 
 	public void set(String key, Context<byte[]> context)

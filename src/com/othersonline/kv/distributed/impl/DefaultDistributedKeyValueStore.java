@@ -110,8 +110,15 @@ public class DefaultDistributedKeyValueStore implements
 	public Context<byte[]> get(String key) throws KeyValueStoreException {
 		if (log.isTraceEnabled())
 			log.trace(String.format("get(%1$s)", key));
+		return get(key, contextFilter);
+	}
+
+	public Context<byte[]> get(String key, ContextFilter<byte[]> filter)
+			throws KeyValueStoreException {
+		if (log.isTraceEnabled())
+			log.trace(String.format("get(%1$s, %2$s)", key, filter));
 		List<Context<byte[]>> contexts = getContexts(key);
-		ContextFilterResult<byte[]> filtered = contextFilter.filter(contexts);
+		ContextFilterResult<byte[]> filtered = filter.filter(contexts);
 		List<Operation<byte[]>> additionalOperations = filtered
 				.getAdditionalOperations();
 		if (additionalOperations != null) {

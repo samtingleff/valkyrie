@@ -11,6 +11,7 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import com.othersonline.kv.distributed.HashAlgorithm;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeLocator;
+import com.othersonline.kv.distributed.NodeStore;
 import com.othersonline.kv.distributed.impl.DefaultNodeImpl;
 import com.othersonline.kv.distributed.impl.DynamoNodeLocator;
 import com.othersonline.kv.distributed.impl.KetamaHashAlgorithm;
@@ -19,15 +20,20 @@ import com.othersonline.kv.distributed.impl.MD5HashAlgorithm;
 
 public class NodeLocatorTestCase extends TestCase {
 	public void testKetamaNodeLocator() {
-		testPhysicalNodeKeyDistribution(new KetamaNodeLocator(
-				new DummyNodeStore(createNodeList(10, 3, 10))),
-				new KetamaHashAlgorithm());
+		NodeStore store = new DummyNodeStore(createNodeList(10, 3, 10));
+		KetamaNodeLocator locator = new KetamaNodeLocator();
+		locator.setActiveNodes(store.getActiveNodes());
+		store.addChangeListener(locator);
+		testPhysicalNodeKeyDistribution(locator, new KetamaHashAlgorithm());
 	}
 
 	public void testDynamoNodeLocator() {
 		int physicalHosts = 10, nodesPerHost = 3, logicalsPerNode = 100;
-		NodeLocator locator = new DynamoNodeLocator(new DummyNodeStore(
-				createNodeList(physicalHosts, nodesPerHost, logicalsPerNode)));
+		NodeStore store = new DummyNodeStore(createNodeList(physicalHosts,
+				nodesPerHost, logicalsPerNode));
+		DynamoNodeLocator locator = new DynamoNodeLocator();
+		locator.setActiveNodes(store.getActiveNodes());
+		store.addChangeListener(locator);
 		HashAlgorithm hashAlg = new MD5HashAlgorithm();
 
 		testPhysicalNodeKeyDistribution(locator, hashAlg);

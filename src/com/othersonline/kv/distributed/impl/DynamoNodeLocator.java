@@ -10,7 +10,6 @@ import com.othersonline.kv.distributed.HashAlgorithm;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeChangeListener;
 import com.othersonline.kv.distributed.NodeLocator;
-import com.othersonline.kv.distributed.NodeStore;
 import com.othersonline.kv.tuple.Tuple;
 import com.othersonline.kv.tuple.Tuple2;
 
@@ -21,30 +20,17 @@ import com.othersonline.kv.tuple.Tuple2;
  *
  */
 public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
-	private NodeStore nodeStore;
-
 	private int tokensPerNode = 100;
 
 	private HashAlgorithm md5 = new MD5HashAlgorithm();
 
 	private volatile HashRing<Long, Token> outerRing;
 
-	public DynamoNodeLocator(NodeStore store, int tokensPerNode) {
+	public DynamoNodeLocator(int tokensPerNode) {
 		this.tokensPerNode = tokensPerNode;
-		setNodeStore(store);
-	}
-
-	public DynamoNodeLocator(NodeStore store) {
-		setNodeStore(store);
 	}
 
 	public DynamoNodeLocator() {
-	}
-
-	public void setNodeStore(NodeStore store) {
-		this.nodeStore = store;
-		nodeStore.addChangeListener(this);
-		rebuild(nodeStore.getActiveNodes());
 	}
 
 	public List<Node> getPreferenceList(HashAlgorithm hashAlg, String key,
