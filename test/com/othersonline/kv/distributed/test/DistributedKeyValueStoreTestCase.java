@@ -8,7 +8,6 @@ import java.util.Random;
 import com.othersonline.kv.distributed.Configuration;
 import com.othersonline.kv.distributed.ConnectionFactory;
 import com.othersonline.kv.distributed.Context;
-import com.othersonline.kv.distributed.ContextFilter;
 import com.othersonline.kv.distributed.DistributedKeyValueStore;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeStore;
@@ -116,7 +115,7 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 			assertTrue(foundData);
 		}
 
-		// now see if the on-demand move works
+		// now see if the node rank context filter works
 		for (String key : keys) {
 			Context<byte[]> context = store.get(key);
 			assertNotNull(context);
