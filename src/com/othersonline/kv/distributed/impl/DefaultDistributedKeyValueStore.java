@@ -86,7 +86,7 @@ public class DefaultDistributedKeyValueStore implements
 
 		// ask for a response from n nodes
 		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key, config
-				.getReplicas());
+				.getReadReplicas());
 
 		Operation<byte[]> op = new GetOperation<byte[]>(transcoder, key);
 		List<OperationResult<byte[]>> results = operationHelper.call(
@@ -136,7 +136,7 @@ public class DefaultDistributedKeyValueStore implements
 
 		// ask for a response from x nodes
 		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key, config
-				.getReplicas());
+				.getWriteReplicas());
 
 		byte[] serializedData = contextSerializer.addContext(object);
 		Operation<byte[]> op = new SetOperation<byte[]>(transcoder, key,
@@ -158,7 +158,7 @@ public class DefaultDistributedKeyValueStore implements
 
 		// ask for a response from x nodes
 		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key, config
-				.getReplicas());
+				.getWriteReplicas());
 
 		Operation<byte[]> op = new DeleteOperation<byte[]>(key);
 		List<OperationResult<byte[]>> results = operationHelper.call(

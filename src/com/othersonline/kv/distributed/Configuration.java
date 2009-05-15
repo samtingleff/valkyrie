@@ -9,8 +9,12 @@ public class Configuration {
 	// w: minimum # of nodes that must participate in a successful write
 	private int requiredWrites = 2;
 
-	// n: number of replicas. r + w should be > n
-	private int replicas = 3;
+	// n: number of write replicas. r + w should be > n
+	private int writeReplicas = 3;
+
+	// number of read replicas. provided as a tuning parameter for high perf
+	// reads (set low).
+	private int readReplicas = writeReplicas;
 
 	// max wait time for reads
 	private long readOperationTimeout = 1000l;
@@ -40,12 +44,20 @@ public class Configuration {
 		this.requiredWrites = requiredWrites;
 	}
 
-	public int getReplicas() {
-		return replicas;
+	public int getWriteReplicas() {
+		return writeReplicas;
 	}
 
-	public void setReplicas(int replicas) {
-		this.replicas = replicas;
+	public void setWriteReplicas(int writeReplicas) {
+		this.writeReplicas = writeReplicas;
+	}
+
+	public int getReadReplicas() {
+		return readReplicas;
+	}
+
+	public void setReadReplicas(int readReplicas) {
+		this.readReplicas = readReplicas;
 	}
 
 	public long getReadOperationTimeout() {

@@ -15,7 +15,7 @@ import com.othersonline.kv.distributed.backends.UriConnectionFactory;
 import com.othersonline.kv.distributed.impl.DefaultDistributedKeyValueStore;
 import com.othersonline.kv.distributed.impl.DefaultNodeImpl;
 import com.othersonline.kv.distributed.impl.DynamoNodeLocator;
-import com.othersonline.kv.distributed.impl.KetamaHashAlgorithm;
+import com.othersonline.kv.distributed.impl.MD5HashAlgorithm;
 import com.othersonline.kv.distributed.impl.NodeRankContextFilter;
 import com.othersonline.kv.distributed.impl.NonPersistentThreadPoolOperationQueue;
 import com.othersonline.kv.distributed.impl.PassthroughContextSerializer;
@@ -28,7 +28,8 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		Configuration config = new Configuration();
 		config.setRequiredReads(2);
 		config.setRequiredWrites(2);
-		config.setReplicas(3);
+		config.setWriteReplicas(3);
+		config.setReadReplicas(3);
 		config.setWriteOperationTimeout(500l);
 		config.setReadOperationTimeout(300l);
 		ConnectionFactory cf = new UriConnectionFactory();
@@ -51,7 +52,7 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		kv.setConfiguration(config);
 		kv.setContextSerializer(new PassthroughContextSerializer());
 		kv.setContextFilter(new NodeRankContextFilter<byte[]>());
-		kv.setHashAlgorithm(new KetamaHashAlgorithm());
+		kv.setHashAlgorithm(new MD5HashAlgorithm());
 		kv.setNodeLocator(locator);
 		kv.setSyncOperationQueue(new NonPersistentThreadPoolOperationQueue(cf)
 				.start());
