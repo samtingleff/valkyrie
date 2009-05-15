@@ -11,11 +11,12 @@ import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationCallback;
 import com.othersonline.kv.distributed.OperationQueue;
 import com.othersonline.kv.distributed.OperationResult;
+import com.othersonline.kv.distributed.backends.UriConnectionFactory;
 
 public class NonPersistentThreadPoolOperationQueue extends
 		AbstractThreadPoolOperationQueue implements OperationQueue {
 	public NonPersistentThreadPoolOperationQueue() {
-		this(null);
+		this(new UriConnectionFactory());
 	}
 
 	public NonPersistentThreadPoolOperationQueue(

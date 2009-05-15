@@ -39,7 +39,7 @@ public class DefaultDistributedKeyValueStore implements
 
 	private ContextSerializer contextSerializer;
 
-	private ContextFilter<byte[]> contextFilter;
+	private ContextFilter<byte[]> contextFilter = new NodeRankContextFilter<byte[]>();
 
 	private DefaultOperationHelper operationHelper = new DefaultOperationHelper();
 

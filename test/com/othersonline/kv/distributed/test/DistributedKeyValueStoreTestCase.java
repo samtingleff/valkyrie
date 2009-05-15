@@ -8,6 +8,7 @@ import java.util.Random;
 import com.othersonline.kv.distributed.Configuration;
 import com.othersonline.kv.distributed.ConnectionFactory;
 import com.othersonline.kv.distributed.Context;
+import com.othersonline.kv.distributed.ContextFilter;
 import com.othersonline.kv.distributed.DistributedKeyValueStore;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeStore;
@@ -48,7 +49,8 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		nodeStore.addChangeListener(locator);
 
 		DefaultDistributedKeyValueStore kv = new DefaultDistributedKeyValueStore();
-		kv.setAsyncOperationQueue(new NonPersistentThreadPoolOperationQueue(cf));
+		kv.setAsyncOperationQueue(new NonPersistentThreadPoolOperationQueue(cf)
+				.start());
 		kv.setConfiguration(config);
 		kv.setContextSerializer(new PassthroughContextSerializer());
 		kv.setContextFilter(new NodeRankContextFilter<byte[]>());
@@ -97,15 +99,10 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		// now add a new node and attempt to retrieve values
 		nodeStore.addNode(new DefaultNodeImpl(4, 4, "salt:4:4",
 				"hash://localhost?id=4", Arrays.asList(new Integer[] {})));
-		int threeCount = 0, twoCount = 0;
 		for (String key : keys) {
 			List<Context<byte[]>> contexts = store.getContexts(key);
 			assertNotNull(contexts);
 			assertTrue(contexts.size() >= 1);
-			if (contexts.size() == 2)
-				twoCount++;
-			else if (contexts.size() == 3)
-				threeCount++;
 			// at least one should have non-null data
 			boolean foundData = false;
 			for (Context<byte[]> context : contexts) {
@@ -117,6 +114,15 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 					foundData = true;
 			}
 			assertTrue(foundData);
+		}
+
+		// now see if the on-demand move works
+		for (String key : keys) {
+			Context<byte[]> context = store.get(key);
+			assertNotNull(context);
+			// at least one should have non-null data
+			assertNotNull(context.getKey());
+			assertNotNull(context.getValue());
 		}
 	}
 }

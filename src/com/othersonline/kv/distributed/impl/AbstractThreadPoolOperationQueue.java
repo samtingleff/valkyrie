@@ -20,7 +20,7 @@ public abstract class AbstractThreadPoolOperationQueue implements
 		OperationQueue {
 	protected static final int DEFAULT_THREAD_POOL_COUNT = 5;
 
-	protected static final int DEFAULT_MAX_QUEUE_DEPTH = 4;
+	protected static final int DEFAULT_MAX_QUEUE_DEPTH = 100;
 
 	protected Log log = LogFactory.getLog(getClass());
 
@@ -86,6 +86,15 @@ public abstract class AbstractThreadPoolOperationQueue implements
 		return 100;
 	}
 
+	/**
+	 * Execute a Callable. Throws RejectedExecutionException, probably when
+	 * queue size is too large.
+	 * 
+	 * @param <V>
+	 * @param callable
+	 * @return
+	 * @throws RejectedExecutionException
+	 */
 	protected <V> Future<V> execute(Callable<V> callable)
 			throws RejectedExecutionException {
 		return executor.submit(callable);
