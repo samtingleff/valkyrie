@@ -20,7 +20,7 @@ import com.othersonline.kv.distributed.impl.MD5HashAlgorithm;
 
 public class NodeLocatorTestCase extends TestCase {
 	public void testKetamaNodeLocator() {
-		NodeStore store = new DummyNodeStore(createNodeList(10, 3, 10));
+		NodeStore store = new DummyNodeStore(createNodeList(10, 3));
 		KetamaNodeLocator locator = new KetamaNodeLocator();
 		locator.setActiveNodes(store.getActiveNodes());
 		store.addChangeListener(locator);
@@ -28,24 +28,24 @@ public class NodeLocatorTestCase extends TestCase {
 	}
 
 	public void testDynamoNodeLocator() {
-		int physicalHosts = 10, nodesPerHost = 3, logicalsPerNode = 100;
+		int physicalHosts = 10, nodesPerHost = 3;
 		NodeStore store = new DummyNodeStore(createNodeList(physicalHosts,
-				nodesPerHost, logicalsPerNode));
+				nodesPerHost));
 		DynamoNodeLocator locator = new DynamoNodeLocator();
 		locator.setActiveNodes(store.getActiveNodes());
 		store.addChangeListener(locator);
 		HashAlgorithm hashAlg = new MD5HashAlgorithm();
 
 		testPhysicalNodeKeyDistribution(locator, hashAlg);
-		testTokenKeyDistribution(locator, hashAlg, physicalHosts * nodesPerHost
-				* logicalsPerNode);
+		testTokenKeyDistribution(locator, hashAlg, physicalHosts * nodesPerHost);
 	}
 
 	private void testTokenKeyDistribution(NodeLocator nodeLocator,
 			HashAlgorithm hashAlg, int nodeCount) {
 		Random random = new Random();
 		// array to count key assignments
-		int[] keyAssignments = new int[nodeCount];
+		int[] keyAssignments = new int[nodeCount
+				* DynamoNodeLocator.DEFAULT_TOKENS_PER_NODE];
 		for (int i = 0; i < 100000; ++i) {
 			String key = String.format("/blobs/users/%1$d/%2$d/%3$d", random
 					.nextInt(100), random.nextInt(10000), random
@@ -95,23 +95,16 @@ public class NodeLocatorTestCase extends TestCase {
 		assertTrue(stats.getStandardDeviation() <= 4000);
 	}
 
-	private List<Node> createNodeList(int physicalHosts, int nodesPerPhysical,
-			int logicalsPerPhysical) {
+	private List<Node> createNodeList(int physicalHosts, int nodesPerPhysical) {
 		Random r = new Random();
 		List<Node> results = new ArrayList<Node>(physicalHosts
 				* nodesPerPhysical);
-		int nodeId = 1, counter = 1;
+		int nodeId = 1;
 		for (int i = 1; i <= physicalHosts; ++i) {
 			for (int j = 0; j < nodesPerPhysical; ++j) {
-				List<Integer> logicals = new ArrayList<Integer>(
-						logicalsPerPhysical);
-				for (int k = 1; k <= logicalsPerPhysical; ++k) {
-					logicals.add(new Integer(20 * counter));
-					++counter;
-				}
 				addNode(results, nodeId, i, String.format("salt:%1$d:%2$d", i,
 						j), String.format("uri://host#%1$s:%2$d", i, r
-						.nextInt(1024)), logicals);
+						.nextInt(1024)));
 				++nodeId;
 			}
 		}
@@ -119,8 +112,8 @@ public class NodeLocatorTestCase extends TestCase {
 	}
 
 	private void addNode(List<Node> nodes, int nodeId, int physicalId,
-			String salt, String uri, List<Integer> logicals) {
-		Node n = new DefaultNodeImpl(nodeId, physicalId, salt, uri, logicals);
+			String salt, String uri) {
+		Node n = new DefaultNodeImpl(nodeId, physicalId, salt, uri);
 		nodes.add(n);
 	}
 }

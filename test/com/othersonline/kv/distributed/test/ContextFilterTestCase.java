@@ -20,8 +20,7 @@ public class ContextFilterTestCase extends TestCase {
 		ContextFilter<String> filter = new NodeRankContextFilter<String>();
 		List<Context<String>> contexts = new ArrayList<Context<String>>(3);
 		for (int i = 2; i >= 0; --i) {
-			Node n = new DefaultNodeImpl(i, i, "salt:" + i, "hash://localhost",
-					null);
+			Node n = new DefaultNodeImpl(i, i, "salt:" + i, "hash://localhost");
 			Context<String> ctx = (i != 0) ? new DefaultContext<String>(n, i,
 					0, "test.key", "hello world") : new DefaultContext<String>(
 					n, i, 0, "test.key", null);

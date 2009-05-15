@@ -40,6 +40,7 @@ import com.othersonline.kv.distributed.NodeLocator;
  * @author Sam Tingleff <sam@tingleff.com>
  */
 public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
+	private static final int NUM_REPS = 160;
 
 	private KetamaHashAlgorithm hashAlg = new KetamaHashAlgorithm();
 
@@ -58,7 +59,8 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 
 	public List<Node> getPreferenceList(final HashAlgorithm hashAlg,
 			final String key, int count) {
-		Iterator<Node> iter = new KetamaIterator(ketamaNodes, key, ketamaNodes.size());
+		Iterator<Node> iter = new KetamaIterator(ketamaNodes, key, ketamaNodes
+				.size());
 		List<Node> results = new ArrayList<Node>(count);
 		while ((results.size() < count) && (iter.hasNext())) {
 			Node n = iter.next();
@@ -69,30 +71,19 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 	}
 
 	private HashRing<Long, Node> build(List<Node> nodes) {
-		HashRing<Long, Node> ketamaNodes = new HashRing<Long, Node>(nodes.size());
-
-		int lowerBoundary = 0;
+		HashRing<Long, Node> ketamaNodes = new HashRing<Long, Node>(nodes
+				.size());
 		for (Node node : nodes) {
-			// modified from spy memcached to 1) use connectionURI as the
-			// identifier
-			// and 2) use logical partitions rather than a magic variable for
-			// the
-			// number of tokens per node.
-			String nodeIdentifier = node.getConnectionURI();
-			for (Integer p : node.getLogicalPartitionList()) {
-				int upperBoundary = p.intValue();
-				int count = upperBoundary - lowerBoundary;
-				for (int i = 0; i < count / 4; i++) {
-					byte[] digest = hashAlg.md5(nodeIdentifier + upperBoundary);
-					for (int h = 0; h < 4; h++) {
-						Long k = ((long) (digest[3 + h * 4] & 0xFF) << 24)
-								| ((long) (digest[2 + h * 4] & 0xFF) << 16)
-								| ((long) (digest[1 + h * 4] & 0xFF) << 8)
-								| (digest[h * 4] & 0xFF);
-						ketamaNodes.put(k, node);
-					}
+			String nodeIdentifier = node.getSalt();
+			for (int i = 0; i < NUM_REPS / 4; ++i) {
+				byte[] digest = hashAlg.md5(nodeIdentifier + "-" + i);
+				for (int h = 0; h < 4; h++) {
+					Long k = ((long) (digest[3 + h * 4] & 0xFF) << 24)
+							| ((long) (digest[2 + h * 4] & 0xFF) << 16)
+							| ((long) (digest[1 + h * 4] & 0xFF) << 8)
+							| (digest[h * 4] & 0xFF);
+					ketamaNodes.put(k, node);
 				}
-				lowerBoundary = upperBoundary;
 			}
 		}
 		return ketamaNodes;

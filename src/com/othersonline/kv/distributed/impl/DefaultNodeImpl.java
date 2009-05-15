@@ -1,7 +1,5 @@
 package com.othersonline.kv.distributed.impl;
 
-import java.util.List;
-
 import com.othersonline.kv.distributed.Node;
 
 public class DefaultNodeImpl implements Node, Comparable<Node> {
@@ -15,19 +13,16 @@ public class DefaultNodeImpl implements Node, Comparable<Node> {
 
 	private String connectionURI;
 
-	private List<Integer> logicalPartitionList;
-
 	public DefaultNodeImpl() {
 
 	}
 
 	public DefaultNodeImpl(int id, int physicalId, String salt,
-			String connectionURI, List<Integer> logicalPartitions) {
+			String connectionURI) {
 		this.id = id;
 		this.physicalId = physicalId;
 		this.salt = salt;
 		this.connectionURI = connectionURI;
-		this.logicalPartitionList = logicalPartitions;
 	}
 
 	public int getId() {
@@ -60,14 +55,6 @@ public class DefaultNodeImpl implements Node, Comparable<Node> {
 
 	public void setConnectionURI(String connectionURI) {
 		this.connectionURI = connectionURI;
-	}
-
-	public List<Integer> getLogicalPartitionList() {
-		return logicalPartitionList;
-	}
-
-	public void setLogicalPartitionList(List<Integer> logicalPartitionList) {
-		this.logicalPartitionList = logicalPartitionList;
 	}
 
 	public boolean equals(Object obj) {

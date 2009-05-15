@@ -33,15 +33,14 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		config.setWriteOperationTimeout(500l);
 		config.setReadOperationTimeout(300l);
 		ConnectionFactory cf = new UriConnectionFactory();
-		NodeStore nodeStore = new DummyNodeStore(Arrays.asList(new Node[] {
-				new DefaultNodeImpl(1, 1, "salt:1:1", "hash://localhost?id=1",
-						Arrays.asList(new Integer[] { new Integer(200) })),
-				new DefaultNodeImpl(2, 2, "salt:2:2", "hash://localhost?id=2",
-						Arrays.asList(new Integer[] { new Integer(400) })),
-				new DefaultNodeImpl(3, 3, "salt:3:3", "hash://localhost?id=3",
-						Arrays.asList(new Integer[] { new Integer(600) }))
-
-		}));
+		NodeStore nodeStore = new DummyNodeStore(Arrays
+				.asList(new Node[] {
+						new DefaultNodeImpl(1, 1, "salt:1:1",
+								"hash://localhost?id=1"),
+						new DefaultNodeImpl(2, 2, "salt:2:2",
+								"hash://localhost?id=2"),
+						new DefaultNodeImpl(3, 3, "salt:3:3",
+								"hash://localhost?id=3") }));
 
 		DynamoNodeLocator locator = new DynamoNodeLocator();
 		locator.setActiveNodes(nodeStore.getActiveNodes());
@@ -101,7 +100,7 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 
 		// now add a new node and attempt to retrieve values
 		nodeStore.addNode(new DefaultNodeImpl(4, 4, "salt:4:4",
-				"hash://localhost?id=4", Arrays.asList(new Integer[] {})));
+				"hash://localhost?id=4"));
 		for (String key : keys) {
 			List<Context<byte[]>> contexts = store.getContexts(key);
 			assertNotNull(contexts);

@@ -1,5 +1,6 @@
 package com.othersonline.kv.distributed;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
@@ -13,17 +14,22 @@ public abstract class AbstractRefreshingNodeStore implements NodeStore {
 
 	public static final Long DEFAULT_PERIOD = 1000l * 60l;
 
-	private Log log = LogFactory.getLog(getClass());
+	protected Log log = LogFactory.getLog(getClass());
 
-	private List<NodeChangeListener> listeners = new LinkedList<NodeChangeListener>();
+	protected List<NodeChangeListener> listeners = new LinkedList<NodeChangeListener>();
 
-	private volatile List<Node> activeNodes = null;
+	protected volatile List<Node> activeNodes = new LinkedList<Node>();
 
 	public void schedule(long delay, long period) {
 		Timer t = new Timer(true);
 		t.scheduleAtFixedRate(new TimerTask() {
 			public void run() {
-				publish();
+				try {
+					activeNodes = refreshActiveNodes();
+					publish();
+				} catch(Exception e) {
+					log.error("Exception calling refreshActiveNodes()", e);
+				}
 			}
 		}, delay, period);
 	}
@@ -40,7 +46,11 @@ public abstract class AbstractRefreshingNodeStore implements NodeStore {
 		this.activeNodes.remove(node);
 	}
 
-	public abstract List<Node> getActiveNodes();
+	public List<Node> getActiveNodes() {
+		return activeNodes;
+	}
+
+	public abstract List<Node> refreshActiveNodes() throws IOException;
 
 	protected void publish() {
 		activeNodes = getActiveNodes();

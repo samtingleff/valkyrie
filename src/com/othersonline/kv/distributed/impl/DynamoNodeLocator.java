@@ -20,7 +20,9 @@ import com.othersonline.kv.tuple.Tuple2;
  *
  */
 public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
-	private int tokensPerNode = 100;
+	public static final int DEFAULT_TOKENS_PER_NODE = 100;
+
+	private int tokensPerNode = DEFAULT_TOKENS_PER_NODE;
 
 	private HashAlgorithm md5 = new MD5HashAlgorithm();
 
