@@ -39,8 +39,8 @@
 		<apt
 			destdir="${build.path}/classes"
 			debug="on"
-			compile="true"
-			factory="com.othersonline.kv.annotations.RegisterProcessorFactory">
+			compile="false"
+			factory="com.othersonline.registry.RegisterProcessorFactory">
 			<classpath>
 				<fileset dir="${lib.path}">
 				        <include name="*.jar"/>

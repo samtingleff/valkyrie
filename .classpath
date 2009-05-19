@@ -26,5 +26,6 @@
 	<classpathentry kind="lib" path="lib/kfs-0.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/tokyotyrant-0.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math-2.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/oo-apt-registry.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
