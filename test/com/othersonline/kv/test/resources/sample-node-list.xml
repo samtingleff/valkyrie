@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<node-list>
+ <node>
+  <id>1</id>
+  <physical-id>1</physical-id>
+  <salt>test-salt-1</salt>
+  <connection-uri>hash://localhost</connection-uri>
+ </node>
+ <node>
+  <id>2</id>
+  <physical-id>1</physical-id>
+  <salt>test-salt-2</salt>
+  <connection-uri>hash://localhost</connection-uri>
+ </node>
+ <node>
+  <id>3</id>
+  <physical-id>2</physical-id>
+  <salt>test-salt-3</salt>
+  <connection-uri>hash://localhost</connection-uri>
+ </node>
+ <node>
+  <id>4</id>
+  <physical-id>2</physical-id>
+  <salt>test-salt-4</salt>
+  <connection-uri>hash://localhost</connection-uri>
+ </node>
+ <node>
+  <id>5</id>
+  <physical-id>3</physical-id>
+  <salt>test-salt-5</salt>
+  <connection-uri>hash://localhost</connection-uri>
+ </node>
+</node-list>

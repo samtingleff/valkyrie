@@ -27,7 +27,7 @@ public abstract class AbstractRefreshingNodeStore implements NodeStore {
 				try {
 					activeNodes = refreshActiveNodes();
 					publish();
-				} catch(Exception e) {
+				} catch (Exception e) {
 					log.error("Exception calling refreshActiveNodes()", e);
 				}
 			}
@@ -50,7 +50,8 @@ public abstract class AbstractRefreshingNodeStore implements NodeStore {
 		return activeNodes;
 	}
 
-	public abstract List<Node> refreshActiveNodes() throws IOException;
+	public abstract List<Node> refreshActiveNodes() throws IOException,
+			ConfigurationException;
 
 	protected void publish() {
 		activeNodes = getActiveNodes();
