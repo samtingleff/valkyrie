@@ -14,6 +14,7 @@
 		<property name="src.path" value="${local.path}/src"/>
 		<property name="test.path" value="${local.path}/test"/>
 		<property name="build.path" value="${local.path}/build"/>
+		<property name="build.compiler" value="javac1.6"/>
 	</target>
 
 	<!--cleanup -->
@@ -36,19 +37,6 @@
 			<fileset dir="${src.path}" includes="*.properties,*.xml,**/*.properties,**/*.xml"/>
 			<fileset dir="${test.path}" includes="*.properties,*.xml,**/*.properties,**/*.xml,**/*.txt"/>
 		</copy>
-		<apt
-			destdir="${build.path}/classes"
-			debug="on"
-			compile="false"
-			factory="com.othersonline.registry.RegisterProcessorFactory">
-			<classpath>
-				<fileset dir="${lib.path}">
-				        <include name="*.jar"/>
-				      </fileset>
-			</classpath>
-			<src path="${gen.path}/"/>
-			<src path="${src.path}"/>
-		</apt>
 		<javac destdir="${build.path}/classes" target="1.5" debug="${debug}">
 			<classpath>
 				<fileset dir="${lib.path}">

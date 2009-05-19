@@ -11,13 +11,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.othersonline.kv.BaseManagedKeyValueStore;
-import com.othersonline.kv.Constants;
 import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.annotations.Configurable;
 import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.SerializableTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
-import com.othersonline.registry.Register;
 import com.sleepycat.bind.EntryBinding;
 import com.sleepycat.bind.serial.SerialBinding;
 import com.sleepycat.bind.serial.StoredClassCatalog;
@@ -31,7 +29,6 @@ import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import com.sleepycat.je.Transaction;
 
-@Register(registry=Constants.BACKEND_REGISTRY, name="bdbje")
 public class BDBJEKeyValueStore extends BaseManagedKeyValueStore {
 	public static final String IDENTIFIER = "bdbje";
 
