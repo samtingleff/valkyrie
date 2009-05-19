@@ -13,6 +13,7 @@ import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeListParser;
 
 public class UrlNodeStore extends AbstractRefreshingNodeStore {
+	public static final String URL_PROPERTY = "nodeStore.url";
 
 	private URL url;
 

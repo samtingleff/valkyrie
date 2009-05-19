@@ -3,6 +3,8 @@ package com.othersonline.kv.distributed;
 import java.util.concurrent.TimeUnit;
 
 public class Configuration {
+	private NodeStore nodeStore;
+
 	// r: minimum # of nodes that must participate in a successful read
 	private int requiredReads = 2;
 
@@ -27,6 +29,14 @@ public class Configuration {
 
 	// time period for above error count
 	private TimeUnit errorCountPeriod = TimeUnit.MINUTES;
+
+	public NodeStore getNodeStore() {
+		return nodeStore;
+	}
+
+	public void setNodeStore(NodeStore store) {
+		this.nodeStore = store;
+	}
 
 	public int getRequiredReads() {
 		return requiredReads;
