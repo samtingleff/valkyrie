@@ -28,6 +28,7 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 
 	private volatile HashRing<Long, Token> outerRing;
 
+	private volatile int maxNodeIterations = 0;
 	public DynamoNodeLocator(int tokensPerNode) {
 		this.tokensPerNode = tokensPerNode;
 	}
@@ -48,14 +49,15 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 		Map.Entry<Long, Token> entry = outerRing.place(hashCode);
 		results.add(entry.getValue().node);
 
-		while (results.size() < count) {
-			entry = outerRing.lowerEntry(hashCode);
+		int stopLimit = 1;
+		while ((results.size() < count) && (stopLimit < maxNodeIterations)) {
+			entry = outerRing.lowerEntry(entry.getKey());
 			if (entry == null)
 				entry = outerRing.lastEntry();
 			Node n = entry.getValue().node;
 			if (!results.contains(n))
 				results.add(n);
-			hashCode = entry.getKey();
+			++stopLimit;
 		}
 		return results;
 	}
@@ -116,6 +118,7 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 			token.node = Tuple.get2(tokens.get(i));
 			++i;
 		}
+		maxNodeIterations = tokensPerNode * nodes.size();
 		outerRing = newRing;
 	}
 

@@ -2,6 +2,7 @@ package com.othersonline.kv.distributed.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -33,14 +34,17 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		config.setWriteOperationTimeout(500l);
 		config.setReadOperationTimeout(300l);
 		ConnectionFactory cf = new UriConnectionFactory();
-		NodeStore nodeStore = new DummyNodeStore(Arrays
-				.asList(new Node[] {
+		List<Node> nodeList = new LinkedList<Node>();
+		nodeList.add(
 						new DefaultNodeImpl(1, 1, "salt:1:1",
-								"hash://localhost?id=1"),
-						new DefaultNodeImpl(2, 2, "salt:2:2",
-								"hash://localhost?id=2"),
-						new DefaultNodeImpl(3, 3, "salt:3:3",
-								"hash://localhost?id=3") }));
+								"hash://localhost?id=1"));
+		nodeList.add(
+				new DefaultNodeImpl(2, 2, "salt:2:2",
+						"hash://localhost?id=2"));
+		nodeList.add(
+				new DefaultNodeImpl(3, 3, "salt:3:3",
+						"hash://localhost?id=3"));
+		NodeStore nodeStore = new DummyNodeStore(nodeList);
 
 		DynamoNodeLocator locator = new DynamoNodeLocator();
 		locator.setActiveNodes(nodeStore.getActiveNodes());

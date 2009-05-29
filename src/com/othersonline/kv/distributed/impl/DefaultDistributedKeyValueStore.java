@@ -89,16 +89,14 @@ public class DefaultDistributedKeyValueStore implements
 				.getReadReplicas());
 
 		Operation<byte[]> op = new GetOperation<byte[]>(transcoder, key);
-		List<OperationResult<byte[]>> results = operationHelper.call(
+		ResultsCollecter<OperationResult<byte[]>> results = operationHelper.call(
 				syncOperationQueue, op, nodeList, config.getRequiredReads(),
 				config.getReadOperationTimeout());
 
-		// copy to new list to avoid ConcurrentModificationException
-		List<OperationResult<byte[]>> resultCopy = new LinkedList<OperationResult<byte[]>>();
-		resultCopy.addAll(results);
+		results.stop();
 		List<Context<byte[]>> retval = new ArrayList<Context<byte[]>>(
-				resultCopy.size());
-		for (OperationResult<byte[]> result : resultCopy) {
+				results.size());
+		for (OperationResult<byte[]> result : results) {
 			Node node = result.getNode();
 			Context<byte[]> context = contextSerializer.extractContext(node,
 					result.getNodeRank(), key, result.getValue());
@@ -141,7 +139,7 @@ public class DefaultDistributedKeyValueStore implements
 		byte[] serializedData = contextSerializer.addContext(object);
 		Operation<byte[]> op = new SetOperation<byte[]>(transcoder, key,
 				serializedData);
-		List<OperationResult<byte[]>> results = operationHelper.call(
+		ResultsCollecter<OperationResult<byte[]>> results = operationHelper.call(
 				syncOperationQueue, op, nodeList, config.getRequiredWrites(),
 				config.getWriteOperationTimeout());
 	}
@@ -161,7 +159,7 @@ public class DefaultDistributedKeyValueStore implements
 				.getWriteReplicas());
 
 		Operation<byte[]> op = new DeleteOperation<byte[]>(key);
-		List<OperationResult<byte[]>> results = operationHelper.call(
+		ResultsCollecter<OperationResult<byte[]>> results = operationHelper.call(
 				syncOperationQueue, op, nodeList, config.getRequiredWrites(),
 				config.getWriteOperationTimeout());
 	}

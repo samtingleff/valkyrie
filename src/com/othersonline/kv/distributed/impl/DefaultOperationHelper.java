@@ -1,6 +1,5 @@
 package com.othersonline.kv.distributed.impl;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -20,7 +19,7 @@ import com.othersonline.kv.distributed.OperationResult;
 
 public class DefaultOperationHelper {
 
-	public <V> List<OperationResult<V>> call(OperationQueue operationQueue,
+	public <V> ResultsCollecter<OperationResult<V>> call(OperationQueue operationQueue,
 			Operation<V> operation, List<Node> nodeList, int requiredResponses,
 			long operationTimeout) throws InsufficientResponsesException {
 		long start = System.currentTimeMillis();
@@ -28,8 +27,7 @@ public class DefaultOperationHelper {
 		LinkedList<Future<OperationResult<V>>> futures = new LinkedList<Future<OperationResult<V>>>();
 
 		AtomicInteger successCounter = new AtomicInteger(0);
-		List<OperationResult<V>> resultCollecter = new ArrayList<OperationResult<V>>(
-				nodeList.size());
+		ResultsCollecter<OperationResult<V>> resultCollecter = new ResultsCollecter<OperationResult<V>>(nodeList.size());
 		CountDownLatch latch = new CountDownLatch(requiredResponses);
 		OperationCallback<V> callback = new OperationCallback<V>() {
 
@@ -37,11 +35,11 @@ public class DefaultOperationHelper {
 
 			private AtomicInteger successCounter;
 
-			private List<OperationResult<V>> resultCollecter;
+			private ResultsCollecter<OperationResult<V>> resultCollecter;
 
 			public OperationCallback<V> init(CountDownLatch latch,
 					AtomicInteger successCounter,
-					List<OperationResult<V>> resultCollecter) {
+					ResultsCollecter<OperationResult<V>> resultCollecter) {
 				this.latch = latch;
 				this.successCounter = successCounter;
 				this.resultCollecter = resultCollecter;
