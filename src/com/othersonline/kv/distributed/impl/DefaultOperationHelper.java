@@ -19,15 +19,17 @@ import com.othersonline.kv.distributed.OperationResult;
 
 public class DefaultOperationHelper {
 
-	public <V> ResultsCollecter<OperationResult<V>> call(OperationQueue operationQueue,
-			Operation<V> operation, List<Node> nodeList, int requiredResponses,
-			long operationTimeout) throws InsufficientResponsesException {
+	public <V> ResultsCollecter<OperationResult<V>> call(
+			OperationQueue operationQueue, Operation<V> operation,
+			List<Node> nodeList, int requiredResponses, long operationTimeout)
+			throws InsufficientResponsesException {
 		long start = System.currentTimeMillis();
 
 		LinkedList<Future<OperationResult<V>>> futures = new LinkedList<Future<OperationResult<V>>>();
 
 		AtomicInteger successCounter = new AtomicInteger(0);
-		ResultsCollecter<OperationResult<V>> resultCollecter = new ResultsCollecter<OperationResult<V>>(nodeList.size());
+		ResultsCollecter<OperationResult<V>> resultCollecter = new ResultsCollecter<OperationResult<V>>(
+				nodeList.size());
 		CountDownLatch latch = new CountDownLatch(requiredResponses);
 		OperationCallback<V> callback = new OperationCallback<V>() {
 

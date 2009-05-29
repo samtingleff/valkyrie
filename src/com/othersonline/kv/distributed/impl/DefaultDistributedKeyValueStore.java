@@ -1,7 +1,6 @@
 package com.othersonline.kv.distributed.impl;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -89,13 +88,13 @@ public class DefaultDistributedKeyValueStore implements
 				.getReadReplicas());
 
 		Operation<byte[]> op = new GetOperation<byte[]>(transcoder, key);
-		ResultsCollecter<OperationResult<byte[]>> results = operationHelper.call(
-				syncOperationQueue, op, nodeList, config.getRequiredReads(),
-				config.getReadOperationTimeout());
+		ResultsCollecter<OperationResult<byte[]>> results = operationHelper
+				.call(syncOperationQueue, op, nodeList, config
+						.getRequiredReads(), config.getReadOperationTimeout());
 
 		results.stop();
-		List<Context<byte[]>> retval = new ArrayList<Context<byte[]>>(
-				results.size());
+		List<Context<byte[]>> retval = new ArrayList<Context<byte[]>>(results
+				.size());
 		for (OperationResult<byte[]> result : results) {
 			Node node = result.getNode();
 			Context<byte[]> context = contextSerializer.extractContext(node,
@@ -139,9 +138,9 @@ public class DefaultDistributedKeyValueStore implements
 		byte[] serializedData = contextSerializer.addContext(object);
 		Operation<byte[]> op = new SetOperation<byte[]>(transcoder, key,
 				serializedData);
-		ResultsCollecter<OperationResult<byte[]>> results = operationHelper.call(
-				syncOperationQueue, op, nodeList, config.getRequiredWrites(),
-				config.getWriteOperationTimeout());
+		ResultsCollecter<OperationResult<byte[]>> results = operationHelper
+				.call(syncOperationQueue, op, nodeList, config
+						.getRequiredWrites(), config.getWriteOperationTimeout());
 	}
 
 	public void set(String key, Context<byte[]> bytes) {
@@ -159,8 +158,8 @@ public class DefaultDistributedKeyValueStore implements
 				.getWriteReplicas());
 
 		Operation<byte[]> op = new DeleteOperation<byte[]>(key);
-		ResultsCollecter<OperationResult<byte[]>> results = operationHelper.call(
-				syncOperationQueue, op, nodeList, config.getRequiredWrites(),
-				config.getWriteOperationTimeout());
+		ResultsCollecter<OperationResult<byte[]>> results = operationHelper
+				.call(syncOperationQueue, op, nodeList, config
+						.getRequiredWrites(), config.getWriteOperationTimeout());
 	}
 }
