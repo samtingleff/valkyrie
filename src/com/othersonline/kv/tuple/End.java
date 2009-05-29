@@ -37,7 +37,6 @@ public class End implements SeparatedAppender, Comparable<End> {
 	public void appendString(StringBuffer buffer, String separator) {
 	}
 
-	@Override
 	public int compareTo(End o) {
 		return 0;
 	}
