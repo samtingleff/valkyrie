@@ -17,7 +17,7 @@ import com.othersonline.kv.tuple.Tuple2;
  * A node locator roughly comparable to Strategy 3 from the dynamo paper.
  * 
  * @author sam
- *
+ * 
  */
 public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 	public static final int DEFAULT_TOKENS_PER_NODE = 100;
@@ -29,6 +29,7 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 	private volatile HashRing<Long, Token> outerRing;
 
 	private volatile int maxNodeIterations = 0;
+
 	public DynamoNodeLocator(int tokensPerNode) {
 		this.tokensPerNode = tokensPerNode;
 	}
@@ -55,7 +56,15 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 			if (entry == null)
 				entry = outerRing.lastEntry();
 			Node n = entry.getValue().node;
-			if (!results.contains(n))
+			// add if we do not have a node with this id, physical id
+			boolean add = true;
+			for (Node x : results) {
+				if ((x.equals(n)) || (x.getPhysicalId() == (n.getPhysicalId()))) {
+					add = false;
+					break;
+				}
+			}
+			if (add)
 				results.add(n);
 			++stopLimit;
 		}
