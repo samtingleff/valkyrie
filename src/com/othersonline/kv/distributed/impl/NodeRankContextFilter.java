@@ -44,14 +44,17 @@ public class NodeRankContextFilter<V> implements ContextFilter<V> {
 			}
 		}
 
-		List<Operation<V>> ops = new LinkedList<Operation<V>>();
-		for (Node node : nodesRequiringUpdate) {
-			Operation<V> op = new SetOperation<V>(null,
-					lowestNonNullValueContext.getKey(),
-					lowestNonNullValueContext.getValue());
-			op.setNode(node);
-			ops.add(op);
-
+		List<Operation<V>> ops = null;
+		if ((lowestNonNullValueContext != null)
+				&& (nodesRequiringUpdate.size() > 0)) {
+			ops = new LinkedList<Operation<V>>();
+			for (Node node : nodesRequiringUpdate) {
+				Operation<V> op = new SetOperation<V>(null,
+						lowestNonNullValueContext.getKey(),
+						lowestNonNullValueContext.getValue());
+				op.setNode(node);
+				ops.add(op);
+			}
 		}
 		return new DefaultContextFilterResult<V>(lowestNonNullValueContext, ops);
 	}

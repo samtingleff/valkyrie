@@ -5,6 +5,12 @@ import java.util.concurrent.TimeUnit;
 public class Configuration {
 	private NodeStore nodeStore;
 
+	private OperationQueue syncOperationQueue;
+
+	private OperationQueue asyncOperationQueue;
+
+	private ConnectionFactory connectionFactory;
+
 	// r: minimum # of nodes that must participate in a successful read
 	private int requiredReads = 2;
 
@@ -25,10 +31,10 @@ public class Configuration {
 	private long writeOperationTimeout = 1000l;
 
 	// max errors in a given period before a node is evicted
-	private int maxErrorCount = 10;
+	private int maxNodeErrorCount = 10;
 
 	// time period for above error count
-	private TimeUnit errorCountPeriod = TimeUnit.MINUTES;
+	private TimeUnit nodeErrorCountPeriod = TimeUnit.MINUTES;
 
 	public NodeStore getNodeStore() {
 		return nodeStore;
@@ -36,6 +42,30 @@ public class Configuration {
 
 	public void setNodeStore(NodeStore store) {
 		this.nodeStore = store;
+	}
+
+	public OperationQueue getSyncOperationQueue() {
+		return syncOperationQueue;
+	}
+
+	public void setSyncOperationQueue(OperationQueue queue) {
+		this.syncOperationQueue = queue;
+	}
+
+	public OperationQueue getAsyncOperationQueue() {
+		return asyncOperationQueue;
+	}
+
+	public void setAsyncOperationQueue(OperationQueue queue) {
+		this.asyncOperationQueue = queue;
+	}
+
+	public ConnectionFactory getConnectionFactory() {
+		return connectionFactory;
+	}
+
+	public void setConnectionFactory(ConnectionFactory factory) {
+		this.connectionFactory = factory;
 	}
 
 	public int getRequiredReads() {
@@ -86,20 +116,20 @@ public class Configuration {
 		this.writeOperationTimeout = writeOperationTimeout;
 	}
 
-	public int getMaxErrorCount() {
-		return maxErrorCount;
+	public int getMaxNodeErrorCount() {
+		return maxNodeErrorCount;
 	}
 
-	public void setMaxErrorCount(int maxErrorCount) {
-		this.maxErrorCount = maxErrorCount;
+	public void setMaxNodeErrorCount(int maxNodeErrorCount) {
+		this.maxNodeErrorCount = maxNodeErrorCount;
 	}
 
-	public TimeUnit getErrorCountPeriod() {
-		return errorCountPeriod;
+	public TimeUnit getNodeErrorCountPeriod() {
+		return nodeErrorCountPeriod;
 	}
 
-	public void setErrorCountPeriod(TimeUnit errorCountPeriod) {
-		this.errorCountPeriod = errorCountPeriod;
+	public void setNodeErrorCountPeriod(TimeUnit nodeErrorCountPeriod) {
+		this.nodeErrorCountPeriod = nodeErrorCountPeriod;
 	}
 
 }
