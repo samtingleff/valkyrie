@@ -1,7 +1,6 @@
 package com.othersonline.kv.distributed.test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -12,6 +11,7 @@ import com.othersonline.kv.distributed.Context;
 import com.othersonline.kv.distributed.DistributedKeyValueStore;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeStore;
+import com.othersonline.kv.distributed.OperationQueue;
 import com.othersonline.kv.distributed.backends.UriConnectionFactory;
 import com.othersonline.kv.distributed.impl.DefaultDistributedKeyValueStore;
 import com.othersonline.kv.distributed.impl.DefaultNodeImpl;
@@ -26,6 +26,7 @@ import junit.framework.TestCase;
 public class DistributedKeyValueStoreTestCase extends TestCase {
 
 	Configuration config = new Configuration();
+
 	public void setUp() {
 		config.setRequiredReads(2);
 		config.setRequiredWrites(2);
@@ -34,6 +35,7 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		config.setWriteOperationTimeout(500l);
 		config.setReadOperationTimeout(300l);
 	}
+
 	public void testSimpleDistributedKeyValueStore() throws Exception {
 		ConnectionFactory cf = new UriConnectionFactory();
 		List<Node> nodeList = new LinkedList<Node>();
@@ -50,15 +52,19 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		nodeStore.addChangeListener(locator);
 
 		DefaultDistributedKeyValueStore kv = new DefaultDistributedKeyValueStore();
-		kv.setAsyncOperationQueue(new NonPersistentThreadPoolOperationQueue(cf)
-				.start());
+		OperationQueue asyncOpqueue = new NonPersistentThreadPoolOperationQueue(
+				cf);
+		asyncOpqueue.start();
+		OperationQueue syncOpqueue = new NonPersistentThreadPoolOperationQueue(
+				cf);
+		syncOpqueue.start();
+		kv.setAsyncOperationQueue(asyncOpqueue);
 		kv.setConfiguration(config);
 		kv.setContextSerializer(new PassthroughContextSerializer());
 		kv.setContextFilter(new NodeRankContextFilter<byte[]>());
 		kv.setHashAlgorithm(new MD5HashAlgorithm());
 		kv.setNodeLocator(locator);
-		kv.setSyncOperationQueue(new NonPersistentThreadPoolOperationQueue(cf)
-				.start());
+		kv.setSyncOperationQueue(syncOpqueue);
 
 		testBasicOperations(kv);
 		testIncrementalScalability(nodeStore, kv);

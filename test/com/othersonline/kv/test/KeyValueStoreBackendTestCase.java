@@ -31,6 +31,8 @@ import com.othersonline.kv.backends.ThriftKeyValueStore;
 import com.othersonline.kv.backends.TokyoTyrantKeyValueStore;
 import com.othersonline.kv.backends.VoldemortKeyValueStore;
 import com.othersonline.kv.backends.WebDAVKeyValueStore;
+import com.othersonline.kv.distributed.impl.DistributedKeyValueStoreClientImpl;
+import com.othersonline.kv.distributed.impl.PropertiesConfigurator;
 import com.othersonline.kv.mgmt.JMXMbeanServerFactory;
 import com.othersonline.kv.server.ThriftKeyValueServer;
 import com.othersonline.kv.transcoder.ByteArrayTranscoder;
@@ -60,7 +62,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 	public void testMemcachedBackend() throws Exception {
 		MemcachedKeyValueStore store = new MemcachedKeyValueStore();
 		store.setUseBinaryProtocol(false);
-		store.setHosts("localhost:11211");
+		store.setHosts("dev-db:11211");
 		doTestBackend(store);
 
 		// test transactions
@@ -100,7 +102,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testTokyoTyrantBackend() throws Exception {
 		TokyoTyrantKeyValueStore store = new TokyoTyrantKeyValueStore();
-		store.setHost("localhost");
+		store.setHost("dev-db");
 		store.setPort(1978);
 		doTestBackend(store);
 	}
@@ -125,7 +127,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testWebDavBackend() throws Exception {
 		WebDAVKeyValueStore store = new WebDAVKeyValueStore();
-		store.setBaseUrl("http://localhost/dav/testing/");
+		store.setBaseUrl("http://dev-db/dav/testing/");
 		doTestBackend(store);
 	}
 
@@ -139,14 +141,26 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testVoldemortBackend() throws Exception {
 		VoldemortKeyValueStore store = new VoldemortKeyValueStore();
-		store.setBootstrapUrl("tcp://localhost:6666");
+		store.setBootstrapUrl("tcp://dev-db:6666");
 		doTestBackend(store);
 	}
 
 	public void testKosmosfsBackend() throws Exception {
-		KosmosfsKeyValueStore store = new KosmosfsKeyValueStore();
-		store.setMetaServerHost("localhost");
-		store.setMetaServerPort(20000);
+		/*
+		 * KosmosfsKeyValueStore store = new KosmosfsKeyValueStore();
+		 * store.setMetaServerHost("localhost"); store.setMetaServerPort(20000);
+		 * doTestBackend(store);
+		 */
+	}
+
+	public void testHermioneBackend() throws Exception {
+		PropertiesConfigurator configurator = new PropertiesConfigurator();
+		configurator
+				.load(getClass()
+						.getResourceAsStream(
+								"/com/othersonline/kv/test/resources/hermione-test.properties"));
+		DistributedKeyValueStoreClientImpl store = new DistributedKeyValueStoreClientImpl();
+		store.setConfigurator(configurator);
 		doTestBackend(store);
 	}
 
@@ -166,12 +180,12 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testCachingStore() throws Exception {
 		TokyoTyrantKeyValueStore master = new TokyoTyrantKeyValueStore();
-		master.setHost("localhost");
+		master.setHost("dev-db");
 		master.setPort(1978);
 		master.start();
 
 		MemcachedKeyValueStore cache = new MemcachedKeyValueStore();
-		cache.setHosts("localhost:11211");
+		cache.setHosts("dev-db:11211");
 		cache.start();
 
 		CachingKeyValueStore store = new CachingKeyValueStore(master, cache);
@@ -185,7 +199,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testAsyncFlushCachingStore() throws Exception {
 		MemcachedKeyValueStore master = new MemcachedKeyValueStore();
-		master.setHosts("localhost:11211");
+		master.setHosts("dev-db:11211");
 		master.start();
 
 		KeyValueStore cache = new ConcurrentHashMapKeyValueStore();
@@ -212,7 +226,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testReplicatingStore() throws Exception {
 		MemcachedKeyValueStore master = new MemcachedKeyValueStore();
-		master.setHosts("localhost:11211");
+		master.setHosts("dev-db:11211");
 		master.start();
 
 		KeyValueStore replica = new ConcurrentHashMapKeyValueStore();
@@ -237,7 +251,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 
 	public void testRateLimitingKeyValueStore() throws Exception {
 		MemcachedKeyValueStore mcc = new MemcachedKeyValueStore();
-		mcc.setHosts("localhost:11211");
+		mcc.setHosts("dev-db:11211");
 		mcc.start();
 
 		RateLimitingKeyValueStore store = new RateLimitingKeyValueStore();

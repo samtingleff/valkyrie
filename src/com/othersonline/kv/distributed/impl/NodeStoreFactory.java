@@ -16,8 +16,7 @@ public class NodeStoreFactory {
 
 			NodeStore store = null;
 			if ("jdbc".equals(name)) {
-				store = new JdbcNodeStore(props
-						.getProperty(JdbcNodeStore.DATA_SOURCE_PROPERTY));
+				store = new JdbcNodeStore(props);
 			} else if ("url".equals(name)) {
 				store = new UrlNodeStore(props
 						.getProperty(UrlNodeStore.URL_PROPERTY),

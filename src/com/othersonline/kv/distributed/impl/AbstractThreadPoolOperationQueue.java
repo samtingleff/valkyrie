@@ -57,11 +57,10 @@ public abstract class AbstractThreadPoolOperationQueue implements
 		this.maxQueueDepth = maxQueueDepth;
 	}
 
-	public OperationQueue start() {
+	public void start() {
 		executor = new ThreadPoolExecutor(threadPoolCount, threadPoolCount, 0l,
 				TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(
 						maxQueueDepth));
-		return this;
 	}
 
 	public void stop() {

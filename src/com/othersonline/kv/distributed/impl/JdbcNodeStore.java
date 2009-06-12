@@ -1,12 +1,15 @@
 package com.othersonline.kv.distributed.impl;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -22,8 +25,8 @@ import com.othersonline.kv.distributed.NodeStore;
  * Reads nodes from a jdbc database. Table should look like this:
  * 
  * create table node ( id int primary key, physical_id int not null, salt
- * varchar(10) unique not null, connection_uri varchar(50) not null, status
- * enum('1', '2', '3'));
+ * varchar(10) unique not null, connection_uri varchar(128) not null, status
+ * tinyint not null);
  * 
  * Nodes with a status other than 1 will be ignored.
  * 
@@ -34,7 +37,15 @@ public class JdbcNodeStore extends AbstractRefreshingNodeStore implements
 		NodeStore {
 	public static final String DATA_SOURCE_PROPERTY = "nodeStore.dataSource";
 
-	private String dataSourceName;
+	public static final String JDBC_DRIVER_PROPERTY = "nodeStore.jdbcDriver";
+
+	public static final String JDBC_URL_PROPERTY = "nodeStore.jdbcUrl";
+
+	public static final String JDBC_USER_PROPERTY = "nodeStore.jdbcUsername";
+
+	public static final String JDBC_PASSWORD_PROPERTY = "nodeStore.jdbcPassword";
+
+	private Properties props;
 
 	private DataSource ds;
 
@@ -42,13 +53,13 @@ public class JdbcNodeStore extends AbstractRefreshingNodeStore implements
 		super();
 	}
 
-	public JdbcNodeStore(String dataSourceName) {
+	public JdbcNodeStore(Properties props) {
 		super();
-		this.dataSourceName = dataSourceName;
+		this.props = props;
 	}
 
-	public void setDataSourceJndiName(String dataSourceName) {
-		this.dataSourceName = dataSourceName;
+	public void setProperties(Properties props) {
+		this.props = props;
 	}
 
 	@Override
@@ -94,6 +105,8 @@ public class JdbcNodeStore extends AbstractRefreshingNodeStore implements
 			log.error("SQLException adding node()", e);
 		} catch (NamingException e) {
 			log.error("NamingException adding node()", e);
+		} catch (ClassNotFoundException e) {
+			log.error("ClassNotFoundException adding node()", e);
 		} finally {
 			if (rs != null) {
 				try {
@@ -140,9 +153,11 @@ public class JdbcNodeStore extends AbstractRefreshingNodeStore implements
 			if (!conn.getAutoCommit())
 				conn.commit();
 		} catch (SQLException e) {
-			log.error("SQLException adding node()", e);
+			log.error("SQLException removing node()", e);
 		} catch (NamingException e) {
-			log.error("NamingException adding node()", e);
+			log.error("NamingException removing node()", e);
+		} catch (ClassNotFoundException e) {
+			log.error("ClassNotFoundException removing node()", e);
 		} finally {
 			if (ps != null) {
 				try {
@@ -185,6 +200,8 @@ public class JdbcNodeStore extends AbstractRefreshingNodeStore implements
 			throw new IOException(e);
 		} catch (NamingException e) {
 			throw new ConfigurationException(e);
+		} catch (ClassNotFoundException e) {
+			throw new ConfigurationException(e);
 		} finally {
 			if (rs != null) {
 				try {
@@ -207,11 +224,75 @@ public class JdbcNodeStore extends AbstractRefreshingNodeStore implements
 		}
 	}
 
-	private Connection getConnection() throws SQLException, NamingException {
+	private Connection getConnection() throws SQLException, NamingException,
+			ClassNotFoundException {
 		if (ds == null) {
-			Context initCtx = new InitialContext();
-			ds = (DataSource) initCtx.lookup(dataSourceName);
+			String dataSourceName = props.getProperty(DATA_SOURCE_PROPERTY);
+			if (dataSourceName != null) {
+				Context initCtx = new InitialContext();
+				ds = (DataSource) initCtx.lookup(dataSourceName);
+			} else {
+				String driver = props.getProperty(JDBC_DRIVER_PROPERTY);
+				String url = props.getProperty(JDBC_URL_PROPERTY);
+				String user = props.getProperty(JDBC_USER_PROPERTY);
+				String password = props.getProperty(JDBC_PASSWORD_PROPERTY);
+				ds = new SimpleDataSource(driver, url, user, password);
+			}
 		}
 		return ds.getConnection();
+	}
+
+	private class SimpleDataSource implements DataSource {
+		private PrintWriter pw;
+
+		private int loginTimeout;
+
+		private String url;
+
+		private String user;
+
+		private String password;
+
+		public SimpleDataSource(String driver, String url, String user,
+				String password) throws ClassNotFoundException {
+			this.url = url;
+			this.user = user;
+			this.password = password;
+			Class.forName(driver);
+		}
+
+		public Connection getConnection() throws SQLException {
+			return DriverManager.getConnection(url, user, password);
+		}
+
+		public Connection getConnection(String username, String password)
+				throws SQLException {
+			return getConnection();
+		}
+
+		public PrintWriter getLogWriter() throws SQLException {
+			return pw;
+		}
+
+		public int getLoginTimeout() throws SQLException {
+			return loginTimeout;
+		}
+
+		public void setLogWriter(PrintWriter pw) throws SQLException {
+			this.pw = pw;
+		}
+
+		public void setLoginTimeout(int loginTimeout) throws SQLException {
+			this.loginTimeout = loginTimeout;
+		}
+
+		public boolean isWrapperFor(Class<?> cls) throws SQLException {
+			return false;
+		}
+
+		public <T> T unwrap(Class<T> cls) throws SQLException {
+			return null;
+		}
+
 	}
 }

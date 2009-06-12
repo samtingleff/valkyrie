@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
+import java.util.Properties;
 
 import com.othersonline.kv.distributed.AbstractRefreshingNodeStore;
 import com.othersonline.kv.distributed.ConfigurationException;
@@ -32,6 +33,14 @@ public class UrlNodeStore extends AbstractRefreshingNodeStore {
 			throws MalformedURLException {
 		this.url = new URL(url);
 		this.parser = parser;
+	}
+
+	public void setProperties(Properties props) throws IllegalArgumentException {
+		try {
+			this.url = new URL(props.getProperty("nodestore.url"));
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException(e);
+		}
 	}
 
 	public void setUrl(String url) throws MalformedURLException {

@@ -88,10 +88,12 @@ public class DefaultOperationHelper {
 								- (System.currentTimeMillis() - start),
 								TimeUnit.MILLISECONDS);
 					} catch (TimeoutException e) {
-
+						e.printStackTrace();
 					} catch (ExecutionException e) {
+						e.printStackTrace();
 
 					} catch (Exception e) {
+						e.printStackTrace();
 
 					}
 				}

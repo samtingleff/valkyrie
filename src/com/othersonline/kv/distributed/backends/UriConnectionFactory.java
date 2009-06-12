@@ -30,7 +30,7 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 	// urls are specified as schema://hostname:port?arg1=value1&arg2=value2
 	// where :port and ?arg1... are optional
 	private Pattern urlPattern = Pattern
-			.compile("([\\w]+):\\/\\/([\\w]+)(:([0-9]+))?(\\?(.*))?");
+			.compile("([\\w\\-]+):\\/\\/([\\w\\-]+)(:([0-9]+))?(\\?(.*))?");
 
 	protected KeyValueStore createStoreConnection(Node node)
 			throws IOException, KeyValueStoreUnavailable {

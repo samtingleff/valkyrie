@@ -6,6 +6,8 @@ import java.util.concurrent.RejectedExecutionException;
 public interface OperationQueue {
 	public void setConnectionFactory(ConnectionFactory factory);
 
+	public void start();
+
 	public int getQueueSize();
 
 	public <V> Future<OperationResult<V>> submit(Operation<V> operation)

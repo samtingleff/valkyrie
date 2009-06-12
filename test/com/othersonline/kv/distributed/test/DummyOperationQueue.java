@@ -25,6 +25,9 @@ public class DummyOperationQueue implements OperationQueue {
 		this.connectionFactory = factory;
 	}
 
+	public void start() {
+	}
+
 	public int getQueueSize() {
 		return 0;
 	}

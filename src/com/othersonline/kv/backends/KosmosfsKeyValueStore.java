@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.kosmix.kosmosfs.access.KfsAccess;
 import org.kosmix.kosmosfs.access.KfsInputChannel;
 import org.kosmix.kosmosfs.access.KfsOutputChannel;
@@ -20,6 +22,8 @@ import com.othersonline.kv.transcoder.Transcoder;
 
 public class KosmosfsKeyValueStore extends BaseManagedKeyValueStore {
 	public static final String IDENTIFIER = "kosmosfs";
+
+	private Log log = LogFactory.getLog(getClass());
 
 	private static Random random = new Random();
 

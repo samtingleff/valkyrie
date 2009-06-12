@@ -20,6 +20,11 @@ public abstract class AbstractRefreshingNodeStore implements NodeStore {
 
 	protected volatile List<Node> activeNodes = new LinkedList<Node>();
 
+	public void start() throws IOException, ConfigurationException {
+		this.activeNodes = refreshActiveNodes();
+		publish();
+	}
+
 	public void schedule(long delay, long period) {
 		Timer t = new Timer(true);
 		t.scheduleAtFixedRate(new TimerTask() {

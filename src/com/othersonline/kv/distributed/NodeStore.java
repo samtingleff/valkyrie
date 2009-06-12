@@ -1,8 +1,14 @@
 package com.othersonline.kv.distributed;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 public interface NodeStore {
+	public void setProperties(Properties props);
+
+	public void start() throws IOException, ConfigurationException;
+
 	public List<Node> getActiveNodes();
 
 	public void addNode(Node node);
