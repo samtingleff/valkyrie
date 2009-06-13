@@ -97,7 +97,7 @@ public class ThriftKeyValueServer {
 			KeyValueService.Iface {
 		private Log log = LogFactory.getLog(getClass());
 
-		private Log accessLog = LogFactory.getLog("logging.access");
+		private Log accessLog = LogFactory.getLog("hermione.thrift.accesslog");
 
 		private Transcoder transcoder = new ByteArrayTranscoder();
 
