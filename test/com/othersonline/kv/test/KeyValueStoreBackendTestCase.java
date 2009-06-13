@@ -48,7 +48,7 @@ import com.othersonline.kv.util.SimpleRateLimiter;
 import junit.framework.TestCase;
 
 public class KeyValueStoreBackendTestCase extends TestCase {
-/*
+
 	public void testHashtableBackend() throws Exception {
 		KeyValueStore store = new ConcurrentHashMapKeyValueStore();
 		doTestBackend(store);
@@ -144,13 +144,11 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		store.setBootstrapUrl("tcp://dev-db:6666");
 		doTestBackend(store);
 	}
-*/
+
 	public void testKosmosfsBackend() throws Exception {
-		/*
-		 * KosmosfsKeyValueStore store = new KosmosfsKeyValueStore();
-		 * store.setMetaServerHost("localhost"); store.setMetaServerPort(20000);
-		 * doTestBackend(store);
-		 */
+		KosmosfsKeyValueStore store = new KosmosfsKeyValueStore();
+		store.setMetaServerHost("localhost"); store.setMetaServerPort(20000);
+		doTestBackend(store);
 	}
 
 	public void testHermioneBackend() throws Exception {
@@ -163,7 +161,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		store.setConfigurator(configurator);
 		doTestBackend(store);
 	}
-/*
+
 	public void testThriftBackend() throws Exception {
 		// create backend
 		OsCacheKeyValueStore backend = new OsCacheKeyValueStore();
@@ -292,7 +290,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		store.set("test.key2", "test.value2");
 		assertEquals(limiter.getCounter(), 1);
 	}
-*/
+
 	private void doTestBackend(KeyValueStore store) throws Exception {
 		String key = "some/key";
 		assertEquals(store.getStatus(), KeyValueStoreStatus.Offline);
