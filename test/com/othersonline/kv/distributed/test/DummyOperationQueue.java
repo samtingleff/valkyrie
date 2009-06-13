@@ -33,10 +33,11 @@ public class DummyOperationQueue implements OperationQueue {
 	}
 
 	public <V> Future<OperationResult<V>> submit(Operation<V> operation) {
+		Node node = null;
 		OperationResult<V> result = null;
 		Exception e = null;
 		try {
-			Node node = operation.getNode();
+			node = operation.getNode();
 			KeyValueStore store = connectionFactory.getStore(node);
 			Callable<OperationResult<V>> callable = operation
 					.getCallable(store);
@@ -53,9 +54,9 @@ public class DummyOperationQueue implements OperationQueue {
 			OperationCallback<V> callback = operation.getCallback();
 			if (callback != null) {
 				if (e == null)
-					callback.success(result);
+					callback.success(node, result);
 				else
-					callback.error(result, e);
+					callback.error(node, result, e);
 			}
 		}
 	}

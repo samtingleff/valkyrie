@@ -18,6 +18,10 @@ public class SetOperation<V> extends AbstractOperation<V> implements
 		this.value = value;
 	}
 
+	public String getName() {
+		return "set";
+	}
+
 	public SetOperation<V> copy() {
 		return new SetOperation<V>(this.transcoder, this.key, this.value);
 	}

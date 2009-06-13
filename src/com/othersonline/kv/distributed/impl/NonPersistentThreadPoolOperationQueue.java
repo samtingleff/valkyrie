@@ -46,8 +46,9 @@ public class NonPersistentThreadPoolOperationQueue extends
 		public OperationResult<V> call() throws Exception {
 			OperationResult<V> result = null;
 			Exception error = null;
+			Node node = null;
 			try {
-				Node node = op.getNode();
+				node = op.getNode();
 				KeyValueStore store = connectionFactory.getStore(node);
 				Callable<OperationResult<V>> delegate = op.getCallable(store);
 				result = delegate.call();
@@ -57,9 +58,9 @@ public class NonPersistentThreadPoolOperationQueue extends
 				OperationCallback<V> callback = op.getCallback();
 				if (callback != null) {
 					if (error == null)
-						callback.success(result);
+						callback.success(node, result);
 					else
-						callback.error(result, error);
+						callback.error(node, result, error);
 				}
 			}
 			return result;

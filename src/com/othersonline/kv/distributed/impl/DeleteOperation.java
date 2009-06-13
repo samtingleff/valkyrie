@@ -6,6 +6,10 @@ import com.othersonline.kv.distributed.OperationResult;
 public class DeleteOperation<V> extends AbstractOperation<V> {
 	private static final long serialVersionUID = -918401158100309347L;
 
+	public String getName() {
+		return "delete";
+	}
+
 	public DeleteOperation(String key) {
 		super(null, key);
 	}

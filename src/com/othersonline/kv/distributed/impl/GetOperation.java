@@ -15,6 +15,10 @@ public class GetOperation<V> extends AbstractOperation<V> implements
 		super(transcoder, key);
 	}
 
+	public String getName() {
+		return "get";
+	}
+
 	public GetOperation<V> copy() {
 		return new GetOperation<V>(this.transcoder, this.key);
 	}

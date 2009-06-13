@@ -58,6 +58,14 @@ public abstract class AbstractOperation<V> implements Operation<V>,
 		this.nodeRank = nodeRank;
 	}
 
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
+
 	public Callable<OperationResult<V>> getCallable(KeyValueStore store) {
 		this.store = store;
 		return this;

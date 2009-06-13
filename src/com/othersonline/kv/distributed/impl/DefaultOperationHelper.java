@@ -33,32 +33,48 @@ public class DefaultOperationHelper {
 		CountDownLatch latch = new CountDownLatch(requiredResponses);
 		OperationCallback<V> callback = new OperationCallback<V>() {
 
+			private OperationLog log = OperationLog.getInstance();
+
 			private CountDownLatch latch;
 
 			private AtomicInteger successCounter;
 
 			private ResultsCollecter<OperationResult<V>> resultCollecter;
 
-			public OperationCallback<V> init(CountDownLatch latch,
-					AtomicInteger successCounter,
+			private Operation<V> op;
+
+			private long startTime = System.currentTimeMillis();
+
+			public OperationCallback<V> init(Operation<V> op,
+					CountDownLatch latch, AtomicInteger successCounter,
 					ResultsCollecter<OperationResult<V>> resultCollecter) {
+				this.op = op;
 				this.latch = latch;
 				this.successCounter = successCounter;
 				this.resultCollecter = resultCollecter;
 				return this;
 			}
 
-			public void success(OperationResult<V> result) {
+			public void success(Node node, OperationResult<V> result) {
 				resultCollecter.add(result);
 				successCounter.incrementAndGet();
 				latch.countDown();
+				log(node, result, true);
 			}
 
-			public void error(OperationResult<V> result, Exception e) {
+			public void error(Node node, OperationResult<V> result, Exception e) {
 				resultCollecter.add(result);
 				latch.countDown();
+				log(node, result, false);
 			}
-		}.init(latch, successCounter, resultCollecter);
+
+			private void log(Node node, OperationResult<V> result,
+					boolean success) {
+				long duration = System.currentTimeMillis() - startTime;
+				log.log(op.getKey(), node.getId(), op.getName(), success,
+						duration);
+			}
+		}.init(operation, latch, successCounter, resultCollecter);
 		for (int i = 0; i < nodeList.size(); ++i) {
 			Operation<V> op = operation.copy();
 			op.setCallback(callback);

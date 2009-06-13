@@ -7,6 +7,10 @@ import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.transcoder.Transcoder;
 
 public interface Operation<V> extends Serializable {
+	public String getName();
+
+	public String getKey();
+
 	public Operation<V> copy();
 
 	public Transcoder getTranscoder();
