@@ -2,6 +2,8 @@ package com.othersonline.kv.distributed;
 
 import java.util.List;
 
+import com.othersonline.kv.distributed.hashing.HashAlgorithm;
+
 public interface NodeLocator {
 	public void setActiveNodes(List<Node> nodes);
 

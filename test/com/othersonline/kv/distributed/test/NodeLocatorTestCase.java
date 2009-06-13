@@ -8,15 +8,15 @@ import junit.framework.TestCase;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import com.othersonline.kv.distributed.HashAlgorithm;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeLocator;
 import com.othersonline.kv.distributed.NodeStore;
+import com.othersonline.kv.distributed.hashing.HashAlgorithm;
+import com.othersonline.kv.distributed.hashing.KetamaHashAlgorithm;
+import com.othersonline.kv.distributed.hashing.MD5HashAlgorithm;
 import com.othersonline.kv.distributed.impl.DefaultNodeImpl;
 import com.othersonline.kv.distributed.impl.DynamoNodeLocator;
-import com.othersonline.kv.distributed.impl.KetamaHashAlgorithm;
 import com.othersonline.kv.distributed.impl.KetamaNodeLocator;
-import com.othersonline.kv.distributed.impl.MD5HashAlgorithm;
 
 public class NodeLocatorTestCase extends TestCase {
 	public void testKetamaNodeLocator() {

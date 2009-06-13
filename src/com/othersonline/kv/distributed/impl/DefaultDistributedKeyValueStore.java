@@ -13,12 +13,12 @@ import com.othersonline.kv.distributed.ContextFilter;
 import com.othersonline.kv.distributed.ContextFilterResult;
 import com.othersonline.kv.distributed.ContextSerializer;
 import com.othersonline.kv.distributed.DistributedKeyValueStore;
-import com.othersonline.kv.distributed.HashAlgorithm;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeLocator;
 import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationQueue;
 import com.othersonline.kv.distributed.OperationResult;
+import com.othersonline.kv.distributed.hashing.HashAlgorithm;
 import com.othersonline.kv.transcoder.ByteArrayTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 

@@ -1,4 +1,4 @@
-package com.othersonline.kv.distributed;
+package com.othersonline.kv.distributed.hashing;
 
 public interface HashAlgorithm {
 

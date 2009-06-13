@@ -5,10 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.othersonline.kv.distributed.HashAlgorithm;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeChangeListener;
 import com.othersonline.kv.distributed.NodeLocator;
+import com.othersonline.kv.distributed.hashing.HashAlgorithm;
+import com.othersonline.kv.distributed.hashing.HashRing;
+import com.othersonline.kv.distributed.hashing.KetamaHashAlgorithm;
 
 /**
  * Modified from the spy memcached client, which has the following license.

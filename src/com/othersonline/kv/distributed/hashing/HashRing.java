@@ -1,4 +1,4 @@
-package com.othersonline.kv.distributed.impl;
+package com.othersonline.kv.distributed.hashing;
 
 import java.util.Collection;
 import java.util.Map;

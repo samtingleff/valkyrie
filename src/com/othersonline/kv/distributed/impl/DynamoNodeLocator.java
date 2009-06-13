@@ -6,10 +6,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import com.othersonline.kv.distributed.HashAlgorithm;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeChangeListener;
 import com.othersonline.kv.distributed.NodeLocator;
+import com.othersonline.kv.distributed.hashing.HashAlgorithm;
+import com.othersonline.kv.distributed.hashing.HashRing;
+import com.othersonline.kv.distributed.hashing.MD5HashAlgorithm;
 import com.othersonline.kv.tuple.Tuple;
 import com.othersonline.kv.tuple.Tuple2;
 

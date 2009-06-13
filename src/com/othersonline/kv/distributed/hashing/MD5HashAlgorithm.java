@@ -1,9 +1,8 @@
-package com.othersonline.kv.distributed.impl;
+package com.othersonline.kv.distributed.hashing;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import com.othersonline.kv.distributed.HashAlgorithm;
 
 public class MD5HashAlgorithm implements HashAlgorithm {
 

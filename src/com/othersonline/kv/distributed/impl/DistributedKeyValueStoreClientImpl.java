@@ -15,6 +15,7 @@ import com.othersonline.kv.distributed.Configurator;
 import com.othersonline.kv.distributed.ConnectionFactory;
 import com.othersonline.kv.distributed.Context;
 import com.othersonline.kv.distributed.OperationQueue;
+import com.othersonline.kv.distributed.hashing.MD5HashAlgorithm;
 import com.othersonline.kv.transcoder.SerializingTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 
