@@ -71,8 +71,7 @@ public class DefaultOperationHelper {
 			private void log(Node node, OperationResult<V> result,
 					boolean success) {
 				long duration = System.currentTimeMillis() - startTime;
-				log.log(op.getKey(), node.getId(), op.getName(), success,
-						duration);
+				log.log(op.getKey(), node.getId(), op.getName(), duration, success);
 			}
 		}.init(operation, latch, successCounter, resultCollecter);
 		for (int i = 0; i < nodeList.size(); ++i) {

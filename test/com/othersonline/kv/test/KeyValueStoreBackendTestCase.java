@@ -146,17 +146,17 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 	}
 
 	public void testKosmosfsBackend() throws Exception {
-		KosmosfsKeyValueStore store = new KosmosfsKeyValueStore();
+		/*KosmosfsKeyValueStore store = new KosmosfsKeyValueStore();
 		store.setMetaServerHost("localhost"); store.setMetaServerPort(20000);
-		doTestBackend(store);
+		doTestBackend(store);*/
 	}
 
-	public void testHermioneBackend() throws Exception {
+	public void testHaymitchBackend() throws Exception {
 		PropertiesConfigurator configurator = new PropertiesConfigurator();
 		configurator
 				.load(getClass()
 						.getResourceAsStream(
-								"/com/othersonline/kv/test/resources/hermione-test.properties"));
+								"/com/othersonline/kv/test/resources/haymitch-test.properties"));
 		DistributedKeyValueStoreClientImpl store = new DistributedKeyValueStoreClientImpl();
 		store.setConfigurator(configurator);
 		doTestBackend(store);
