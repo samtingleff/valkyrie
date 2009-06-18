@@ -3,6 +3,7 @@ package com.othersonline.kv.backends;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +21,7 @@ import tokyotyrant.transcoder.SerializingTranscoder;
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
+import com.othersonline.kv.KeyValueStoreUnavailable;
 import com.othersonline.kv.annotations.Configurable;
 import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.Transcoder;
@@ -45,6 +47,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	private int maxActive = 10;
 
 	private int maxIdle = 10;
+
+	private int initialConnections = 10;
 
 	private long maxWait = 100l;
 
@@ -93,6 +97,11 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		this.maxIdle = maxIdle;
 	}
 
+	@Configurable(name = "initialConnections", accepts = Type.IntType)
+	public void setInitialConnections(int initialConnections) {
+		this.initialConnections = initialConnections;
+	}
+
 	@Configurable(name = "maxWait", accepts = Type.LongType)
 	public void setMaxWait(long maxWait) {
 		this.maxWait = maxWait;
@@ -124,6 +133,23 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 				GenericObjectPool.WHEN_EXHAUSTED_BLOCK, maxWait, maxIdle,
 				false, false, timeBetweenEvictionRunsMillis,
 				numTestsPerEvictionRun, minEvictableIdleTimeMillis, true);
+		// pre-connect to # of initialConnections
+		List<RDB> list = new ArrayList<RDB>(initialConnections);
+		for (int i = 0; i < initialConnections; ++i) {
+			try {
+				RDB rdb = getRDB();
+				list.add(rdb);
+			} catch (Exception e) {
+				log.error("Could not open connection inside start()", e);
+			}
+		}
+		for (RDB rdb : list) {
+			try {
+				releaseRDB(rdb);
+			} catch (Exception e) {
+				log.error("Could not close connection inside start()", e);
+			}
+		}
 		super.start();
 	}
 
@@ -287,6 +313,20 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
+	public Map<String, String> getStats() throws KeyValueStoreException {
+		assertReadable();
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			return rdb.stat();
+		} catch (Exception e) {
+			log.error("Exception inside delete()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+			releaseRDB(rdb);
+		}
+	}
+
 	private RDB getRDB() throws Exception {
 		RDB rdb = (RDB) connectionPool.borrowObject();
 		return rdb;
@@ -326,7 +366,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			boolean result = false;
 			try {
 				RDB rdb = (RDB) obj;
-				long rnum = rdb.rnum();
+				Map<String, String> stats = rdb.stat();
 				result = true;
 			} catch (SocketTimeoutException e) {
 				log
