@@ -12,9 +12,9 @@ public class OperationLog {
 		return instance;
 	}
 
-	public void log(String key, int nodeid, String op, long duration,
+	public void log(String key, String op, long duration,
 			boolean success) {
-		log.info(String.format("%1$s,%2$d,%3$s,%4$d,%5$s", key, nodeid, op,
+		log.info(String.format("%1$s,%2$s,%3$d,%4$s", key, op,
 				duration, success));
 	}
 }

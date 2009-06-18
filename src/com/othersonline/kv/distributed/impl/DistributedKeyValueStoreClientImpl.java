@@ -24,6 +24,8 @@ public class DistributedKeyValueStoreClientImpl extends
 		DistributedKeyValueStoreClient {
 	public static final String IDENTIFIER = "yahbadc";
 
+	private static OperationLog log = OperationLog.getInstance();
+
 	private Configurator configurator;
 
 	private DefaultDistributedKeyValueStore store;
@@ -84,9 +86,21 @@ public class DistributedKeyValueStoreClientImpl extends
 
 	public boolean exists(String key) throws KeyValueStoreException,
 			IOException {
-		assertReadable();
-		Object obj = get(key);
-		return (obj != null);
+		long start = System.currentTimeMillis();
+		boolean success = true;
+		try {
+			assertReadable();
+			Object obj = get(key);
+			return (obj != null);
+		} catch (KeyValueStoreException e1) {
+			success = false;
+			throw e1;
+		} catch (IOException e2) {
+			success = false;
+			throw e2;
+		} finally {
+			log(key, "exists", System.currentTimeMillis() - start, success);
+		}
 	}
 
 	public Object get(String key) throws KeyValueStoreException, IOException {
@@ -95,50 +109,98 @@ public class DistributedKeyValueStoreClientImpl extends
 
 	public Object get(String key, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
-		assertReadable();
-		Context<byte[]> context = store.get(key);
-		byte[] bytes = context.getValue();
-		Object obj = null;
-		if (bytes != null) {
-			obj = transcoder.decode(bytes);
+		long start = System.currentTimeMillis();
+		boolean success = true;
+		try {
+			assertReadable();
+			Context<byte[]> context = store.get(key);
+			byte[] bytes = context.getValue();
+			Object obj = null;
+			if (bytes != null) {
+				obj = transcoder.decode(bytes);
+			}
+			return obj;
+		} catch (KeyValueStoreException e1) {
+			success = false;
+			throw e1;
+		} catch (IOException e2) {
+			success = false;
+			throw e2;
+		} finally {
+			log(key, "get", System.currentTimeMillis() - start, success);
 		}
-		return obj;
 	}
 
 	public Map<String, Object> getBulk(String... keys)
 			throws KeyValueStoreException, IOException {
-		assertReadable();
-		Map<String, Object> map = new HashMap<String, Object>();
-		for (String key : keys) {
-			Object obj = get(key);
-			if (obj != null)
-				map.put(key, obj);
+		long start = System.currentTimeMillis();
+		boolean success = true;
+		try {
+			assertReadable();
+			Map<String, Object> map = new HashMap<String, Object>();
+			for (String key : keys) {
+				Object obj = get(key);
+				if (obj != null)
+					map.put(key, obj);
+			}
+			return map;
+		} catch (KeyValueStoreException e1) {
+			success = false;
+			throw e1;
+		} catch (IOException e2) {
+			success = false;
+			throw e2;
+		} finally {
+			log("null", "getbulk", System.currentTimeMillis() - start, success);
 		}
-		return map;
 	}
 
 	public Map<String, Object> getBulk(List<String> keys)
 			throws KeyValueStoreException, IOException {
-		assertReadable();
-		Map<String, Object> map = new HashMap<String, Object>();
-		for (String key : keys) {
-			Object obj = get(key);
-			if (obj != null)
-				map.put(key, obj);
+		long start = System.currentTimeMillis();
+		boolean success = true;
+		try {
+			assertReadable();
+			Map<String, Object> map = new HashMap<String, Object>();
+			for (String key : keys) {
+				Object obj = get(key);
+				if (obj != null)
+					map.put(key, obj);
+			}
+			return map;
+		} catch (KeyValueStoreException e1) {
+			success = false;
+			throw e1;
+		} catch (IOException e2) {
+			success = false;
+			throw e2;
+		} finally {
+			log("null", "getbulk", System.currentTimeMillis() - start, success);
 		}
-		return map;
 	}
 
 	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
-		assertReadable();
-		Map<String, Object> map = new HashMap<String, Object>();
-		for (String key : keys) {
-			Object obj = get(key, transcoder);
-			if (obj != null)
-				map.put(key, obj);
+		long start = System.currentTimeMillis();
+		boolean success = true;
+		try {
+			assertReadable();
+			Map<String, Object> map = new HashMap<String, Object>();
+			for (String key : keys) {
+				Object obj = get(key, transcoder);
+				if (obj != null)
+					map.put(key, obj);
+			}
+			return map;
+		} catch (KeyValueStoreException e1) {
+			success = false;
+			throw e1;
+		} catch (IOException e2) {
+			success = false;
+			throw e2;
+		} finally {
+			log("null", "getbulk", System.currentTimeMillis() - start, success);
 		}
-		return map;
 	}
 
 	public void set(String key, Object value) throws KeyValueStoreException,
@@ -149,14 +211,39 @@ public class DistributedKeyValueStoreClientImpl extends
 
 	public void set(String key, Object value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
-		assertWriteable();
-		byte[] bytes = transcoder.encode(value);
-		store.set(key, bytes);
+		long start = System.currentTimeMillis();
+		boolean success = true;
+		try {
+			assertWriteable();
+			byte[] bytes = transcoder.encode(value);
+			store.set(key, bytes);
+		} catch (KeyValueStoreException e1) {
+			success = false;
+			throw e1;
+		} catch (IOException e2) {
+			success = false;
+			throw e2;
+		} finally {
+			log(key, "set", System.currentTimeMillis() - start, success);
+		}
 	}
 
 	public void delete(String key) throws KeyValueStoreException, IOException {
-		assertWriteable();
-		store.delete(key);
+		long start = System.currentTimeMillis();
+		boolean success = true;
+		try {
+			assertWriteable();
+			store.delete(key);
+		} catch (KeyValueStoreException e1) {
+			success = false;
+			throw e1;
+		} finally {
+			log(key, "delete", System.currentTimeMillis() - start, success);
+		}
+	}
+
+	private void log(String key, String op, long duration, boolean success) {
+		log.log(key, op, duration, success);
 	}
 
 }
