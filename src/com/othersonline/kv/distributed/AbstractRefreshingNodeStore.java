@@ -10,7 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public abstract class AbstractRefreshingNodeStore implements NodeStore {
-	public static final Long DEFAULT_DELAY = 0l;
+	public static final Long DEFAULT_DELAY = 1000l * 60l;
 
 	public static final Long DEFAULT_PERIOD = 1000l * 60l;
 
@@ -23,6 +23,7 @@ public abstract class AbstractRefreshingNodeStore implements NodeStore {
 	public void start() throws IOException, ConfigurationException {
 		this.activeNodes = refreshActiveNodes();
 		publish();
+		schedule(DEFAULT_DELAY, DEFAULT_PERIOD);
 	}
 
 	public void schedule(long delay, long period) {
