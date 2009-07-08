@@ -184,7 +184,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			Object obj = rdb.get(key, tokyoDefaultTranscoder);
 			return obj;
 		} catch (Exception e) {
-			log.error("Exception inside get(). " + e.getMessage());
+			log.error("Unable to get value for key. " + e.getMessage());
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
@@ -203,7 +203,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			else
 				return transcoder.decode(bytes);
 		} catch (Exception e) {
-			log.error("Exception inside get(). " + e.getMessage());
+			log.error("Unable to get value for key. " + e.getMessage());
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
@@ -276,7 +276,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			rdb = getRDB();
 			rdb.put(key, value, tokyoDefaultTranscoder);
 		} catch (Exception e) {
-			log.error("Exception inside get()", e);
+			log.error("Unable to set value for key. "+e.getMessage());
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
@@ -292,7 +292,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			byte[] bytes = transcoder.encode(value);
 			rdb.put(key, bytes, tokyoByteTranscoder);
 		} catch (Exception e) {
-			log.error("Exception inside set()", e);
+			log.error("Unable to set value for key. "+e.getMessage());
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
