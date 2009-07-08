@@ -99,6 +99,9 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 	}
 
 	private void rebuild(List<Node> nodes) {
+		if (nodes.size() == 0)
+			throw new IllegalArgumentException("No available nodes");
+
 		HashRing<Long, Token> newRing = new HashRing<Long, Token>(nodes.size());
 
 		// build the outer ring from Long.MIN_VALUE to Long.MAX_VALUE

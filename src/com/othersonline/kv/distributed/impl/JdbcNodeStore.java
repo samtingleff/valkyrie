@@ -24,7 +24,7 @@ import com.othersonline.kv.distributed.NodeStore;
 /**
  * Reads nodes from a jdbc database. Table should look like this:
  * 
- * create table node ( id int primary key, physical_id int not null, salt
+ * create table node ( id int primary key, store_id int not null, physical_id int not null, salt
  * varchar(10) unique not null, connection_uri varchar(128) not null, status
  * tinyint not null);
  * 
@@ -45,9 +45,13 @@ public class JdbcNodeStore extends AbstractRefreshingNodeStore implements
 
 	public static final String JDBC_PASSWORD_PROPERTY = "nodeStore.jdbcPassword";
 
+	public static final String JDBC_STORE_ID = "nodeStore.id";
+
 	private Properties props;
 
 	private DataSource ds;
+
+	private int storeId;
 
 	public JdbcNodeStore() {
 		super();
@@ -55,7 +59,7 @@ public class JdbcNodeStore extends AbstractRefreshingNodeStore implements
 
 	public JdbcNodeStore(Properties props) {
 		super();
-		this.props = props;
+		setProperties(props);
 	}
 
 	public void setProperties(Properties props) {
@@ -73,7 +77,7 @@ public class JdbcNodeStore extends AbstractRefreshingNodeStore implements
 			// would love to use ON DUPLICATE KEY UPDATE here but for
 			// compatibility with non-mysql databases I'm not going to do so.
 			select = conn
-					.prepareStatement("select count(*) as count from node where id = ?");
+					.prepareStatement("select count(id) as count from node where id = ?");
 			select.setInt(1, node.getId());
 			rs = select.executeQuery();
 			boolean update = false;
@@ -88,18 +92,19 @@ public class JdbcNodeStore extends AbstractRefreshingNodeStore implements
 				upsert.setInt(2, node.getId());
 			} else {
 				upsert = conn
-						.prepareStatement("insert into node (id, physical_id, salt, connection_uri, status) values (?, ?, ?, ?, ?)");
+						.prepareStatement("insert into node (id, store_id, physical_id, salt, connection_uri, status) values (?, ?, ?, ?, ?)");
 				upsert.setInt(1, node.getId());
-				upsert.setInt(2, node.getPhysicalId());
-				upsert.setString(3, node.getSalt());
-				upsert.setString(4, node.getConnectionURI());
-				upsert.setInt(5, 1);
+				upsert.setInt(2, storeId);
+				upsert.setInt(3, node.getPhysicalId());
+				upsert.setString(4, node.getSalt());
+				upsert.setString(5, node.getConnectionURI());
+				upsert.setInt(6, 1);
 			}
 			upsert.executeUpdate();
 			if (!conn.getAutoCommit())
 				conn.commit();
 
-			// only add node if above code succeeded
+			// only add node to in-memory structure if above code succeeded
 			super.addNode(node);
 		} catch (SQLException e) {
 			log.error("SQLException adding node()", e);
@@ -185,7 +190,8 @@ public class JdbcNodeStore extends AbstractRefreshingNodeStore implements
 
 			conn = getConnection();
 			ps = conn
-					.prepareStatement("select id, physical_id, salt, connection_uri from node where status = 1 order by id asc");
+					.prepareStatement("select id, physical_id, salt, connection_uri from node where store_id = ? and status = 1 order by id asc");
+			ps.setInt(1, storeId);
 			rs = ps.executeQuery();
 			while (rs.next()) {
 				DefaultNodeImpl node = new DefaultNodeImpl();
@@ -227,6 +233,7 @@ public class JdbcNodeStore extends AbstractRefreshingNodeStore implements
 	private Connection getConnection() throws SQLException, NamingException,
 			ClassNotFoundException {
 		if (ds == null) {
+			storeId = Integer.parseInt(props.getProperty(JDBC_STORE_ID));
 			String dataSourceName = props.getProperty(DATA_SOURCE_PROPERTY);
 			if (dataSourceName != null) {
 				Context initCtx = new InitialContext();
