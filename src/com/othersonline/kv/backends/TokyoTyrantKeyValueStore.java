@@ -184,7 +184,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			Object obj = rdb.get(key, tokyoDefaultTranscoder);
 			return obj;
 		} catch (Exception e) {
-			log.error("Exception inside get()", e);
+			log.error("Exception inside get(). " + e.getMessage());
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
@@ -203,7 +203,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			else
 				return transcoder.decode(bytes);
 		} catch (Exception e) {
-			log.error("Exception inside get()", e);
+			log.error("Exception inside get(). " + e.getMessage());
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
