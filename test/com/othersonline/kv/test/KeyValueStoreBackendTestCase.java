@@ -105,6 +105,19 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		store.setHost("dev-db");
 		store.setPort(1978);
 		doTestBackend(store);
+		String[] keys = new String[] { "key1", "key2" };
+		for (String key : keys) {
+			store.set(key, "value");
+		}
+		Object[] fwmkeys = store.fwmkeys("key", 10);
+		assertEquals(fwmkeys.length, 2);
+		assertEquals(fwmkeys[0], keys[0]);
+		assertEquals(fwmkeys[1], keys[1]);
+		for (String key : keys) {
+			store.delete(key);
+		}
+		fwmkeys = store.fwmkeys("key", 10);
+		assertEquals(fwmkeys.length, 0);
 	}
 
 	public void testFileSystemBackend() throws Exception {
