@@ -19,11 +19,15 @@ import com.othersonline.kv.distributed.OperationResult;
 
 public class DefaultOperationHelper {
 
+	private OperationLog operationLog = OperationLog.getInstance();
+
 	public <V> ResultsCollecter<OperationResult<V>> call(
 			OperationQueue operationQueue, Operation<V> operation,
 			List<Node> nodeList, int requiredResponses, long operationTimeout)
 			throws InsufficientResponsesException {
 		long start = System.currentTimeMillis();
+
+		operationLog.logPreferenceList(operation.getKey(), nodeList);
 
 		LinkedList<Future<OperationResult<V>>> futures = new LinkedList<Future<OperationResult<V>>>();
 
