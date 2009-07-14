@@ -38,7 +38,7 @@ public class DummyOperationQueue implements OperationQueue {
 		Exception e = null;
 		try {
 			node = operation.getNode();
-			KeyValueStore store = connectionFactory.getStore(node);
+			KeyValueStore store = connectionFactory.getStore(node.getConnectionURI());
 			Callable<OperationResult<V>> callable = operation
 					.getCallable(store);
 			result = callable.call();

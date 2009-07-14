@@ -32,19 +32,19 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 	private Pattern urlPattern = Pattern
 			.compile("([\\w\\-]+):\\/\\/([\\w\\-\\.]+)(:([0-9]+))?(\\?(.*))?");
 
-	protected KeyValueStore createStoreConnection(Node node)
+	protected KeyValueStore createStoreConnection(String uri)
 			throws IOException, KeyValueStoreUnavailable {
-		Matcher m = urlPattern.matcher(node.getConnectionURI());
+		Matcher m = urlPattern.matcher(uri);
 		if (!m.matches())
 			throw new IllegalArgumentException(
 					String
 							.format(
 									"The url pattern %1$s does not match type://hostname:port?args...",
-									node.getConnectionURI()));
+									uri));
 
 		String type = m.group(1);
 
-		KeyValueStore store = getStore(type);
+		KeyValueStore store = openConnection(type);
 
 		try {
 			Map<String, String> configs = new HashMap<String, String>();
@@ -70,7 +70,7 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 		return store;
 	}
 
-	private KeyValueStore getStore(String type) {
+	private KeyValueStore openConnection(String type) {
 		KeyValueStore store = null;
 		if ("bdbje".equals(type))
 			store = new BDBJEKeyValueStore();

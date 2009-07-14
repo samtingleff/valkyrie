@@ -49,7 +49,7 @@ public class NonPersistentThreadPoolOperationQueue extends
 			Node node = null;
 			try {
 				node = op.getNode();
-				KeyValueStore store = connectionFactory.getStore(node);
+				KeyValueStore store = connectionFactory.getStore(node.getConnectionURI());
 				Callable<OperationResult<V>> delegate = op.getCallable(store);
 				result = delegate.call();
 			} catch (Exception e) {

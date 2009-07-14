@@ -6,6 +6,6 @@ import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreUnavailable;
 
 public interface ConnectionFactory {
-	public KeyValueStore getStore(Node node) throws IOException,
+	public KeyValueStore getStore(String uri) throws IOException,
 			KeyValueStoreUnavailable;
 }
