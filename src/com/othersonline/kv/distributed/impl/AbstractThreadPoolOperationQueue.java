@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.othersonline.kv.distributed.ConnectionFactory;
+import com.othersonline.kv.backends.ConnectionFactory;
 import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationQueue;
 import com.othersonline.kv.distributed.OperationResult;

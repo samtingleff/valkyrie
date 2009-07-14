@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import com.othersonline.kv.KeyValueStore;
-import com.othersonline.kv.distributed.ConnectionFactory;
+import com.othersonline.kv.backends.ConnectionFactory;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationCallback;
