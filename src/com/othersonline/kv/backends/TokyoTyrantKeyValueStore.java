@@ -1,6 +1,7 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
@@ -186,10 +187,12 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			rdb = getRDB();
 			return (rdb.get(key) != null);
 		} catch (NoSuchElementException e) {
-			log.error("NoSuchElementException waiting for connection:" + e.getMessage());
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("SocketTimeoutException inside exists(): " + e.getMessage());
+			log.error("SocketTimeoutException inside exists(): "
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
 			log.error("Exception inside exists()", e);
@@ -207,7 +210,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			Object obj = rdb.get(key, tokyoDefaultTranscoder);
 			return obj;
 		} catch (NoSuchElementException e) {
-			log.error("NoSuchElementException waiting for connection:" + e.getMessage());
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
 			log.error("SocketTimeoutException inside get(): " + e.getMessage());
@@ -232,7 +236,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			else
 				return transcoder.decode(bytes);
 		} catch (NoSuchElementException e) {
-			log.error("NoSuchElementException waiting for connection:" + e.getMessage());
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
 			log.error("SocketTimeoutException inside get(): " + e.getMessage());
@@ -254,10 +259,12 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			Map results = rdb.mget(keys, tokyoDefaultTranscoder);
 			return results;
 		} catch (NoSuchElementException e) {
-			log.error("NoSuchElementException waiting for connection:" + e.getMessage());
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("SocketTimeoutException inside getBulk(): " + e.getMessage());
+			log.error("SocketTimeoutException inside getBulk(): "
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
 			log.error("Exception inside getBulk()", e);
@@ -277,10 +284,12 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 					tokyoDefaultTranscoder);
 			return results;
 		} catch (NoSuchElementException e) {
-			log.error("NoSuchElementException waiting for connection:" + e.getMessage());
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("SocketTimeoutException inside getBulk(): " + e.getMessage());
+			log.error("SocketTimeoutException inside getBulk(): "
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
 			log.error("Exception inside getBulk()", e);
@@ -308,10 +317,12 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			}
 			return results;
 		} catch (NoSuchElementException e) {
-			log.error("NoSuchElementException waiting for connection:" + e.getMessage());
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("SocketTimeoutException inside getBulk(): " + e.getMessage());
+			log.error("SocketTimeoutException inside getBulk(): "
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
 			log.error("Exception inside getBulk()", e);
@@ -329,7 +340,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			rdb = getRDB();
 			rdb.put(key, value, tokyoDefaultTranscoder);
 		} catch (NoSuchElementException e) {
-			log.error("NoSuchElementException waiting for connection:" + e.getMessage());
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
 			log.error("SocketTimeoutException inside set(): " + e.getMessage());
@@ -351,7 +363,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			byte[] bytes = transcoder.encode(value);
 			rdb.put(key, bytes, tokyoByteTranscoder);
 		} catch (NoSuchElementException e) {
-			log.error("NoSuchElementException waiting for connection:" + e.getMessage());
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
 			log.error("SocketTimeoutException inside set(): " + e.getMessage());
@@ -371,10 +384,12 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			rdb = getRDB();
 			rdb.out(key);
 		} catch (NoSuchElementException e) {
-			log.error("NoSuchElementException waiting for connection:" + e.getMessage());
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("SocketTimeoutException inside delete(): " + e.getMessage());
+			log.error("SocketTimeoutException inside delete(): "
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
 			log.error("Exception inside delete()", e);
@@ -391,10 +406,12 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			rdb = getRDB();
 			return rdb.stat();
 		} catch (NoSuchElementException e) {
-			log.error("NoSuchElementException waiting for connection:" + e.getMessage());
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("SocketTimeoutException inside getStats(): " + e.getMessage());
+			log.error("SocketTimeoutException inside getStats(): "
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
 			log.error("Exception inside delete()", e);
@@ -412,10 +429,12 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			rdb = getRDB();
 			return rdb.fwmkeys(prefix, max);
 		} catch (NoSuchElementException e) {
-			log.error("NoSuchElementException waiting for connection:" + e.getMessage());
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("SocketTimeoutException inside fwmkeys(): " + e.getMessage());
+			log.error("SocketTimeoutException inside fwmkeys(): "
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
 			log.error("Exception inside fwmkeys()", e);
@@ -433,7 +452,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			rdb = getRDB();
 			return rdb.ext(name, key, value, locking.getRDBLockPolicy());
 		} catch (NoSuchElementException e) {
-			log.error("NoSuchElementException waiting for connection:" + e.getMessage());
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
 			log.error("SocketTimeoutException inside ext(): " + e.getMessage());
@@ -461,7 +481,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			} else
 				return null;
 		} catch (NoSuchElementException e) {
-			log.error("NoSuchElementException waiting for connection:" + e.getMessage());
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
 			log.error("SocketTimeoutException inside ext(): " + e.getMessage());
@@ -505,7 +526,13 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 
 		public Object makeObject() throws Exception {
 			RDB rdb = new RDB();
-			rdb.open(new InetSocketAddress(host, port), socketTimeout);
+			try {
+				rdb.open(new InetSocketAddress(host, port), socketTimeout);
+			} catch (ConnectException e) {
+				log.error(String.format("Could not connect to %1$s:%2$d", host,
+						port));
+				throw e;
+			}
 			return rdb;
 		}
 
