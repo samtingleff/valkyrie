@@ -51,8 +51,8 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 						configs.put(values[0], values[1]);
 					}
 				}
-				super.configureStore(store, configs);
 			}
+			super.configureStore(store, configs);
 		} catch (Exception e) {
 			log.warn("Error parsing connection string:", e);
 		}
