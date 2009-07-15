@@ -5,13 +5,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 
 import com.othersonline.kv.KeyValueStore;
-import com.othersonline.kv.distributed.ConnectionFactory;
+import com.othersonline.kv.backends.ConnectionFactory;
+import com.othersonline.kv.backends.UriConnectionFactory;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationCallback;
 import com.othersonline.kv.distributed.OperationQueue;
 import com.othersonline.kv.distributed.OperationResult;
-import com.othersonline.kv.distributed.backends.UriConnectionFactory;
 
 public class NonPersistentThreadPoolOperationQueue extends
 		AbstractThreadPoolOperationQueue implements OperationQueue {
@@ -49,7 +49,7 @@ public class NonPersistentThreadPoolOperationQueue extends
 			Node node = null;
 			try {
 				node = op.getNode();
-				KeyValueStore store = connectionFactory.getStore(node);
+				KeyValueStore store = connectionFactory.getStore(node.getConnectionURI());
 				Callable<OperationResult<V>> delegate = op.getCallable(store);
 				result = delegate.call();
 			} catch (Exception e) {

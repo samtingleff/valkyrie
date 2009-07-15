@@ -1,4 +1,4 @@
-package com.othersonline.kv.distributed.backends;
+package com.othersonline.kv.backends;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -11,17 +11,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreUnavailable;
-import com.othersonline.kv.backends.BDBJEKeyValueStore;
-import com.othersonline.kv.backends.ConcurrentHashMapKeyValueStore;
-import com.othersonline.kv.backends.FileSystemKeyValueStore;
-import com.othersonline.kv.backends.KosmosfsKeyValueStore;
-import com.othersonline.kv.backends.MemcachedKeyValueStore;
-import com.othersonline.kv.backends.ThriftKeyValueStore;
-import com.othersonline.kv.backends.TokyoTyrantKeyValueStore;
-import com.othersonline.kv.backends.VoldemortKeyValueStore;
-import com.othersonline.kv.backends.WebDAVKeyValueStore;
-import com.othersonline.kv.distributed.ConnectionFactory;
-import com.othersonline.kv.distributed.Node;
 
 public class UriConnectionFactory extends AbstractConnectionFactory implements
 		ConnectionFactory {
@@ -32,19 +21,19 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 	private Pattern urlPattern = Pattern
 			.compile("([\\w\\-]+):\\/\\/([\\w\\-\\.]+)(:([0-9]+))?(\\?(.*))?");
 
-	protected KeyValueStore createStoreConnection(Node node)
+	protected KeyValueStore createStoreConnection(String uri)
 			throws IOException, KeyValueStoreUnavailable {
-		Matcher m = urlPattern.matcher(node.getConnectionURI());
+		Matcher m = urlPattern.matcher(uri);
 		if (!m.matches())
 			throw new IllegalArgumentException(
 					String
 							.format(
 									"The url pattern %1$s does not match type://hostname:port?args...",
-									node.getConnectionURI()));
+									uri));
 
 		String type = m.group(1);
 
-		KeyValueStore store = getStore(type);
+		KeyValueStore store = openConnection(type);
 
 		try {
 			Map<String, String> configs = new HashMap<String, String>();
@@ -62,15 +51,15 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 						configs.put(values[0], values[1]);
 					}
 				}
-				super.configureStore(store, configs);
 			}
+			super.configureStore(store, configs);
 		} catch (Exception e) {
 			log.warn("Error parsing connection string:", e);
 		}
 		return store;
 	}
 
-	private KeyValueStore getStore(String type) {
+	private KeyValueStore openConnection(String type) {
 		KeyValueStore store = null;
 		if ("bdbje".equals(type))
 			store = new BDBJEKeyValueStore();

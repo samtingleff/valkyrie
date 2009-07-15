@@ -5,14 +5,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import com.othersonline.kv.backends.ConnectionFactory;
+import com.othersonline.kv.backends.UriConnectionFactory;
 import com.othersonline.kv.distributed.Configuration;
-import com.othersonline.kv.distributed.ConnectionFactory;
 import com.othersonline.kv.distributed.Context;
 import com.othersonline.kv.distributed.DistributedKeyValueStore;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeStore;
 import com.othersonline.kv.distributed.OperationQueue;
-import com.othersonline.kv.distributed.backends.UriConnectionFactory;
 import com.othersonline.kv.distributed.hashing.MD5HashAlgorithm;
 import com.othersonline.kv.distributed.impl.DefaultDistributedKeyValueStore;
 import com.othersonline.kv.distributed.impl.DefaultNodeImpl;

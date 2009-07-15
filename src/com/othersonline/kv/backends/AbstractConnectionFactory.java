@@ -1,4 +1,4 @@
-package com.othersonline.kv.distributed.backends;
+package com.othersonline.kv.backends;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -9,24 +9,22 @@ import java.util.Map;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreUnavailable;
 import com.othersonline.kv.annotations.Configurable;
-import com.othersonline.kv.distributed.ConnectionFactory;
-import com.othersonline.kv.distributed.Node;
 
 public abstract class AbstractConnectionFactory implements ConnectionFactory {
-	private Map<Integer, KeyValueStore> backends = new HashMap<Integer, KeyValueStore>();
+	private Map<String, KeyValueStore> backends = new HashMap<String, KeyValueStore>();
 
-	public KeyValueStore getStore(Node node) throws IOException,
+	public KeyValueStore getStore(String uri) throws IOException,
 			KeyValueStoreUnavailable {
-		KeyValueStore store = backends.get(node.getId());
+		KeyValueStore store = backends.get(uri);
 		if (store == null) {
 			synchronized (this) {
 				if (store == null) {
 					// yes i realize this is an anti-pattern. if we create an
 					// extra connection here and there nobody is going to care.
 					try {
-						store = createStoreConnection(node);
+						store = createStoreConnection(uri);
 						store.start();
-						backends.put(node.getId(), store);
+						backends.put(uri, store);
 					} catch (IllegalArgumentException e) {
 						throw new KeyValueStoreUnavailable(e);
 					}
@@ -59,7 +57,7 @@ public abstract class AbstractConnectionFactory implements ConnectionFactory {
 		method.invoke(store, value);
 	}
 
-	protected abstract KeyValueStore createStoreConnection(Node node)
+	protected abstract KeyValueStore createStoreConnection(String uri)
 			throws IOException, KeyValueStoreUnavailable;
 
 }

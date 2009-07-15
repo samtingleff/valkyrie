@@ -2,6 +2,8 @@ package com.othersonline.kv.distributed;
 
 import java.util.concurrent.TimeUnit;
 
+import com.othersonline.kv.backends.ConnectionFactory;
+
 public class Configuration {
 	private NodeStore nodeStore;
 

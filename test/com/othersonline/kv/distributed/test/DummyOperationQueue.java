@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import com.othersonline.kv.KeyValueStore;
-import com.othersonline.kv.distributed.ConnectionFactory;
+import com.othersonline.kv.backends.ConnectionFactory;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationCallback;
@@ -38,7 +38,7 @@ public class DummyOperationQueue implements OperationQueue {
 		Exception e = null;
 		try {
 			node = operation.getNode();
-			KeyValueStore store = connectionFactory.getStore(node);
+			KeyValueStore store = connectionFactory.getStore(node.getConnectionURI());
 			Callable<OperationResult<V>> callable = operation
 					.getCallable(store);
 			result = callable.call();

@@ -7,11 +7,11 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import com.othersonline.kv.backends.ConnectionFactory;
+import com.othersonline.kv.backends.UriConnectionFactory;
 import com.othersonline.kv.distributed.Configuration;
 import com.othersonline.kv.distributed.Configurator;
-import com.othersonline.kv.distributed.ConnectionFactory;
 import com.othersonline.kv.distributed.NodeStore;
-import com.othersonline.kv.distributed.backends.UriConnectionFactory;
 
 public class PropertiesConfigurator implements Configurator {
 	public static final String SYNC_OP_THREAD_POOL = "syncpool.threads";
