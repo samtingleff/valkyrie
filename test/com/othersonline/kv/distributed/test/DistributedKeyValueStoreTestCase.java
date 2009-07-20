@@ -61,10 +61,11 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		kv.setAsyncOperationQueue(asyncOpqueue);
 		kv.setConfiguration(config);
 		kv.setContextSerializer(new PassthroughContextSerializer());
-		kv.setContextFilter(new NodeRankContextFilter<byte[]>());
+		kv.setContextFilter(new NodeRankContextFilter<byte[]>(config));
 		kv.setHashAlgorithm(new MD5HashAlgorithm());
 		kv.setNodeLocator(locator);
 		kv.setSyncOperationQueue(syncOpqueue);
+		kv.start();
 
 		testBasicOperations(kv);
 		testIncrementalScalability(nodeStore, kv);

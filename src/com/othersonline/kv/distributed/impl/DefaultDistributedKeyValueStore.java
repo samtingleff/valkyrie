@@ -38,7 +38,7 @@ public class DefaultDistributedKeyValueStore implements
 
 	private ContextSerializer contextSerializer;
 
-	private ContextFilter<byte[]> contextFilter = new NodeRankContextFilter<byte[]>();
+	private ContextFilter<byte[]> contextFilter;
 
 	private DefaultOperationHelper operationHelper = new DefaultOperationHelper();
 
@@ -73,6 +73,11 @@ public class DefaultDistributedKeyValueStore implements
 
 	public void setContextFilter(ContextFilter<byte[]> filter) {
 		this.contextFilter = filter;
+	}
+
+	public void start() {
+		if (contextFilter == null)
+			contextFilter = new NodeRankContextFilter<byte[]>(config);
 	}
 
 	/**
@@ -114,14 +119,14 @@ public class DefaultDistributedKeyValueStore implements
 			log.trace(String.format("get(%1$s, %2$s)", key, filter));
 		List<Context<byte[]>> contexts = getContexts(key);
 		ContextFilterResult<byte[]> filtered = filter.filter(contexts);
-		List<Operation<byte[]>> additionalOperations = filtered
-				.getAdditionalOperations();
-		if (additionalOperations != null) {
-			for (Operation<byte[]> op : additionalOperations) {
-				asyncOperationQueue.submit(op);
-			}
-		}
 		Context<byte[]> result = filtered.getContext();
+		List<Operation<byte[]>> additionalOperations = filtered
+		.getAdditionalOperations();
+if (additionalOperations != null) {
+	for (Operation<byte[]> op : additionalOperations) {
+		asyncOperationQueue.submit(op);
+	}
+}
 		return result;
 	}
 

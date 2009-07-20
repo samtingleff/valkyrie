@@ -5,12 +5,14 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.othersonline.kv.distributed.Configuration;
 import com.othersonline.kv.distributed.Context;
 import com.othersonline.kv.distributed.ContextFilter;
 import com.othersonline.kv.distributed.ContextFilterResult;
 import com.othersonline.kv.distributed.DistributedKeyValueStoreException;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.Operation;
+import com.othersonline.kv.distributed.OperationStatus;
 
 /**
  * A simple context filter that orders results by node rank from the preference
@@ -21,7 +23,13 @@ import com.othersonline.kv.distributed.Operation;
  * @param <V>
  */
 public class NodeRankContextFilter<V> implements ContextFilter<V> {
+	private Configuration config;
+
 	private Comparator<Context<V>> comparator = new MyComparator<V>();
+
+	public NodeRankContextFilter(Configuration config) {
+		this.config = config;
+	}
 
 	public ContextFilterResult<V> filter(List<Context<V>> contexts)
 			throws DistributedKeyValueStoreException {
@@ -38,9 +46,18 @@ public class NodeRankContextFilter<V> implements ContextFilter<V> {
 					&& (context.getValue() != null)) {
 				lowestNonNullValueContext = context;
 			}
-			if ((lowestNonNullValueContext.getValue() != null)
-					&& (context.getValue() == null)) {
-				nodesRequiringUpdate.add(context.getSourceNode());
+		}
+		if (lowestNonNullValueContext.getValue() != null) {
+			for (Context<V> context : contexts) {
+				if (context.getValue() == null) {
+					OperationStatus status = context.getResult().getStatus();
+					if ((status.equals(OperationStatus.NullValue))
+							&& (config.getFillNullGetResults()))
+						nodesRequiringUpdate.add(context.getSourceNode());
+					else if ((OperationStatus.Error.equals(status))
+							&& (config.getFillErrorGetResults()))
+						nodesRequiringUpdate.add(context.getSourceNode());
+				}
 			}
 		}
 
