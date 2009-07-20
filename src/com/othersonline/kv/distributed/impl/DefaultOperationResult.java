@@ -1,32 +1,27 @@
 package com.othersonline.kv.distributed.impl;
 
-import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationResult;
+import com.othersonline.kv.distributed.OperationStatus;
 
 public class DefaultOperationResult<V> implements OperationResult<V> {
 	private Operation<V> operation;
 
-	private Node node;
-
-	private int nodeRank;
-
 	private V value;
 
-	public DefaultOperationResult(Operation<V> operation, Node node,
-			int nodeRank, V value) {
+	private OperationStatus status;
+
+	private long duration;
+
+	private Throwable error;
+
+	public DefaultOperationResult(Operation<V> operation, V value,
+			OperationStatus status, long duration, Throwable error) {
 		this.operation = operation;
-		this.node = node;
-		this.nodeRank = nodeRank;
 		this.value = value;
-	}
-
-	public Node getNode() {
-		return node;
-	}
-
-	public int getNodeRank() {
-		return nodeRank;
+		this.status = status;
+		this.duration = duration;
+		this.error = error;
 	}
 
 	public V getValue() {
@@ -35,6 +30,18 @@ public class DefaultOperationResult<V> implements OperationResult<V> {
 
 	public Operation<V> getOperation() {
 		return operation;
+	}
+
+	public OperationStatus getStatus() {
+		return status;
+	}
+
+	public long getDuration() {
+		return duration;
+	}
+
+	public Throwable getError() {
+		return error;
 	}
 
 }

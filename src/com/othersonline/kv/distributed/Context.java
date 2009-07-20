@@ -1,6 +1,8 @@
 package com.othersonline.kv.distributed;
 
 public interface Context<V> {
+	public OperationResult<V> getResult();
+
 	public Node getSourceNode();
 
 	public int getNodeRank();

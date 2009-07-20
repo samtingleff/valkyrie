@@ -2,7 +2,7 @@ package com.othersonline.kv.distributed.impl;
 
 import com.othersonline.kv.distributed.Context;
 import com.othersonline.kv.distributed.ContextSerializer;
-import com.othersonline.kv.distributed.Node;
+import com.othersonline.kv.distributed.OperationResult;
 
 public class PassthroughContextSerializer implements ContextSerializer {
 
@@ -10,9 +10,10 @@ public class PassthroughContextSerializer implements ContextSerializer {
 		return objectData;
 	}
 
-	public Context<byte[]> extractContext(Node source, int nodeRank,
-			String key, byte[] rawData) {
-		return new DefaultContext<byte[]>(source, nodeRank, 0, key, rawData);
+	public Context<byte[]> extractContext(OperationResult<byte[]> result) {
+		return new DefaultContext<byte[]>(result, result.getOperation()
+				.getNode(), result.getOperation().getNodeRank(), 0, result
+				.getOperation().getKey(), result.getValue());
 	}
 
 }

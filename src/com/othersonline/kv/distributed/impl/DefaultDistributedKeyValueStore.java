@@ -96,9 +96,7 @@ public class DefaultDistributedKeyValueStore implements
 		List<Context<byte[]>> retval = new ArrayList<Context<byte[]>>(results
 				.size());
 		for (OperationResult<byte[]> result : results) {
-			Node node = result.getNode();
-			Context<byte[]> context = contextSerializer.extractContext(node,
-					result.getNodeRank(), key, result.getValue());
+			Context<byte[]> context = contextSerializer.extractContext(result);
 			retval.add(context);
 		}
 		return retval;

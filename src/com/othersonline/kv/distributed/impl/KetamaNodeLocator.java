@@ -93,9 +93,10 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 
 	private Node getNodeForKey(final HashRing<Long, Node> ketamaNodes, long hash) {
 		Node rv = null;
-		// Java 1.6 adds a ceilingKey method, but I'm still stuck in 1.5
-		// in a lot of places, so I'm doing this myself.
-		// sam: I'm not. modified to use jdk 1.6 ceilingEntry
+		// dsallings:
+		// "Java 1.6 adds a ceilingKey method, but I'm still stuck in 1.5
+		// in a lot of places, so I'm doing this myself."
+		// sam: I'm not. modified to use jdk 1.6 ceilingEntry in the HashRing class
 		Map.Entry<Long, Node> entry = ketamaNodes.place(hash);
 		if (entry != null)
 			rv = entry.getValue();
@@ -125,11 +126,7 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 		}
 
 		private void nextHash() {
-			// this.calculateHash(Integer.toString(tries)+key).hashCode();
-			long tmpKey = hashAlg.hash((numTries++) + key);
-			// This echos the implementation of Long.hashCode()
-			hashVal += (int) (tmpKey ^ (tmpKey >>> 32));
-			hashVal &= 0xffffffffL; /* truncate to 32-bits */
+			hashVal = hashAlg.hash((numTries++) + key);
 			remainingTries--;
 		}
 

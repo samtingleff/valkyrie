@@ -13,6 +13,8 @@ import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationCallback;
 import com.othersonline.kv.distributed.OperationQueue;
 import com.othersonline.kv.distributed.OperationResult;
+import com.othersonline.kv.distributed.OperationStatus;
+import com.othersonline.kv.distributed.impl.DefaultOperationResult;
 
 public class DummyOperationQueue implements OperationQueue {
 	private ConnectionFactory connectionFactory;
@@ -35,7 +37,7 @@ public class DummyOperationQueue implements OperationQueue {
 	public <V> Future<OperationResult<V>> submit(Operation<V> operation) {
 		Node node = null;
 		OperationResult<V> result = null;
-		Exception e = null;
+		long start = System.currentTimeMillis();
 		try {
 			node = operation.getNode();
 			KeyValueStore store = connectionFactory.getStore(node.getConnectionURI());
@@ -46,18 +48,14 @@ public class DummyOperationQueue implements OperationQueue {
 					result, null);
 			result = future.get();
 			return future;
-		} catch (Exception e1) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			e = e1;
+			result = new DefaultOperationResult<V>(operation, null, OperationStatus.Error, System.currentTimeMillis() - start, e);
 			throw new RuntimeException(e);
 		} finally {
 			OperationCallback<V> callback = operation.getCallback();
-			if (callback != null) {
-				if (e == null)
-					callback.success(node, result);
-				else
-					callback.error(node, result, e);
-			}
+			if (callback != null)
+					callback.completed(result);
 		}
 	}
 

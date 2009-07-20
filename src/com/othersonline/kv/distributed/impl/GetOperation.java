@@ -5,6 +5,7 @@ import java.util.concurrent.Callable;
 import com.othersonline.kv.distributed.AbstractOperation;
 import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationResult;
+import com.othersonline.kv.distributed.OperationStatus;
 import com.othersonline.kv.transcoder.Transcoder;
 
 public class GetOperation<V> extends AbstractOperation<V> implements
@@ -25,10 +26,14 @@ public class GetOperation<V> extends AbstractOperation<V> implements
 
 	public OperationResult<V> call() throws Exception {
 		try {
+			long start = System.currentTimeMillis();
 			V v = (transcoder == null) ? (V) store.get(key) : (V) store.get(
 					key, transcoder);
-			OperationResult<V> result = new DefaultOperationResult<V>(this,
-					node, nodeRank, v);
+			OperationResult<V> result = new DefaultOperationResult<V>(this, v,
+					(v == null) ? OperationStatus.NullValue
+							: OperationStatus.Success, System
+							.currentTimeMillis()
+							- start, null);
 			return result;
 		} finally {
 		}
