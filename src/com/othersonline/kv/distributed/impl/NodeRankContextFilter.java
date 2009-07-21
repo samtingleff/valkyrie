@@ -5,6 +5,9 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.othersonline.kv.distributed.Configuration;
 import com.othersonline.kv.distributed.Context;
 import com.othersonline.kv.distributed.ContextFilter;
@@ -23,9 +26,12 @@ import com.othersonline.kv.distributed.OperationStatus;
  * @param <V>
  */
 public class NodeRankContextFilter<V> implements ContextFilter<V> {
-	private Configuration config;
+
+	private Log log = LogFactory.getLog(getClass());
 
 	private Comparator<Context<V>> comparator = new NodeRankComparator<V>();
+
+	private Configuration config;
 
 	public NodeRankContextFilter(Configuration config) {
 		this.config = config;
@@ -45,18 +51,35 @@ public class NodeRankContextFilter<V> implements ContextFilter<V> {
 			if ((lowestNonNullValueContext.getValue() == null)
 					&& (context.getValue() != null)) {
 				lowestNonNullValueContext = context;
+				if (log.isDebugEnabled())
+					log.debug(String.format(
+							"Selected context from node # %1$d", context
+									.getSourceNode().getId()));
 			}
 		}
-		if (lowestNonNullValueContext.getValue() != null) {
+		if ((lowestNonNullValueContext != null)
+				&& (lowestNonNullValueContext.getValue() != null)) {
 			for (Context<V> context : contexts) {
 				if (context.getValue() == null) {
 					OperationStatus status = context.getResult().getStatus();
 					if ((status.equals(OperationStatus.NullValue))
-							&& (config.getFillNullGetResults()))
+							&& (config.getFillNullGetResults())) {
+						if (log.isDebugEnabled())
+							log
+									.debug(String
+											.format(
+													"Node # %1$d requires update due to null value",
+													context.getSourceNode()
+															.getId()));
 						nodesRequiringUpdate.add(context.getSourceNode());
-					else if ((OperationStatus.Error.equals(status))
-							&& (config.getFillErrorGetResults()))
+					} else if ((OperationStatus.Error.equals(status))
+							&& (config.getFillErrorGetResults())) {
+						if (log.isDebugEnabled())
+							log.debug(String.format(
+									"Node # %1$d requires update due to error",
+									context.getSourceNode().getId()));
 						nodesRequiringUpdate.add(context.getSourceNode());
+					}
 				}
 			}
 		}
@@ -76,7 +99,8 @@ public class NodeRankContextFilter<V> implements ContextFilter<V> {
 		return new DefaultContextFilterResult<V>(lowestNonNullValueContext, ops);
 	}
 
-	private static class NodeRankComparator<V> implements Comparator<Context<V>> {
+	private static class NodeRankComparator<V> implements
+			Comparator<Context<V>> {
 		public int compare(Context<V> o1, Context<V> o2) {
 			return new Integer(o1.getNodeRank()).compareTo(new Integer(o2
 					.getNodeRank()));
