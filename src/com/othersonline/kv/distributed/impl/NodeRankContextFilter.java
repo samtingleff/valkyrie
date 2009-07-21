@@ -25,7 +25,7 @@ import com.othersonline.kv.distributed.OperationStatus;
 public class NodeRankContextFilter<V> implements ContextFilter<V> {
 	private Configuration config;
 
-	private Comparator<Context<V>> comparator = new MyComparator<V>();
+	private Comparator<Context<V>> comparator = new NodeRankComparator<V>();
 
 	public NodeRankContextFilter(Configuration config) {
 		this.config = config;
@@ -76,7 +76,7 @@ public class NodeRankContextFilter<V> implements ContextFilter<V> {
 		return new DefaultContextFilterResult<V>(lowestNonNullValueContext, ops);
 	}
 
-	private static class MyComparator<V> implements Comparator<Context<V>> {
+	private static class NodeRankComparator<V> implements Comparator<Context<V>> {
 		public int compare(Context<V> o1, Context<V> o2) {
 			return new Integer(o1.getNodeRank()).compareTo(new Integer(o2
 					.getNodeRank()));
