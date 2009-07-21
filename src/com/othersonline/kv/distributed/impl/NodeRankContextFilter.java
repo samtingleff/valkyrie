@@ -19,7 +19,8 @@ import com.othersonline.kv.distributed.OperationStatus;
 
 /**
  * A simple context filter that orders results by node rank from the preference
- * list. Other nodes that provide a null value will be updated with this value.
+ * list. Other nodes that responde with a null value or an exception will be
+ * updated with the selected value (if configured to do so).
  * 
  * @author Sam Tingleff <sam@tingleff.com>
  * 
