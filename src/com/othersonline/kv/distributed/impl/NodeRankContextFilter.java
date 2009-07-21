@@ -30,6 +30,8 @@ public class NodeRankContextFilter<V> implements ContextFilter<V> {
 
 	private Log log = LogFactory.getLog(getClass());
 
+	private Log backfillLog = LogFactory.getLog("haymitch.backfilllog");
+
 	private Comparator<Context<V>> comparator = new NodeRankComparator<V>();
 
 	private Configuration config;
@@ -52,12 +54,11 @@ public class NodeRankContextFilter<V> implements ContextFilter<V> {
 			if ((lowestNonNullValueContext.getValue() == null)
 					&& (context.getValue() != null)) {
 				lowestNonNullValueContext = context;
-				if (log.isDebugEnabled())
-					log.debug(String.format(
-							"Selected context from node # %1$d", context
-									.getSourceNode().getId()));
 			}
 		}
+		if (log.isDebugEnabled() && (lowestNonNullValueContext != null))
+			log.debug(String.format("Selected context from node # %1$d",
+					lowestNonNullValueContext.getSourceNode().getId()));
 		if ((lowestNonNullValueContext != null)
 				&& (lowestNonNullValueContext.getValue() != null)) {
 			for (Context<V> context : contexts) {
@@ -97,7 +98,21 @@ public class NodeRankContextFilter<V> implements ContextFilter<V> {
 				ops.add(op);
 			}
 		}
+		log(lowestNonNullValueContext, ops);
 		return new DefaultContextFilterResult<V>(lowestNonNullValueContext, ops);
+	}
+
+	private void log(Context<V> choice, List<Operation<V>> ops) {
+		if (backfillLog.isInfoEnabled() && (choice != null) && (ops != null)) {
+			StringBuffer format = new StringBuffer();
+			for (int i = 0; i < ops.size(); ++i) {
+				if (i > 0)
+					format.append(',');
+				format.append(ops.get(i).getNode().getId());
+			}
+			backfillLog.info(String.format("%1$s\t%2$s", choice.getSourceNode()
+					.getId(), format.toString()));
+		}
 	}
 
 	private static class NodeRankComparator<V> implements
