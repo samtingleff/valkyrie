@@ -12,6 +12,7 @@ import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationCallback;
 import com.othersonline.kv.distributed.OperationQueue;
 import com.othersonline.kv.distributed.OperationResult;
+import com.othersonline.kv.distributed.OperationStatus;
 
 public class NonPersistentThreadPoolOperationQueue extends
 		AbstractThreadPoolOperationQueue implements OperationQueue {
@@ -45,22 +46,22 @@ public class NonPersistentThreadPoolOperationQueue extends
 
 		public OperationResult<V> call() throws Exception {
 			OperationResult<V> result = null;
-			Exception error = null;
 			Node node = null;
+			long start = System.currentTimeMillis();
 			try {
 				node = op.getNode();
-				KeyValueStore store = connectionFactory.getStore(node.getConnectionURI());
+				KeyValueStore store = connectionFactory.getStore(node
+						.getConnectionURI());
 				Callable<OperationResult<V>> delegate = op.getCallable(store);
 				result = delegate.call();
 			} catch (Exception e) {
-				error = e;
+				result = new DefaultOperationResult<V>(op, null,
+						OperationStatus.Error, System.currentTimeMillis()
+								- start, e);
 			} finally {
 				OperationCallback<V> callback = op.getCallback();
 				if (callback != null) {
-					if (error == null)
-						callback.success(node, result);
-					else
-						callback.error(node, result, error);
+					callback.completed(result);
 				}
 			}
 			return result;

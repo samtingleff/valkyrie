@@ -48,8 +48,8 @@ package com.othersonline.kv.tuple;
  */
 public class Tuple<First extends Comparable<First>, Rest extends Comparable<Rest>> implements SeparatedAppender, Comparable<Tuple<First, Rest>> {
 
-	private First first;
-	private Rest rest;
+	protected First first;
+	protected Rest rest;
 
 	protected Tuple(First first, Rest rest) {
 		this.first = first;

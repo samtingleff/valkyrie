@@ -38,7 +38,7 @@ public class DefaultDistributedKeyValueStore implements
 
 	private ContextSerializer contextSerializer;
 
-	private ContextFilter<byte[]> contextFilter = new NodeRankContextFilter<byte[]>();
+	private ContextFilter<byte[]> contextFilter;
 
 	private DefaultOperationHelper operationHelper = new DefaultOperationHelper();
 
@@ -75,6 +75,11 @@ public class DefaultDistributedKeyValueStore implements
 		this.contextFilter = filter;
 	}
 
+	public void start() {
+		if (contextFilter == null)
+			contextFilter = new NodeRankContextFilter<byte[]>(config);
+	}
+
 	/**
 	 * Low-level method to retrieve all versions for a given key.
 	 */
@@ -96,9 +101,7 @@ public class DefaultDistributedKeyValueStore implements
 		List<Context<byte[]>> retval = new ArrayList<Context<byte[]>>(results
 				.size());
 		for (OperationResult<byte[]> result : results) {
-			Node node = result.getNode();
-			Context<byte[]> context = contextSerializer.extractContext(node,
-					result.getNodeRank(), key, result.getValue());
+			Context<byte[]> context = contextSerializer.extractContext(result);
 			retval.add(context);
 		}
 		return retval;
@@ -116,14 +119,14 @@ public class DefaultDistributedKeyValueStore implements
 			log.trace(String.format("get(%1$s, %2$s)", key, filter));
 		List<Context<byte[]>> contexts = getContexts(key);
 		ContextFilterResult<byte[]> filtered = filter.filter(contexts);
-		List<Operation<byte[]>> additionalOperations = filtered
-				.getAdditionalOperations();
-		if (additionalOperations != null) {
-			for (Operation<byte[]> op : additionalOperations) {
-				asyncOperationQueue.submit(op);
-			}
-		}
 		Context<byte[]> result = filtered.getContext();
+		List<Operation<byte[]>> additionalOperations = filtered
+		.getAdditionalOperations();
+if (additionalOperations != null) {
+	for (Operation<byte[]> op : additionalOperations) {
+		asyncOperationQueue.submit(op);
+	}
+}
 		return result;
 	}
 

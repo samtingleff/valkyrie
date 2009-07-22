@@ -38,6 +38,12 @@ public class Configuration {
 	// time period for above error count
 	private TimeUnit nodeErrorCountPeriod = TimeUnit.MINUTES;
 
+	// send an async set() request to nodes that return null on get requests
+	private boolean fillNullGetResults = true;
+
+	// send an async set() request to nodes that throw an exception on get requests
+	private boolean fillErrorGetResults = false;
+
 	public NodeStore getNodeStore() {
 		return nodeStore;
 	}
@@ -134,4 +140,19 @@ public class Configuration {
 		this.nodeErrorCountPeriod = nodeErrorCountPeriod;
 	}
 
+	public boolean getFillNullGetResults() {
+		return fillNullGetResults;
+	}
+
+	public void setFillNullGetResults(boolean fillNullGetResults) {
+		this.fillNullGetResults = fillNullGetResults;
+	}
+
+	public boolean getFillErrorGetResults() {
+		return fillErrorGetResults;
+	}
+
+	public void setFillErrorGetResults(boolean fillErrorGetResults) {
+		this.fillErrorGetResults = fillErrorGetResults;
+	}
 }

@@ -70,7 +70,8 @@ public class DistributedKeyValueStoreClientImpl extends
 			store.setSyncOperationQueue(syncOpQueue);
 			store.setAsyncOperationQueue(asyncOpQueue);
 			store.setContextSerializer(new PassthroughContextSerializer());
-			store.setContextFilter(new NodeRankContextFilter<byte[]>());
+			store.setContextFilter(new NodeRankContextFilter<byte[]>(config));
+			store.start();
 			super.start();
 		} catch (ConfigurationException e) {
 			throw new IOException(e);

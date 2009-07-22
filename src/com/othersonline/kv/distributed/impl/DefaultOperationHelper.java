@@ -16,6 +16,7 @@ import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationCallback;
 import com.othersonline.kv.distributed.OperationQueue;
 import com.othersonline.kv.distributed.OperationResult;
+import com.othersonline.kv.distributed.OperationStatus;
 
 public class DefaultOperationHelper {
 
@@ -52,15 +53,13 @@ public class DefaultOperationHelper {
 				return this;
 			}
 
-			public void success(Node node, OperationResult<V> result) {
+			public void completed(OperationResult<V> result) {
 				resultCollecter.add(result);
-				successCounter.incrementAndGet();
-				latch.countDown();
-			}
-
-			public void error(Node node, OperationResult<V> result, Exception e) {
-				resultCollecter.add(result);
-				latch.countDown();
+				if (result.getStatus().equals(OperationStatus.Success)
+						|| result.getStatus().equals(OperationStatus.NullValue)) {
+					successCounter.incrementAndGet();
+					latch.countDown();
+				}
 			}
 		}.init(latch, successCounter, resultCollecter);
 		for (int i = 0; i < nodeList.size(); ++i) {

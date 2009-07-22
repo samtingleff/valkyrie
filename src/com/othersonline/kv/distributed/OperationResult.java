@@ -4,9 +4,11 @@ public interface OperationResult<V> {
 
 	public Operation<V> getOperation();
 
-	public Node getNode();
-
-	public int getNodeRank();
-
 	public V getValue();
+
+	public OperationStatus getStatus();
+
+	public long getDuration();
+
+	public Throwable getError();
 }

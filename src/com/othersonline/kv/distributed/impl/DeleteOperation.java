@@ -2,6 +2,7 @@ package com.othersonline.kv.distributed.impl;
 
 import com.othersonline.kv.distributed.AbstractOperation;
 import com.othersonline.kv.distributed.OperationResult;
+import com.othersonline.kv.distributed.OperationStatus;
 
 public class DeleteOperation<V> extends AbstractOperation<V> {
 	private static final long serialVersionUID = -918401158100309347L;
@@ -20,9 +21,11 @@ public class DeleteOperation<V> extends AbstractOperation<V> {
 
 	public OperationResult<V> call() throws Exception {
 		try {
+			long start = System.currentTimeMillis();
 			store.delete(key);
 			OperationResult<V> result = new DefaultOperationResult<V>(this,
-					node, nodeRank, null);
+					null, OperationStatus.Success, System.currentTimeMillis()
+							- start, null);
 			return result;
 		} finally {
 		}

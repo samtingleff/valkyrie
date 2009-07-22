@@ -40,6 +40,10 @@ public class PropertiesConfigurator implements Configurator {
 
 	public static final String WRITE_REPLICAS = "write.replicas";
 
+	public static final String BACKFILL_NULL_GET_REQUESTS = "backfill.nullGets";
+
+	public static final String BACKFILL_FAILED_GET_REQUESTS = "backfill.failedGets";
+
 	private volatile Configuration config;
 
 	public PropertiesConfigurator() {
@@ -113,6 +117,10 @@ public class PropertiesConfigurator implements Configurator {
 		config.setWriteOperationTimeout(getIntProperty(p,
 				WRITE_OPERATION_TIMEOUT, 500));
 		config.setWriteReplicas(getIntProperty(p, WRITE_REPLICAS, 3));
+		config.setFillNullGetResults(getBooleanProperty(p,
+				BACKFILL_NULL_GET_REQUESTS, true));
+		config.setFillNullGetResults(getBooleanProperty(p,
+				BACKFILL_FAILED_GET_REQUESTS, false));
 		return config;
 	}
 
@@ -136,5 +144,14 @@ public class PropertiesConfigurator implements Configurator {
 			value = Integer.toString(defaultValue);
 		}
 		return Integer.parseInt(value);
+	}
+
+	public boolean getBooleanProperty(Properties p, String name,
+			boolean defaultValue) {
+		String value = p.getProperty(name);
+		if (value == null) {
+			value = Boolean.toString(defaultValue);
+		}
+		return Boolean.parseBoolean(value);
 	}
 }
