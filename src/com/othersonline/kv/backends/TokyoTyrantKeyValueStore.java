@@ -236,11 +236,11 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			else
 				return transcoder.decode(bytes);
 		} catch (NoSuchElementException e) {
-			log.error("NoSuchElementException waiting for connection:"
+			log.error("Unable to get value for key. No such element. "
 					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("SocketTimeoutException inside get(): " + e.getMessage());
+			log.error("Unable to get value for key. Socket timeout. " + e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
 			log.error("Unable to get value for key. " + e.getMessage());
