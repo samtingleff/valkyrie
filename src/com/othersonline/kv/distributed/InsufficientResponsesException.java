@@ -21,4 +21,8 @@ public class InsufficientResponsesException extends
 	public int getReceived() {
 		return received;
 	}
+	public String getMessage()
+	{
+		return "Insufficient responses. received="+received+" required="+required;
+	}
 }

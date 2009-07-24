@@ -2,21 +2,25 @@ package com.othersonline.kv.distributed.impl;
 
 import java.util.Map;
 
-import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationStatus;
+import com.othersonline.kv.distributed.BulkOperationResult;
 
-public class GetBulkOperationResult<V> extends DefaultOperationResult<V> {
+public class GetBulkOperationResult<V> extends DefaultOperationResult<V> implements BulkOperationResult<V> {
 
-	private Map<String, V> results;
+	private Map<String, V> values;
 
-	public GetBulkOperationResult(Operation<V> operation,
-			Map<String, V> results, OperationStatus status, long duration,
+	public GetBulkOperationResult(GetBulkOperation<V> operation,
+			Map<String, V> values, OperationStatus status, long duration,
 			Throwable error) {
 		super(operation, null, status, duration, error);
-		this.results = results;
+		this.values = values;
 	}
 
-	public Map<String, V> getResults() {
-		return results;
+	public GetBulkOperation<V> getBulkOperation() {
+		return (GetBulkOperation<V>)getOperation();
+	}
+	
+	public Map<String, V> getValues() {
+		return values;
 	}
 }

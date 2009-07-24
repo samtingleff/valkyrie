@@ -10,6 +10,7 @@ import com.othersonline.kv.DistributedKeyValueStoreClient;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.backends.ConnectionFactory;
+import com.othersonline.kv.distributed.BulkContext;
 import com.othersonline.kv.distributed.Configuration;
 import com.othersonline.kv.distributed.ConfigurationException;
 import com.othersonline.kv.distributed.Configurator;
@@ -133,17 +134,38 @@ public class DistributedKeyValueStoreClientImpl extends
 	}
 
 	public Map<String, Object> getBulk(String... keys)
+	throws KeyValueStoreException, IOException {
+		return getBulk(defaultTranscoder,keys);
+	}
+	
+	public Map<String, Object> getBulk(Transcoder transcoder,String... keys)
 			throws KeyValueStoreException, IOException {
 		long start = System.currentTimeMillis();
 		boolean success = true;
 		try {
 			assertReadable();
 			Map<String, Object> map = new HashMap<String, Object>();
-			for (String key : keys) {
-				Object obj = get(key);
-				if (obj != null)
-					map.put(key, obj);
+			List<BulkContext<byte[]>> contexts;
+			
+			contexts = store.getBulkContexts(keys);
+			for (BulkContext<byte[]> context: contexts)
+			{
+				Map<String,byte[]> values = context.getValues();
+				
+				for (Map.Entry<String, byte[]> entry : values.entrySet())
+				{
+					Object obj;
+					byte[] bytes = entry.getValue(); 
+					obj = transcoder.decode(bytes);
+
+					// TODO deal with multiple values for same key
+					if (map.containsKey(entry.getKey()))
+						map.put(entry.getKey(), obj);
+					else
+						map.put(entry.getKey(), obj);
+				}
 			}
+			
 			return map;
 		} catch (KeyValueStoreException e1) {
 			success = false;
@@ -158,50 +180,20 @@ public class DistributedKeyValueStoreClientImpl extends
 
 	public Map<String, Object> getBulk(List<String> keys)
 			throws KeyValueStoreException, IOException {
-		long start = System.currentTimeMillis();
-		boolean success = true;
-		try {
-			assertReadable();
-			Map<String, Object> map = new HashMap<String, Object>();
-			for (String key : keys) {
-				Object obj = get(key);
-				if (obj != null)
-					map.put(key, obj);
-			}
-			return map;
-		} catch (KeyValueStoreException e1) {
-			success = false;
-			throw e1;
-		} catch (IOException e2) {
-			success = false;
-			throw e2;
-		} finally {
-			log("null", "getbulk", System.currentTimeMillis() - start, success);
+		
+		// doing a cast of keys.toArray() to (String[]) causes a ClassCastException
+		String[] strings = new String[keys.size()];
+		for (int i=0; i < keys.size(); i++)
+		{
+			strings[i]= keys.get(i);
 		}
+		
+		return getBulk(defaultTranscoder,strings);
 	}
 
 	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
-			throws KeyValueStoreException, IOException {
-		long start = System.currentTimeMillis();
-		boolean success = true;
-		try {
-			assertReadable();
-			Map<String, Object> map = new HashMap<String, Object>();
-			for (String key : keys) {
-				Object obj = get(key, transcoder);
-				if (obj != null)
-					map.put(key, obj);
-			}
-			return map;
-		} catch (KeyValueStoreException e1) {
-			success = false;
-			throw e1;
-		} catch (IOException e2) {
-			success = false;
-			throw e2;
-		} finally {
-			log("null", "getbulk", System.currentTimeMillis() - start, success);
-		}
+			throws KeyValueStoreException, IOException {		
+		return getBulk(transcoder,(String[])keys.toArray());
 	}
 
 	public void set(String key, Object value) throws KeyValueStoreException,

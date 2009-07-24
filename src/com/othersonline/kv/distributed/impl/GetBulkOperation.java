@@ -25,22 +25,36 @@ public class GetBulkOperation<V> extends AbstractOperation<V> implements
 		return "getBulk";
 	}
 
+	public String[] getKeys() {
+		return keys;
+	}
+	
 	public GetBulkOperation<V> copy() {
-		return new GetBulkOperation<V>(this.transcoder, this.key);
+		return new GetBulkOperation<V>(transcoder, keys);
 	}
 
 	public OperationResult<V> call() throws Exception {
 		try {
 			long start = System.currentTimeMillis();
-			Map<String, V> results = (Map<String, V>) ((transcoder == null) ? store
-					.getBulk(keys)
-					: store.getBulk(Arrays.asList(keys), transcoder));
-			OperationResult<V> result = new GetBulkOperationResult<V>(this,
-					results, OperationStatus.Success, System
-							.currentTimeMillis()
-							- start, null);
+			Map<String, V> results;
+			OperationResult<V> result;
+
+			if (transcoder == null)
+				results = (Map<String, V>)store.getBulk(keys);
+			else
+				results = (Map<String, V>)store.getBulk(Arrays.asList(keys), transcoder);
+
+			result = new GetBulkOperationResult<V>(this,results, 
+						OperationStatus.Success, System.currentTimeMillis()- start, null);
+
 			return result;
-		} finally {
+		}
+		catch(Exception e)
+		{
+			// TODO log something useful here
+			throw e;
+		}
+		finally {
 		}
 	}
 

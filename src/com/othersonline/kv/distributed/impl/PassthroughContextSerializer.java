@@ -1,8 +1,10 @@
 package com.othersonline.kv.distributed.impl;
 
+import com.othersonline.kv.distributed.BulkContext;
 import com.othersonline.kv.distributed.Context;
 import com.othersonline.kv.distributed.ContextSerializer;
 import com.othersonline.kv.distributed.OperationResult;
+import com.othersonline.kv.distributed.BulkOperationResult;
 
 public class PassthroughContextSerializer implements ContextSerializer {
 
@@ -16,4 +18,15 @@ public class PassthroughContextSerializer implements ContextSerializer {
 				.getOperation().getKey(), result.getValue());
 	}
 
+	public BulkContext<byte[]> extractBulkContext(BulkOperationResult<byte[]> result) {
+		return new DefaultBulkContext<byte[]>( 
+				result,
+				result.getOperation().getNode(),
+				result.getOperation().getNodeRank(),
+				0,
+				((GetBulkOperation)result.getOperation()).getKeys(),
+				result.getValues());
+	}
+
+	
 }

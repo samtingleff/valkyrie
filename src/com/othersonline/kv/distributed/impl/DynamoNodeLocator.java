@@ -100,7 +100,7 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 
 	private void rebuild(List<Node> nodes) {
 		if (nodes.size() == 0)
-			throw new IllegalArgumentException("No available nodes");
+			throw new IllegalArgumentException("Unable to rebuild node list. Empty node list provided.");
 
 		HashRing<Long, Token> newRing = new HashRing<Long, Token>(nodes.size());
 

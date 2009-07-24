@@ -1,12 +1,13 @@
 package com.othersonline.kv.distributed.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.othersonline.kv.KeyValueStoreException;
+import com.othersonline.kv.distributed.BulkContext;
+import com.othersonline.kv.distributed.BulkOperationResult;
 import com.othersonline.kv.distributed.Configuration;
 import com.othersonline.kv.distributed.Context;
 import com.othersonline.kv.distributed.ContextFilter;
@@ -107,6 +108,51 @@ public class DefaultDistributedKeyValueStore implements
 		return retval;
 	}
 
+
+	/**
+	 * Low-level method to retrieve all versions for a set of keys.
+	 */
+	public List<BulkContext<byte[]>> getBulkContexts(String... keys)
+			throws KeyValueStoreException {
+		
+		List<BulkContext<byte[]>> retval;
+		
+		Map<Integer,Node> nodes=new HashMap<Integer,Node>();
+		List<Node> nodeList = new ArrayList<Node>(); 
+
+		// generate list of distinct nodes for all keys
+		{
+			for (String key : keys)
+			{
+				List<Node> readNodes = nodeLocator.getPreferenceList(hash, key, config
+						.getReadReplicas());
+				for (Node node : readNodes) {
+					nodes.put(node.getId(), node);
+				}
+			}
+			nodeList.addAll(nodes.values());
+		}
+		
+		// ask for a response from n nodes
+		{
+			Operation<byte[]> op;
+			ResultsCollecter<OperationResult<byte[]>> results;
+
+			op = new GetBulkOperation<byte[]>(transcoder, keys);			
+			results = operationHelper.call(syncOperationQueue, op, nodeList, config
+							.getRequiredReads(), config.getReadOperationTimeout());
+			results.stop();
+			
+			retval = new ArrayList<BulkContext<byte[]>>(results.size());
+			
+			for (OperationResult<byte[]> result : results) {
+				BulkContext<byte[]> context = contextSerializer.extractBulkContext((BulkOperationResult<byte[]>)result);
+				retval.add(context);
+			}
+		}
+		return retval;
+	}
+	
 	public Context<byte[]> get(String key) throws KeyValueStoreException {
 		if (log.isTraceEnabled())
 			log.trace(String.format("get(%1$s)", key));
@@ -117,16 +163,19 @@ public class DefaultDistributedKeyValueStore implements
 			throws KeyValueStoreException {
 		if (log.isTraceEnabled())
 			log.trace(String.format("get(%1$s, %2$s)", key, filter));
+		
 		List<Context<byte[]>> contexts = getContexts(key);
 		ContextFilterResult<byte[]> filtered = filter.filter(contexts);
 		Context<byte[]> result = filtered.getContext();
 		List<Operation<byte[]>> additionalOperations = filtered
 		.getAdditionalOperations();
-if (additionalOperations != null) {
-	for (Operation<byte[]> op : additionalOperations) {
-		asyncOperationQueue.submit(op);
-	}
-}
+		
+		if (additionalOperations != null) {
+			for (Operation<byte[]> op : additionalOperations) {
+				asyncOperationQueue.submit(op);
+			}
+		}
+		
 		return result;
 	}
 
