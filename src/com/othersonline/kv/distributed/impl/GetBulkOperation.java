@@ -5,13 +5,14 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import com.othersonline.kv.distributed.AbstractOperation;
+import com.othersonline.kv.distributed.BulkOperation;
 import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationResult;
 import com.othersonline.kv.distributed.OperationStatus;
 import com.othersonline.kv.transcoder.Transcoder;
 
 public class GetBulkOperation<V> extends AbstractOperation<V> implements
-		Operation<V>, Callable<OperationResult<V>> {
+		BulkOperation<V>, Callable<OperationResult<V>> {
 	private static final long serialVersionUID = -3908847991063100534L;
 
 	protected String[] keys;
