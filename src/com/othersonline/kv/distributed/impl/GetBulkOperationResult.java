@@ -2,6 +2,7 @@ package com.othersonline.kv.distributed.impl;
 
 import java.util.Map;
 
+import com.othersonline.kv.distributed.BulkOperation;
 import com.othersonline.kv.distributed.OperationStatus;
 import com.othersonline.kv.distributed.BulkOperationResult;
 
@@ -16,8 +17,8 @@ public class GetBulkOperationResult<V> extends DefaultOperationResult<V> impleme
 		this.values = values;
 	}
 
-	public GetBulkOperation<V> getBulkOperation() {
-		return (GetBulkOperation<V>)getOperation();
+	public BulkOperation<V> getBulkOperation() {
+		return (BulkOperation<V>)getOperation();
 	}
 	
 	public Map<String, V> getValues() {

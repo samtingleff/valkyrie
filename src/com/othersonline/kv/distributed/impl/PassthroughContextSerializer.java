@@ -24,7 +24,7 @@ public class PassthroughContextSerializer implements ContextSerializer {
 				result.getOperation().getNode(),
 				result.getOperation().getNodeRank(),
 				0,
-				((GetBulkOperation)result.getOperation()).getKeys(),
+				result.getBulkOperation().getKeys(),
 				result.getValues());
 	}
 
