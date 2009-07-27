@@ -21,37 +21,46 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 	private Pattern urlPattern = Pattern
 			.compile("([\\w\\-]+):\\/\\/([\\w\\-\\.]+)(:([0-9]+))?(\\?(.*))?");
 
-	protected KeyValueStore createStoreConnection(String uri)
-			throws IOException, KeyValueStoreUnavailable {
+	public Map<String, String> parseUri(String uri)
+	{
+		Map<String, String> configs = new HashMap<String, String>();
 		Matcher m = urlPattern.matcher(uri);
 		if (!m.matches())
 			throw new IllegalArgumentException(
-					String
-							.format(
-									"The url pattern %1$s does not match type://hostname:port?args...",
-									uri));
-
+					String.format(
+							"The url pattern %1$s does not match type://hostname:port?args...",
+							uri));
+		
 		String type = m.group(1);
-
-		KeyValueStore store = openConnection(type);
-
-		try {
-			Map<String, String> configs = new HashMap<String, String>();
-			if (m.group(2) != null) {
-				configs.put("host", m.group(2));
-			}
-			if (m.group(4) != null) {
-				configs.put("port", m.group(4));
-			}
-			if (m.group(6) != null) {
-				String[] args = m.group(6).split("&");
-				for (String arg : args) {
-					String[] values = arg.split("=");
-					if (values.length == 2) {
-						configs.put(values[0], values[1]);
-					}
+			configs.put("type", type);
+			
+		if (m.group(2) != null) {
+			configs.put("host", m.group(2));
+		}
+		if (m.group(4) != null) {
+			configs.put("port", m.group(4));
+		}
+		if (m.group(6) != null) {
+			String[] args = m.group(6).split("&");
+			for (String arg : args) {
+				String[] values = arg.split("=");
+				if (values.length == 2) {
+					configs.put(values[0], values[1]);
 				}
 			}
+		}
+		
+		return configs;
+	}
+	
+	protected KeyValueStore createStoreConnection(String uri)
+			throws IOException, KeyValueStoreUnavailable {
+		Map<String, String> configs;
+		configs = this.parseUri(uri);
+		
+		KeyValueStore store = openConnection(configs.get("type"));
+
+		try {
 			super.configureStore(store, configs);
 		} catch (Exception e) {
 			log.warn("Error parsing connection string:", e);
