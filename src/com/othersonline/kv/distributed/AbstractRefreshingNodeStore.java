@@ -31,8 +31,11 @@ public abstract class AbstractRefreshingNodeStore implements NodeStore {
 		t.scheduleAtFixedRate(new TimerTask() {
 			public void run() {
 				try {
-					activeNodes = refreshActiveNodes();
-					publish();
+					List<Node> newActiveNodes = refreshActiveNodes();
+					if (changed(activeNodes, newActiveNodes)) {
+						activeNodes = newActiveNodes;
+						publish();
+					}
 				} catch (Exception e) {
 					log.error("Exception calling refreshActiveNodes()", e);
 				}
@@ -75,5 +78,23 @@ public abstract class AbstractRefreshingNodeStore implements NodeStore {
 						e);
 			}
 		}
+	}
+
+	private boolean changed(List<Node> active, List<Node> updated) {
+		if (active.size() != updated.size())
+			return true;
+		for (int i = 0; i < active.size(); ++i) {
+			Node currentNode = active.get(i);
+			Node updatedNode = updated.get(i);
+			// compare
+			if ((currentNode.getId() != updatedNode.getId())
+					|| (!currentNode.getConnectionURI().equals(
+							updatedNode.getConnectionURI()))
+					|| (currentNode.getPhysicalId() != updatedNode
+							.getPhysicalId())
+					|| (currentNode.getSalt().equals(updatedNode.getSalt())))
+				return true;
+		}
+		return false;
 	}
 }
