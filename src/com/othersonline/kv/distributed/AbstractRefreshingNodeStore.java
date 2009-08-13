@@ -92,7 +92,7 @@ public abstract class AbstractRefreshingNodeStore implements NodeStore {
 							updatedNode.getConnectionURI()))
 					|| (currentNode.getPhysicalId() != updatedNode
 							.getPhysicalId())
-					|| (currentNode.getSalt().equals(updatedNode.getSalt())))
+					|| (!currentNode.getSalt().equals(updatedNode.getSalt())))
 				return true;
 		}
 		return false;
