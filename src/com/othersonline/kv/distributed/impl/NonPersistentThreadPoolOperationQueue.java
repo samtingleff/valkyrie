@@ -4,6 +4,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.backends.ConnectionFactory;
 import com.othersonline.kv.backends.UriConnectionFactory;
@@ -16,6 +19,9 @@ import com.othersonline.kv.distributed.OperationStatus;
 
 public class NonPersistentThreadPoolOperationQueue extends
 		AbstractThreadPoolOperationQueue implements OperationQueue {
+
+	protected Log operationLog = LogFactory.getLog("haymitch.backendlog");
+
 	public NonPersistentThreadPoolOperationQueue() {
 		this(new UriConnectionFactory());
 	}
@@ -59,6 +65,14 @@ public class NonPersistentThreadPoolOperationQueue extends
 						OperationStatus.Error, System.currentTimeMillis()
 								- start, e);
 			} finally {
+				try {
+					operationLog
+							.info(String.format("%1$s_%2$s_%3$d %4$dms", op
+									.getName(), result.getStatus().toString()
+									.toLowerCase(), node.getId(), result
+									.getDuration()));
+				} catch (Exception e) {
+				}
 				OperationCallback<V> callback = op.getCallback();
 				if (callback != null) {
 					callback.completed(result);
