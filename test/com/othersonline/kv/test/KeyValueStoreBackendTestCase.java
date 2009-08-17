@@ -104,6 +104,7 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		TokyoTyrantKeyValueStore store = new TokyoTyrantKeyValueStore();
 		store.setHost("dev-db");
 		store.setPort(1978);
+		store.setSocketTimeout(1000 * 5);
 		doTestBackend(store);
 		String[] keys = new String[] { "key1", "key2" };
 		for (String key : keys) {
@@ -118,6 +119,8 @@ public class KeyValueStoreBackendTestCase extends TestCase {
 		}
 		fwmkeys = store.fwmkeys("key", 10);
 		assertEquals(fwmkeys.length, 0);
+
+		assertTrue(store.optimize());
 	}
 
 	public void testFileSystemBackend() throws Exception {

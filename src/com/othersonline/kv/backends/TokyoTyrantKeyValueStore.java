@@ -421,6 +421,28 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
+	public boolean optimize() throws KeyValueStoreException {
+		assertWriteable();
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			return rdb.optimize("");
+		} catch (NoSuchElementException e) {
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
+			throw new KeyValueStoreException(e);
+		} catch (SocketTimeoutException e) {
+			log.error("SocketTimeoutException inside getStats(): "
+					+ e.getMessage());
+			throw new KeyValueStoreException(e);
+		} catch (Exception e) {
+			log.error("Exception inside delete()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+			releaseRDB(rdb);
+		}
+		
+	}
 	public Object[] fwmkeys(String prefix, int max)
 			throws KeyValueStoreException {
 		assertReadable();
