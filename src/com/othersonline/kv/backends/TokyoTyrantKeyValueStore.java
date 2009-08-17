@@ -441,8 +441,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		} finally {
 			releaseRDB(rdb);
 		}
-		
 	}
+
 	public Object[] fwmkeys(String prefix, int max)
 			throws KeyValueStoreException {
 		assertReadable();
