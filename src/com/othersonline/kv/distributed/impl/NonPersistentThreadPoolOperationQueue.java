@@ -44,10 +44,13 @@ public class NonPersistentThreadPoolOperationQueue extends
 	}
 
 	private class CallbackCallable<V> implements Callable<OperationResult<V>> {
+		private long enqueueTime;
+
 		private Operation<V> op;
 
 		public CallbackCallable(Operation<V> op) {
 			this.op = op;
+			this.enqueueTime = System.currentTimeMillis();
 		}
 
 		public OperationResult<V> call() throws Exception {
@@ -66,11 +69,12 @@ public class NonPersistentThreadPoolOperationQueue extends
 								- start, e);
 			} finally {
 				try {
-					operationLog
-							.info(String.format("%1$s_%2$s_%3$d %4$dms", op
-									.getName(), result.getStatus().toString()
-									.toLowerCase(), node.getId(), result
-									.getDuration()));
+					operationLog.info(String.format(
+							"%1$s_%2$s_%3$d %4$dms queue_time=%5$dms", op.getName(),
+							result.getStatus().toString().toLowerCase(), node
+									.getId(), result.getDuration(), System
+									.currentTimeMillis()
+									- enqueueTime));
 				} catch (Exception e) {
 				}
 				OperationCallback<V> callback = op.getCallback();
