@@ -562,13 +562,13 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			boolean result = false;
 			try {
 				RDB rdb = (RDB) obj;
-				Map<String, String> stats = rdb.stat();
+				//Map<String, String> stats = rdb.stat();
 				result = true;
-			} catch (SocketTimeoutException e) {
+			/*} catch (SocketTimeoutException e) {
 				log
 						.error("validateObject() failed due to java.net.SocketTimeoutException. Connection to Tokyo Tyrant is broken: "
 								+ e.getMessage());
-				result = false;
+				result = false;*/
 			} catch (Exception e) {
 				log
 						.error(
