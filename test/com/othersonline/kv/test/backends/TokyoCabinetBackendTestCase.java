@@ -94,6 +94,16 @@ public class TokyoCabinetBackendTestCase extends KeyValueStoreBackendTestCase {
 		long fsiz = store.fsiz();
 		assertTrue(fsiz > 1);
 
+		// test optimize()
+		assertTrue(store.optimize());
+
+		// test sync()
+		assertTrue(store.sync());
+
+		// test vanish()
+		assertTrue(store.vanish());
+		assertEquals(store.rnum(), 0);
+
 		// clean up
 		for (int i = 0; i < keys.length; ++i) {
 			store.delete(keys[i]);

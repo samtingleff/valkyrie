@@ -207,6 +207,30 @@ public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore {
 		return dbm.fsiz();
 	}
 
+	public boolean sync() throws KeyValueStoreUnavailable {
+		assertWriteable();
+		if (btree)
+			return bdb.sync();
+		else
+			return hdb.sync();
+	}
+
+	public boolean optimize() throws KeyValueStoreUnavailable {
+		assertWriteable();
+		if (btree)
+			return bdb.optimize();
+		else
+			return hdb.optimize();
+	}
+
+	public boolean vanish() throws KeyValueStoreUnavailable {
+		assertWriteable();
+		if (btree)
+			return bdb.vanish();
+		else
+			return hdb.vanish();
+	}
+
 	private static class NullIterator implements Iterator<String> {
 
 		public boolean hasNext() {
