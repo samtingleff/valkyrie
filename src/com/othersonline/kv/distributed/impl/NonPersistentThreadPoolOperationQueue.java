@@ -70,11 +70,10 @@ public class NonPersistentThreadPoolOperationQueue extends
 			} finally {
 				try {
 					operationLog.info(String.format(
-							"%1$s_%2$s_%3$d %4$dms queue_time=%5$dms", op.getName(),
-							result.getStatus().toString().toLowerCase(), node
-									.getId(), result.getDuration(), System
-									.currentTimeMillis()
-									- enqueueTime));
+							"%1$s_%2$s_%3$d %4$dms queue_time=%5$dms", op
+									.getName(), result.getStatus().toString()
+									.toLowerCase(), node.getId(), result
+									.getDuration(), start - enqueueTime));
 				} catch (Exception e) {
 				}
 				OperationCallback<V> callback = op.getCallback();
