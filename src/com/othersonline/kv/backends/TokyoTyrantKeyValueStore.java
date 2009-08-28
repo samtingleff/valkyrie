@@ -23,6 +23,7 @@ import tokyotyrant.transcoder.SerializingTranscoder;
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
+import com.othersonline.kv.KeyValueStoreUnavailable;
 import com.othersonline.kv.annotations.Configurable;
 import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.Transcoder;
@@ -240,7 +241,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("Unable to get value for key. Socket timeout. " + e.getMessage());
+			log.error("Unable to get value for key. Socket timeout. "
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
 			log.error("Unable to get value for key. " + e.getMessage());
@@ -347,7 +349,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			log.error("SocketTimeoutException inside set(): " + e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
-			log.error("Unable to set value for key. "+e.getMessage());
+			log.error("Unable to set value for key. " + e.getMessage());
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
@@ -370,7 +372,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			log.error("SocketTimeoutException inside set(): " + e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
-			log.error("Unable to set value for key. "+e.getMessage());
+			log.error("Unable to set value for key. " + e.getMessage());
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
@@ -414,7 +416,53 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
-			log.error("Exception inside delete()", e);
+			log.error("Exception inside getStats()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+			releaseRDB(rdb);
+		}
+	}
+
+	public long rnum() throws KeyValueStoreException {
+		assertReadable();
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			return rdb.rnum();
+		} catch (NoSuchElementException e) {
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
+			throw new KeyValueStoreException(e);
+		} catch (SocketTimeoutException e) {
+			log
+					.error("SocketTimeoutException inside rnum(): "
+							+ e.getMessage());
+			throw new KeyValueStoreException(e);
+		} catch (Exception e) {
+			log.error("Exception inside rnum()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+			releaseRDB(rdb);
+		}
+	}
+
+	public long size() throws KeyValueStoreException {
+		assertReadable();
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			return rdb.size();
+		} catch (NoSuchElementException e) {
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
+			throw new KeyValueStoreException(e);
+		} catch (SocketTimeoutException e) {
+			log
+					.error("SocketTimeoutException inside size(): "
+							+ e.getMessage());
+			throw new KeyValueStoreException(e);
+		} catch (Exception e) {
+			log.error("Exception inside size()", e);
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
@@ -432,11 +480,11 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("SocketTimeoutException inside getStats(): "
+			log.error("SocketTimeoutException inside optimize(): "
 					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
-			log.error("Exception inside delete()", e);
+			log.error("Exception inside optimize()", e);
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
@@ -562,13 +610,13 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			boolean result = false;
 			try {
 				RDB rdb = (RDB) obj;
-				//Map<String, String> stats = rdb.stat();
+				// Map<String, String> stats = rdb.stat();
 				result = true;
-			/*} catch (SocketTimeoutException e) {
-				log
-						.error("validateObject() failed due to java.net.SocketTimeoutException. Connection to Tokyo Tyrant is broken: "
-								+ e.getMessage());
-				result = false;*/
+				/*
+				 * } catch (SocketTimeoutException e) { log.error(
+				 * "validateObject() failed due to java.net.SocketTimeoutException. Connection to Tokyo Tyrant is broken: "
+				 * + e.getMessage()); result = false;
+				 */
 			} catch (Exception e) {
 				log
 						.error(
