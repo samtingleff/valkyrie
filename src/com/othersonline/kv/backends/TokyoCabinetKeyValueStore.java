@@ -1,8 +1,9 @@
 package com.othersonline.kv.backends;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import tokyocabinet.HDB;
 
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
+import com.othersonline.kv.KeyValueStoreUnavailable;
 import com.othersonline.kv.annotations.Configurable;
 import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.SerializableTranscoder;
@@ -154,4 +156,92 @@ public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore {
 		dbm.out(key);
 	}
 
+	public Iterator<String> iterkeys() throws KeyValueStoreUnavailable {
+		assertReadable();
+		if (!dbm.iterinit())
+			return new NullIterator();
+		else {
+			Iterator<String> iter = new Iterator<String>() {
+				String nextKey = null;
+
+				public boolean hasNext() {
+					nextKey = dbm.iternext2();
+					return (nextKey != null);
+				}
+
+				public String next() {
+					return nextKey;
+				}
+
+				public void remove() {
+				}
+			};
+			return iter;
+		}
+	}
+
+	public List<String> fwmkeys(String prefix, int max)
+			throws KeyValueStoreException {
+		assertReadable();
+		return dbm.fwmkeys(prefix, max);
+	}
+
+	public int addint(String key, int num) throws KeyValueStoreUnavailable {
+		assertReadable();
+		return dbm.addint(key, num);
+	}
+
+	public double adddouble(String key, double num)
+			throws KeyValueStoreUnavailable {
+		assertReadable();
+		return dbm.adddouble(key, num);
+	}
+
+	public long rnum() throws KeyValueStoreUnavailable {
+		assertReadable();
+		return dbm.rnum();
+	}
+
+	public long fsiz() throws KeyValueStoreUnavailable {
+		assertReadable();
+		return dbm.fsiz();
+	}
+
+	public boolean sync() throws KeyValueStoreUnavailable {
+		assertWriteable();
+		if (btree)
+			return bdb.sync();
+		else
+			return hdb.sync();
+	}
+
+	public boolean optimize() throws KeyValueStoreUnavailable {
+		assertWriteable();
+		if (btree)
+			return bdb.optimize();
+		else
+			return hdb.optimize();
+	}
+
+	public boolean vanish() throws KeyValueStoreUnavailable {
+		assertWriteable();
+		if (btree)
+			return bdb.vanish();
+		else
+			return hdb.vanish();
+	}
+
+	private static class NullIterator implements Iterator<String> {
+
+		public boolean hasNext() {
+			return false;
+		}
+
+		public String next() {
+			return null;
+		}
+
+		public void remove() {
+		}
+	}
 }

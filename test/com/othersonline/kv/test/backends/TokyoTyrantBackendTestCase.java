@@ -19,6 +19,11 @@ public class TokyoTyrantBackendTestCase extends KeyValueStoreBackendTestCase {
 		assertEquals(fwmkeys.length, 2);
 		assertEquals(fwmkeys[0], keys[0]);
 		assertEquals(fwmkeys[1], keys[1]);
+		
+		assertTrue(store.size() > 0);
+		assertTrue(store.rnum() > 0);
+		assertTrue(store.getStats() != null);
+
 		for (String key : keys) {
 			store.delete(key);
 		}
