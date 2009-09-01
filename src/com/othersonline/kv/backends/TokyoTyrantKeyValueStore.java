@@ -606,6 +606,15 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			return rdb;
 		}
 
+		public void destroyObject(Object obj) {
+			try {
+				RDB rdb = (RDB) obj;
+				rdb.close();
+			} catch(Exception e) {
+				log.error("destroyObject failed:" + e.getMessage());
+			}
+		}
+
 		public boolean validateObject(Object obj) {
 			boolean result = false;
 			try {
