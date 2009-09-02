@@ -18,6 +18,8 @@ public abstract class AbstractConnectionFactory implements ConnectionFactory {
 		KeyValueStore store = backends.get(uri);
 		if (store == null) {
 			synchronized (this) {
+				// check again...
+				store = backends.get(uri);
 				if (store == null) {
 					// yes i realize this is an anti-pattern. if we create an
 					// extra connection here and there nobody is going to care.

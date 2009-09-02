@@ -147,6 +147,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	}
 
 	public void start() throws IOException {
+		log.warn("Creating connection pool.");
 		connectionPool = new GenericObjectPool(new RDBConnectionFactory(host,
 				port, socketTimeout), maxActive,
 				GenericObjectPool.WHEN_EXHAUSTED_BLOCK, maxWait, maxIdle,
@@ -215,10 +216,11 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("SocketTimeoutException inside get(): " + e.getMessage());
+			log.error("Unable to get value for key. Socket timeout on "+host+":"+port+" "
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
-			log.error("Unable to get value for key. " + e.getMessage());
+			log.error("Unable to get value for key. "+host+":"+port+" " + e.getMessage());
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
@@ -241,11 +243,11 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("Unable to get value for key. Socket timeout. "
+			log.error("Unable to get value for key. Socket timeout on "+host+":"+port+" "
 					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
-			log.error("Unable to get value for key. " + e.getMessage());
+			log.error("Unable to get value for key. "+host+":"+port+" " + e.getMessage());
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
@@ -597,6 +599,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		public Object makeObject() throws Exception {
 			RDB rdb = new RDB();
 			try {
+				log.warn("Creating connection to "+host+":"+port);
+				
 				rdb.open(new InetSocketAddress(host, port), socketTimeout);
 			} catch (ConnectException e) {
 				log.error(String.format("Could not connect to %1$s:%2$d", host,
@@ -608,6 +612,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 
 		public void destroyObject(Object obj) {
 			try {
+				log.warn("Closing connection to "+host+":"+port);
 				RDB rdb = (RDB) obj;
 				rdb.close();
 			} catch(Exception e) {
@@ -618,18 +623,19 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		public boolean validateObject(Object obj) {
 			boolean result = false;
 			try {
+				log.warn("Validating connection to "+host+":"+port);
 				RDB rdb = (RDB) obj;
 				long rnum = rdb.rnum();
 				result = true;
 			} catch (SocketTimeoutException e) {
 				log
-						.error("validateObject() failed due to java.net.SocketTimeoutException. Connection to Tokyo Tyrant is broken"
+						.error("validateObject() failed due to java.net.SocketTimeoutException. Connection to Tokyo Tyrant is broken. "
 								+ e.getMessage());
 				result = false;
 			} catch (Exception e) {
 				log
 						.error(
-								"validateObject() failed. Connection to Tokyo Tyrant is broken",
+								"validateObject() failed. Connection to Tokyo Tyrant is broken. ",
 								e);
 				result = false;
 			}
