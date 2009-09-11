@@ -48,6 +48,10 @@ public class DefaultDistributedKeyValueStore implements
 	public DefaultDistributedKeyValueStore() {
 	}
 
+	public Configuration getConfiguration() {
+		return config;
+	}
+
 	public void setConfiguration(Configuration config) {
 		this.config = config;
 	}

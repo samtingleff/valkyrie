@@ -6,6 +6,8 @@ import com.othersonline.kv.KeyValueStoreException;
 
 public interface DistributedKeyValueStore {
 
+	public Configuration getConfiguration();
+
 	public List<Context<byte[]>> getContexts(String key) throws KeyValueStoreException;
 
 	public Context<byte[]> get(String key) throws KeyValueStoreException;

@@ -32,6 +32,8 @@ public class DistributedKeyValueStoreClientImpl extends
 
 	private Configurator configurator;
 
+	private Configuration config;
+
 	private DefaultDistributedKeyValueStore store;
 
 	private Transcoder defaultTranscoder = new SerializingTranscoder();
@@ -55,7 +57,7 @@ public class DistributedKeyValueStoreClientImpl extends
 	@Override
 	public void start() throws IOException {
 		try {
-			Configuration config = configurator.getConfiguration();
+			this.config = configurator.getConfiguration();
 			ConnectionFactory connectionFactory = config.getConnectionFactory();
 			OperationQueue syncOpQueue = config.getSyncOperationQueue();
 			syncOpQueue.setConnectionFactory(connectionFactory);
@@ -267,6 +269,10 @@ public class DistributedKeyValueStoreClientImpl extends
 		} finally {
 			log(key, "delete", System.currentTimeMillis() - start, success);
 		}
+	}
+
+	public Configuration getConfiguration() {
+		return config;
 	}
 
 	private void log(String key, String op, long duration, boolean success) {
