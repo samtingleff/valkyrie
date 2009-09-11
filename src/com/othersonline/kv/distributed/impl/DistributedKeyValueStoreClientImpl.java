@@ -1,6 +1,7 @@
 package com.othersonline.kv.distributed.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,9 @@ import com.othersonline.kv.distributed.Configuration;
 import com.othersonline.kv.distributed.ConfigurationException;
 import com.othersonline.kv.distributed.Configurator;
 import com.othersonline.kv.distributed.Context;
+import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationQueue;
+import com.othersonline.kv.distributed.OperationResult;
 import com.othersonline.kv.distributed.hashing.MD5HashAlgorithm;
 import com.othersonline.kv.transcoder.SerializingTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
@@ -28,6 +31,8 @@ public class DistributedKeyValueStoreClientImpl extends
 	private static OperationLog log = OperationLog.getInstance();
 
 	private Configurator configurator;
+
+	private Configuration config;
 
 	private DefaultDistributedKeyValueStore store;
 
@@ -52,7 +57,7 @@ public class DistributedKeyValueStoreClientImpl extends
 	@Override
 	public void start() throws IOException {
 		try {
-			Configuration config = configurator.getConfiguration();
+			this.config = configurator.getConfiguration();
 			ConnectionFactory connectionFactory = config.getConnectionFactory();
 			OperationQueue syncOpQueue = config.getSyncOperationQueue();
 			syncOpQueue.setConnectionFactory(connectionFactory);
@@ -133,12 +138,45 @@ public class DistributedKeyValueStoreClientImpl extends
 		}
 	}
 
-	public Map<String, Object> getBulk(String... keys)
-	throws KeyValueStoreException, IOException {
-		return getBulk(defaultTranscoder,keys);
+	public <V> List<Context<V>> getContexts(String key)
+			throws KeyValueStoreException, IOException {
+		return getContexts(key, defaultTranscoder);
 	}
-	
-	public Map<String, Object> getBulk(Transcoder transcoder,String... keys)
+
+	public <V> List<Context<V>> getContexts(String key, Transcoder transcoder)
+			throws KeyValueStoreException, IOException {
+		long start = System.currentTimeMillis();
+		boolean success = true;
+		try {
+			assertReadable();
+			List<Context<byte[]>> contexts = store.getContexts(key);
+			List<Context<V>> results = new ArrayList<Context<V>>(contexts
+					.size());
+			for (Context<byte[]> context : contexts) {
+				byte[] bytes = context.getValue();
+				V value = (bytes != null) ? (V) transcoder.decode(bytes) : null;
+				Operation<V> op = new GetOperation<V>(transcoder, key);
+				OperationResult<V> operationResult = new DefaultOperationResult<V>(
+						op, value, context.getResult().getStatus(), context
+								.getResult().getDuration(), context.getResult()
+								.getError());
+				Context<V> ctx = new DefaultContext<V>(operationResult, context
+						.getSourceNode(), context.getNodeRank(), context
+						.getVersion(), context.getKey(), value);
+				results.add(ctx);
+			}
+			return results;
+		} finally {
+			log(key, "getContexts", System.currentTimeMillis() - start, success);
+		}
+	}
+
+	public Map<String, Object> getBulk(String... keys)
+			throws KeyValueStoreException, IOException {
+		return getBulk(defaultTranscoder, keys);
+	}
+
+	public Map<String, Object> getBulk(Transcoder transcoder, String... keys)
 			throws KeyValueStoreException, IOException {
 		long start = System.currentTimeMillis();
 		boolean success = true;
@@ -146,16 +184,14 @@ public class DistributedKeyValueStoreClientImpl extends
 			assertReadable();
 			Map<String, Object> map = new HashMap<String, Object>();
 			List<BulkContext<byte[]>> contexts;
-			
+
 			contexts = store.getBulkContexts(keys);
-			for (BulkContext<byte[]> context: contexts)
-			{
-				Map<String,byte[]> values = context.getValues();
-				
-				for (Map.Entry<String, byte[]> entry : values.entrySet())
-				{
+			for (BulkContext<byte[]> context : contexts) {
+				Map<String, byte[]> values = context.getValues();
+
+				for (Map.Entry<String, byte[]> entry : values.entrySet()) {
 					Object obj;
-					byte[] bytes = entry.getValue(); 
+					byte[] bytes = entry.getValue();
 					obj = transcoder.decode(bytes);
 
 					// TODO deal with multiple values for same key
@@ -165,7 +201,7 @@ public class DistributedKeyValueStoreClientImpl extends
 						map.put(entry.getKey(), obj);
 				}
 			}
-			
+
 			return map;
 		} catch (KeyValueStoreException e1) {
 			success = false;
@@ -180,20 +216,20 @@ public class DistributedKeyValueStoreClientImpl extends
 
 	public Map<String, Object> getBulk(List<String> keys)
 			throws KeyValueStoreException, IOException {
-		
-		// doing a cast of keys.toArray() to (String[]) causes a ClassCastException
+
+		// doing a cast of keys.toArray() to (String[]) causes a
+		// ClassCastException
 		String[] strings = new String[keys.size()];
-		for (int i=0; i < keys.size(); i++)
-		{
-			strings[i]= keys.get(i);
+		for (int i = 0; i < keys.size(); i++) {
+			strings[i] = keys.get(i);
 		}
-		
-		return getBulk(defaultTranscoder,strings);
+
+		return getBulk(defaultTranscoder, strings);
 	}
 
 	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
-			throws KeyValueStoreException, IOException {		
-		return getBulk(transcoder,(String[])keys.toArray());
+			throws KeyValueStoreException, IOException {
+		return getBulk(transcoder, (String[]) keys.toArray());
 	}
 
 	public void set(String key, Object value) throws KeyValueStoreException,
@@ -233,6 +269,10 @@ public class DistributedKeyValueStoreClientImpl extends
 		} finally {
 			log(key, "delete", System.currentTimeMillis() - start, success);
 		}
+	}
+
+	public Configuration getConfiguration() {
+		return config;
 	}
 
 	private void log(String key, String op, long duration, boolean success) {
