@@ -42,6 +42,9 @@ public abstract class KeyValueStoreBackendTestCase extends TestCase {
 		assertNull(store.get(key));
 		assertFalse(store.exists(key));
 
+		store.set(key, "hello world");
+		assertEquals(store.get(key), "hello world");
+
 		SampleV v = new SampleV(10, "hello world", 12);
 		store.set(key, v);
 		Thread.sleep(100l);
