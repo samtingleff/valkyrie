@@ -142,7 +142,7 @@ public abstract class KeyValueStoreBackendTestCase extends TestCase {
 		assertEquals(store.getStatus(), KeyValueStoreStatus.Online);
 	}
 
-	public static class SampleV implements Serializable {
+	public static class SampleV implements Serializable, Comparable<SampleV> {
 		private static final long serialVersionUID = 7278340350600213753L;
 
 		public int someRequiredInt;
@@ -159,6 +159,19 @@ public abstract class KeyValueStoreBackendTestCase extends TestCase {
 			this.someRequiredInt = someRequiredInt;
 			this.someString = someString;
 			this.someOptionalDouble = someOptionalDouble;
+		}
+
+		public boolean equals(SampleV v) {
+			return someRequiredInt == v.someRequiredInt
+					&& someString.equals(v.someString)
+					&& someOptionalDouble == v.someOptionalDouble;
+		}
+
+		public int compareTo(SampleV v) {
+			int result = new Integer(someRequiredInt).compareTo(new Integer(v.someRequiredInt));
+			result = (result == 0) ? (someString.compareTo(v.someString)) : result;
+			result = (result == 0) ? (new Double(someOptionalDouble).compareTo(new Double(v.someOptionalDouble))) : result;
+			return result;
 		}
 
 	}
