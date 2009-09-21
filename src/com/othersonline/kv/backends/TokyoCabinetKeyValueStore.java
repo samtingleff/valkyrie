@@ -79,6 +79,10 @@ public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore {
 			hdb.close();
 	}
 
+	public String getFile() {
+		return path;
+	}
+
 	@Configurable(name = "file", accepts = Type.StringType)
 	public void setFile(String path) {
 		this.path = path;
