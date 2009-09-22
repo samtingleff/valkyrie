@@ -86,6 +86,15 @@ public class DefaultDistributedKeyValueStore implements
 	}
 
 	/**
+	 * Low-level method to return node list for a given key.
+	 */
+	public List<Node> getPreferenceList(String key, int replicas) {
+		if (log.isTraceEnabled())
+			log.trace(String.format("getPreferenceList(%1$s, %2$d)", key, replicas));
+		return nodeLocator.getPreferenceList(hash, key, replicas);
+	}
+
+	/**
 	 * Low-level method to retrieve all versions for a given key.
 	 */
 	public List<Context<byte[]>> getContexts(String key)

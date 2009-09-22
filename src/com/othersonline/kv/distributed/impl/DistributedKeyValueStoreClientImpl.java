@@ -16,6 +16,7 @@ import com.othersonline.kv.distributed.Configuration;
 import com.othersonline.kv.distributed.ConfigurationException;
 import com.othersonline.kv.distributed.Configurator;
 import com.othersonline.kv.distributed.Context;
+import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationQueue;
 import com.othersonline.kv.distributed.OperationResult;
@@ -136,6 +137,10 @@ public class DistributedKeyValueStoreClientImpl extends
 		} finally {
 			log(key, "get", System.currentTimeMillis() - start, success);
 		}
+	}
+
+	public List<Node> getPreferenceList(String key, int replicas) {
+		return store.getPreferenceList(key, replicas);
 	}
 
 	public <V> List<Context<V>> getContexts(String key)
