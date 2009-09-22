@@ -90,82 +90,109 @@ public class DefaultDistributedKeyValueStore implements
 	 */
 	public List<Node> getPreferenceList(String key, int replicas) {
 		if (log.isTraceEnabled())
-			log.trace(String.format("getPreferenceList(%1$s, %2$d)", key, replicas));
+			log.trace(String.format("getPreferenceList(%1$s, %2$d)", key,
+					replicas));
 		return nodeLocator.getPreferenceList(hash, key, replicas);
 	}
 
 	/**
 	 * Low-level method to retrieve all versions for a given key.
 	 */
-	public List<Context<byte[]>> getContexts(String key)
+	public List<Context<byte[]>> getContexts(String key, boolean considerNullAsSuccess)
 			throws KeyValueStoreException {
 		if (log.isTraceEnabled())
 			log.trace(String.format("getContexts(%1$s)", key));
 
-		// ask for a response from n nodes
-		List<Node> nodeList = nodeLocator.getPreferenceList(hash, key, config
-				.getReadReplicas());
+		long start = System.currentTimeMillis();
+
+		List<Node> nodeList = nodeLocator.getFullPreferenceList(hash, key);
 
 		Operation<byte[]> op = new GetOperation<byte[]>(transcoder, key);
-		ResultsCollecter<OperationResult<byte[]>> results = operationHelper
-				.call(syncOperationQueue, op, nodeList, config
-						.getRequiredReads(), config.getReadOperationTimeout());
 
-		results.stop();
-		List<Context<byte[]>> retval = new ArrayList<Context<byte[]>>(results
-				.size());
-		for (OperationResult<byte[]> result : results) {
-			Context<byte[]> context = contextSerializer.extractContext(result);
-			retval.add(context);
+		List<Context<byte[]>> retval = new ArrayList<Context<byte[]>>();
+
+		int offset = 0;
+
+		// While time remaining, ask the next r nodes for a response.
+		while ((System.currentTimeMillis() - start) < config
+				.getReadOperationTimeout()) {
+			if (log.isDebugEnabled()) {
+				log.debug("Reaching into node list at offset " + offset
+						+ " for " + config.getReadReplicas() + " nodes");
+			}
+			int toIndex = Math.min(offset + config.getReadReplicas(), nodeList.size());
+			if (offset > toIndex)
+				break;
+			List<Node> nodeSublist = nodeList.subList(offset, Math.min(offset
+					+ config.getReadReplicas(), nodeList.size()));
+
+			if (nodeSublist.size() == 0)
+				break;
+
+			// ask for results from n nodes with a given offset and timeout
+			ResultsCollecter<OperationResult<byte[]>> results = operationHelper
+					.call(syncOperationQueue, op, nodeSublist, config
+							.getRequiredReads(), config
+							.getReadOperationTimeout()
+							- (System.currentTimeMillis() - start), considerNullAsSuccess);
+			results.stop();
+			for (OperationResult<byte[]> result : results) {
+				Context<byte[]> context = contextSerializer
+						.extractContext(result);
+				retval.add(context);
+			}
+			if (retval.size() >= config.getRequiredReads())
+				break;
+			offset += config.getReadReplicas();
 		}
 		return retval;
 	}
-
 
 	/**
 	 * Low-level method to retrieve all versions for a set of keys.
 	 */
 	public List<BulkContext<byte[]>> getBulkContexts(String... keys)
 			throws KeyValueStoreException {
-		
+
 		List<BulkContext<byte[]>> retval;
-		
-		Map<Integer,Node> nodes=new HashMap<Integer,Node>();
-		List<Node> nodeList = new ArrayList<Node>(); 
+
+		Map<Integer, Node> nodes = new HashMap<Integer, Node>();
+		List<Node> nodeList = new ArrayList<Node>();
 
 		// generate list of distinct nodes for all keys
 		{
-			for (String key : keys)
-			{
-				List<Node> readNodes = nodeLocator.getPreferenceList(hash, key, config
-						.getReadReplicas());
+			for (String key : keys) {
+				List<Node> readNodes = nodeLocator.getPreferenceList(hash, key,
+						config.getReadReplicas());
 				for (Node node : readNodes) {
 					nodes.put(node.getId(), node);
 				}
 			}
 			nodeList.addAll(nodes.values());
 		}
-		
+
 		// ask for a response from n nodes
 		{
 			Operation<byte[]> op;
 			ResultsCollecter<OperationResult<byte[]>> results;
 
-			op = new GetBulkOperation<byte[]>(transcoder, keys);			
-			results = operationHelper.call(syncOperationQueue, op, nodeList, config
-							.getRequiredReads(), config.getReadOperationTimeout());
+			op = new GetBulkOperation<byte[]>(transcoder, keys);
+			results = operationHelper.call(syncOperationQueue, op, nodeList,
+					config.getRequiredReads(),
+					config.getReadOperationTimeout(), true);
 			results.stop();
-			
+
 			retval = new ArrayList<BulkContext<byte[]>>(results.size());
-			
+
 			for (OperationResult<byte[]> result : results) {
-				BulkContext<byte[]> context = contextSerializer.extractBulkContext((BulkOperationResult<byte[]>)result);
+				BulkContext<byte[]> context = contextSerializer
+						.extractBulkContext((BulkOperationResult<byte[]>) result);
 				retval.add(context);
 			}
 		}
 		return retval;
 	}
-	
+
 	public Context<byte[]> get(String key) throws KeyValueStoreException {
 		if (log.isTraceEnabled())
 			log.trace(String.format("get(%1$s)", key));
@@ -176,19 +203,19 @@ public class DefaultDistributedKeyValueStore implements
 			throws KeyValueStoreException {
 		if (log.isTraceEnabled())
 			log.trace(String.format("get(%1$s, %2$s)", key, filter));
-		
-		List<Context<byte[]>> contexts = getContexts(key);
+
+		List<Context<byte[]>> contexts = getContexts(key, true);
 		ContextFilterResult<byte[]> filtered = filter.filter(contexts);
 		Context<byte[]> result = filtered.getContext();
 		List<Operation<byte[]>> additionalOperations = filtered
-		.getAdditionalOperations();
-		
+				.getAdditionalOperations();
+
 		if (additionalOperations != null) {
 			for (Operation<byte[]> op : additionalOperations) {
 				asyncOperationQueue.submit(op);
 			}
 		}
-		
+
 		return result;
 	}
 
@@ -205,7 +232,8 @@ public class DefaultDistributedKeyValueStore implements
 				serializedData);
 		ResultsCollecter<OperationResult<byte[]>> results = operationHelper
 				.call(syncOperationQueue, op, nodeList, config
-						.getRequiredWrites(), config.getWriteOperationTimeout());
+						.getRequiredWrites(),
+						config.getWriteOperationTimeout(), true);
 	}
 
 	public void set(String key, Context<byte[]> bytes) {
@@ -225,6 +253,7 @@ public class DefaultDistributedKeyValueStore implements
 		Operation<byte[]> op = new DeleteOperation<byte[]>(key);
 		ResultsCollecter<OperationResult<byte[]>> results = operationHelper
 				.call(syncOperationQueue, op, nodeList, config
-						.getRequiredWrites(), config.getWriteOperationTimeout());
+						.getRequiredWrites(),
+						config.getWriteOperationTimeout(), true);
 	}
 }

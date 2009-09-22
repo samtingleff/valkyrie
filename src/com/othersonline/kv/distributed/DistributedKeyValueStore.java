@@ -8,7 +8,7 @@ public interface DistributedKeyValueStore {
 
 	public Configuration getConfiguration();
 
-	public List<Context<byte[]>> getContexts(String key) throws KeyValueStoreException;
+	public List<Context<byte[]>> getContexts(String key, boolean considerNullAsSuccess) throws KeyValueStoreException;
 
 	public Context<byte[]> get(String key) throws KeyValueStoreException;
 

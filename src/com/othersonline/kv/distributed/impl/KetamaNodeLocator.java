@@ -48,11 +48,14 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 
 	private volatile HashRing<Long, Node> ketamaNodes = null;
 
+	private volatile int nodeCount = 0;
+
 	public KetamaNodeLocator() {
 	}
 
 	public void setActiveNodes(List<Node> nodes) {
 		ketamaNodes = build(nodes);
+		nodeCount = nodes.size();
 	}
 
 	public int getPrimaryNode(HashAlgorithm hashAlg, String key) {
@@ -73,7 +76,7 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 	}
 
 	public List<Node> getFullPreferenceList(HashAlgorithm hashAlg, String key) {
-		return getPreferenceList(hashAlg, key, ketamaNodes.size());
+		return getPreferenceList(hashAlg, key, nodeCount);
 	}
 
 	private HashRing<Long, Node> build(List<Node> nodes) {

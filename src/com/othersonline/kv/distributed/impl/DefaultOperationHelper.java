@@ -24,7 +24,8 @@ public class DefaultOperationHelper {
 
 	public <V> ResultsCollecter<OperationResult<V>> call(
 			OperationQueue operationQueue, Operation<V> operation,
-			List<Node> nodeList, int requiredResponses, long operationTimeout)
+			List<Node> nodeList, int requiredResponses, long operationTimeout,
+			boolean considerNullAsSuccess)
 			throws InsufficientResponsesException {
 		long start = System.currentTimeMillis();
 
@@ -42,26 +43,33 @@ public class DefaultOperationHelper {
 
 			private AtomicInteger successCounter;
 
+			private boolean considerNullAsSuccess;
+
 			private ResultsCollecter<OperationResult<V>> resultCollecter;
 
 			public OperationCallback<V> init(CountDownLatch latch,
 					AtomicInteger successCounter,
+					boolean considerNullAsSuccess,
 					ResultsCollecter<OperationResult<V>> resultCollecter) {
 				this.latch = latch;
 				this.successCounter = successCounter;
+				this.considerNullAsSuccess = considerNullAsSuccess;
 				this.resultCollecter = resultCollecter;
 				return this;
 			}
 
 			public void completed(OperationResult<V> result) {
 				resultCollecter.add(result);
-				if (result.getStatus().equals(OperationStatus.Success)
-						|| result.getStatus().equals(OperationStatus.NullValue)) {
+				latch.countDown();
+				if (result.getStatus().equals(OperationStatus.Success)) {
 					successCounter.incrementAndGet();
-					latch.countDown();
+				}
+				if ((result.getStatus().equals(OperationStatus.NullValue))
+						&& (considerNullAsSuccess)) {
+					successCounter.incrementAndGet();
 				}
 			}
-		}.init(latch, successCounter, resultCollecter);
+		}.init(latch, successCounter, considerNullAsSuccess, resultCollecter);
 		for (int i = 0; i < nodeList.size(); ++i) {
 			Operation<V> op = operation.copy();
 			op.setCallback(callback);

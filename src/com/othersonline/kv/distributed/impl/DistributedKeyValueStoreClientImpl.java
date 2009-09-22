@@ -143,18 +143,18 @@ public class DistributedKeyValueStoreClientImpl extends
 		return store.getPreferenceList(key, replicas);
 	}
 
-	public <V> List<Context<V>> getContexts(String key)
+	public <V> List<Context<V>> getContexts(String key, boolean considerNullAsSuccess)
 			throws KeyValueStoreException, IOException {
-		return getContexts(key, defaultTranscoder);
+		return getContexts(key, defaultTranscoder, considerNullAsSuccess);
 	}
 
-	public <V> List<Context<V>> getContexts(String key, Transcoder transcoder)
+	public <V> List<Context<V>> getContexts(String key, Transcoder transcoder, boolean considerNullAsSuccess)
 			throws KeyValueStoreException, IOException {
 		long start = System.currentTimeMillis();
 		boolean success = true;
 		try {
 			assertReadable();
-			List<Context<byte[]>> contexts = store.getContexts(key);
+			List<Context<byte[]>> contexts = store.getContexts(key, considerNullAsSuccess);
 			List<Context<V>> results = new ArrayList<Context<V>>(contexts
 					.size());
 			for (Context<byte[]> context : contexts) {
