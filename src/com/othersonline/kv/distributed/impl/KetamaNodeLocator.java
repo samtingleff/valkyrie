@@ -72,6 +72,10 @@ public class KetamaNodeLocator implements NodeLocator, NodeChangeListener {
 		return results;
 	}
 
+	public List<Node> getFullPreferenceList(HashAlgorithm hashAlg, String key) {
+		return getPreferenceList(hashAlg, key, ketamaNodes.size());
+	}
+
 	private HashRing<Long, Node> build(List<Node> nodes) {
 		HashRing<Long, Node> ketamaNodes = new HashRing<Long, Node>(nodes
 				.size());

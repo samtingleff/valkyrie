@@ -74,6 +74,17 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 	}
 
 	/**
+	 * Return the full ranked node list for a given key.
+	 * 
+	 * @param hashAlg
+	 * @param key
+	 * @return
+	 */
+	public List<Node> getFullPreferenceList(HashAlgorithm hashAlg, String key) {
+		return getPreferenceList(hashAlg, key, outerRing.size());
+	}
+
+	/**
 	 * Return the primary token for a given key. Provided for unit testing.
 	 * 
 	 * @param hashAlg
