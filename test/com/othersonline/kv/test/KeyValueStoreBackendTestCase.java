@@ -2,6 +2,7 @@ package com.othersonline.kv.test;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.management.MBeanInfo;
@@ -15,6 +16,8 @@ import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreStatus;
 import com.othersonline.kv.KeyValueStoreUnavailable;
 import com.othersonline.kv.ManagedKeyValueStore;
+import com.othersonline.kv.backends.IterableKeyValueStore;
+import com.othersonline.kv.backends.KeyValueStoreIterator;
 import com.othersonline.kv.mgmt.JMXMbeanServerFactory;
 import com.othersonline.kv.transcoder.ByteArrayTranscoder;
 import com.othersonline.kv.transcoder.SerializableTranscoder;
@@ -73,6 +76,10 @@ public abstract class KeyValueStoreBackendTestCase extends TestCase {
 				new ByteArrayTranscoder());
 		assertEquals(map.size(), 1);
 
+		// test iterator if applicable
+		if (store instanceof IterableKeyValueStore)
+			doTestIterator((IterableKeyValueStore) store);
+
 		// set status to read only
 		store.setStatus(KeyValueStoreStatus.ReadOnly);
 		SampleV v3 = (SampleV) store.get(key);
@@ -98,6 +105,18 @@ public abstract class KeyValueStoreBackendTestCase extends TestCase {
 		assertNull(store.get(key));
 
 		doTestJMX(store);
+	}
+
+	private void doTestIterator(IterableKeyValueStore store) throws Exception {
+		int keyCount = 0;
+		KeyValueStoreIterator storeIterator = store.iterkeys();
+		Iterator<String> iter = storeIterator.iterator();
+		while (iter.hasNext()) {
+			String s = iter.next();
+			++keyCount;
+		}
+		assertTrue(keyCount > 0);
+		storeIterator.close();
 	}
 
 	private void doTestTransactions(TransactionalKeyValueStore store)

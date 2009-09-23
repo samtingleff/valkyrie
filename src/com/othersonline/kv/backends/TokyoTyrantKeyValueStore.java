@@ -5,6 +5,7 @@ import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,13 +24,12 @@ import tokyotyrant.transcoder.SerializingTranscoder;
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
-import com.othersonline.kv.KeyValueStoreUnavailable;
 import com.othersonline.kv.annotations.Configurable;
 import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.Transcoder;
 
 public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
-		implements KeyValueStore {
+		implements KeyValueStore, IterableKeyValueStore {
 	public enum Locking {
 		Record(RDB.XOLCKREC), Global(RDB.XOLCKGLB);
 		private int rdbLockPolicy;
@@ -216,11 +216,12 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("Unable to get value for key. Socket timeout on "+host+":"+port+" "
-					+ e.getMessage());
+			log.error("Unable to get value for key. Socket timeout on " + host
+					+ ":" + port + " " + e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
-			log.error("Unable to get value for key. "+host+":"+port+" " + e.getMessage());
+			log.error("Unable to get value for key. " + host + ":" + port + " "
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
@@ -243,11 +244,12 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (SocketTimeoutException e) {
-			log.error("Unable to get value for key. Socket timeout on "+host+":"+port+" "
-					+ e.getMessage());
+			log.error("Unable to get value for key. Socket timeout on " + host
+					+ ":" + port + " " + e.getMessage());
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
-			log.error("Unable to get value for key. "+host+":"+port+" " + e.getMessage());
+			log.error("Unable to get value for key. " + host + ":" + port + " "
+					+ e.getMessage());
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
@@ -493,6 +495,29 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
+	public KeyValueStoreIterator iterkeys() throws KeyValueStoreException {
+		assertWriteable();
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			TokyoTyrantKeyIterator iter = new TokyoTyrantKeyIterator(rdb);
+			iter.iterinit();
+			return iter;
+		} catch (NoSuchElementException e) {
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
+			throw new KeyValueStoreException(e);
+		} catch (SocketTimeoutException e) {
+			log.error("SocketTimeoutException inside fwmkeys(): "
+					+ e.getMessage());
+			throw new KeyValueStoreException(e);
+		} catch (Exception e) {
+			log.error("Exception inside fwmkeys()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+		}
+	}
+
 	public Object[] fwmkeys(String prefix, int max)
 			throws KeyValueStoreException {
 		assertReadable();
@@ -581,6 +606,48 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 	}
 
+	private class TokyoTyrantKeyIterator implements KeyValueStoreIterator,
+			Iterator<String> {
+		private RDB rdb;
+
+		private String next;
+
+		public TokyoTyrantKeyIterator(RDB rdb) {
+			this.rdb = rdb;
+		}
+
+		public boolean iterinit() throws IOException {
+			return rdb.iterinit();
+		}
+
+		public void close() {
+			releaseRDB(rdb);
+		}
+
+		public Iterator<String> iterator() {
+			return this;
+		}
+
+		public boolean hasNext() {
+			try {
+				next = (String) rdb.iternext();
+				return (next != null);
+			} catch (IOException e) {
+				log.error("IOException calling hasNext()", e);
+				return false;
+			}
+		}
+
+		public String next() {
+			return next;
+		}
+
+		public void remove() {
+			throw new RuntimeException("remove() is not implemented");
+		}
+
+	}
+
 	private static class RDBConnectionFactory extends BasePoolableObjectFactory {
 		private Log log = LogFactory.getLog(getClass());
 
@@ -599,8 +666,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		public Object makeObject() throws Exception {
 			RDB rdb = new RDB();
 			try {
-				log.warn("Creating connection to "+host+":"+port);
-				
+				log.warn("Creating connection to " + host + ":" + port);
+
 				rdb.open(new InetSocketAddress(host, port), socketTimeout);
 			} catch (ConnectException e) {
 				log.error(String.format("Could not connect to %1$s:%2$d", host,
@@ -612,10 +679,10 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 
 		public void destroyObject(Object obj) {
 			try {
-				log.warn("Closing connection to "+host+":"+port);
+				log.warn("Closing connection to " + host + ":" + port);
 				RDB rdb = (RDB) obj;
 				rdb.close();
-			} catch(Exception e) {
+			} catch (Exception e) {
 				log.error("destroyObject failed:" + e.getMessage());
 			}
 		}
@@ -623,7 +690,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		public boolean validateObject(Object obj) {
 			boolean result = false;
 			try {
-				log.warn("Validating connection to "+host+":"+port);
+				log.warn("Validating connection to " + host + ":" + port);
 				RDB rdb = (RDB) obj;
 				long rnum = rdb.rnum();
 				result = true;
