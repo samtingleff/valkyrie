@@ -70,10 +70,11 @@ public class ValkyrieRebalance implements Runnable, Callable<Map<String, Long>> 
 		DistributedKeyValueStoreClientImpl valkyrie = getDestination();
 
 		long moved = 0, unmoved = 0;
+		int writeReplicas = Integer.parseInt(props.getProperty("write.replicas"));
 		Iterator<String> iter = src.iterkeys().iterator();
 		while (iter.hasNext()) {
 			String key = iter.next();
-			List<Node> preferenceList = valkyrie.getPreferenceList(key, Integer.parseInt(props.getProperty("write.replicas")));
+			List<Node> preferenceList = valkyrie.getPreferenceList(key, writeReplicas);
 			boolean set = true;
 			for (Node node : preferenceList) {
 				if (node.getId() == nodeId) {
