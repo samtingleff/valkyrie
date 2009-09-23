@@ -22,7 +22,7 @@ import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.SerializableTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 
-public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore {
+public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore implements IterableKeyValueStore {
 	public static final String IDENTIFIER = "tokyocabinet";
 
 	private Log log = LogFactory.getLog(getClass());
@@ -160,27 +160,12 @@ public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore {
 		dbm.out(key);
 	}
 
-	public Iterator<String> iterkeys() throws KeyValueStoreUnavailable {
+	public KeyValueStoreIterator iterkeys() throws KeyValueStoreUnavailable {
 		assertReadable();
 		if (!dbm.iterinit())
 			return new NullIterator();
 		else {
-			Iterator<String> iter = new Iterator<String>() {
-				String nextKey = null;
-
-				public boolean hasNext() {
-					nextKey = dbm.iternext2();
-					return (nextKey != null);
-				}
-
-				public String next() {
-					return nextKey;
-				}
-
-				public void remove() {
-				}
-			};
-			return iter;
+			return new TokyoCabinetIterator(dbm);
 		}
 	}
 
@@ -235,7 +220,37 @@ public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore {
 			return hdb.vanish();
 	}
 
-	private static class NullIterator implements Iterator<String> {
+	private class TokyoCabinetIterator implements KeyValueStoreIterator, Iterator<String> {
+		private DBM dbm;
+		private String next;
+		public TokyoCabinetIterator(DBM dbm) {
+			this.dbm = dbm;
+		}
+
+		public Iterator<String> iterator() {
+			return this;
+		}
+		public void close() {
+		}
+
+		public boolean hasNext() {
+			next = dbm.iternext2();
+			return (next != null);
+		}
+
+		public String next() {
+			return next;
+		}
+
+		public void remove() {
+			dbm.out(next);
+		}
+		
+	}
+	private static class NullIterator implements KeyValueStoreIterator, Iterator<String> {
+		public Iterator<String> iterator() {
+			return this;
+		}
 
 		public boolean hasNext() {
 			return false;
@@ -246,6 +261,9 @@ public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore {
 		}
 
 		public void remove() {
+		}
+
+		public void close() {
 		}
 	}
 }

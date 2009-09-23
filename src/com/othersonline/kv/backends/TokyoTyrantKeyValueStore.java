@@ -643,7 +643,12 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		}
 
 		public void remove() {
-			throw new RuntimeException("remove() is not implemented");
+			try {
+				rdb.out(next);
+			} catch (IOException e) {
+				log.error("IOException calling remove()", e);
+				throw new RuntimeException(e);
+			}
 		}
 
 	}
