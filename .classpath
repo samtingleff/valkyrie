@@ -18,7 +18,6 @@
 	<classpathentry kind="lib" path="lib/commons-pool-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/jsdk-24.jar"/>
 	<classpathentry kind="lib" path="lib/spring-2.5.6.jar"/>
-	<classpathentry kind="lib" path="lib/args4j-2.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/je-3.3.75.jar"/>
 	<classpathentry kind="lib" path="lib/voldemort-0.4a.jar"/>
 	<classpathentry kind="lib" path="lib/jdom.jar"/>
@@ -29,5 +28,6 @@
 	<classpathentry kind="lib" path="test-lib/simple-jndi-0.11.4.jar"/>
 	<classpathentry kind="lib" path="lib/tokyotyrant-0.9.jar"/>
 	<classpathentry kind="lib" path="lib/tokyocabinet-1.20.jar"/>
+	<classpathentry kind="lib" path="lib/args4j-2.0.12.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
