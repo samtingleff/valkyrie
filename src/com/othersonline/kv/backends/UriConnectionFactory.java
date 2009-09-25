@@ -84,6 +84,8 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 			store = new ThriftKeyValueStore();
 		else if ("tyrant".equals(type))
 			store = new TokyoTyrantKeyValueStore();
+		else if ("cabinet".equals(type))
+			store = new TokyoCabinetKeyValueStore();
 		else if ("voldemort".equals(type))
 			store = new VoldemortKeyValueStore();
 		else if ("dav".equals(type))

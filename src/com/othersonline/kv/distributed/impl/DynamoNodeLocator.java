@@ -32,6 +32,8 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 
 	private volatile int maxNodeIterations = 0;
 
+	private volatile int nodeCount = 0;
+
 	public DynamoNodeLocator(int tokensPerNode) {
 		this.tokensPerNode = tokensPerNode;
 	}
@@ -71,6 +73,17 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 			++stopLimit;
 		}
 		return results;
+	}
+
+	/**
+	 * Return the full ranked node list for a given key.
+	 * 
+	 * @param hashAlg
+	 * @param key
+	 * @return
+	 */
+	public List<Node> getFullPreferenceList(HashAlgorithm hashAlg, String key) {
+		return getPreferenceList(hashAlg, key, nodeCount);
 	}
 
 	/**
@@ -134,6 +147,7 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 		}
 		maxNodeIterations = tokensPerNode * nodes.size();
 		outerRing = newRing;
+		nodeCount = nodes.size();
 	}
 
 	private static class Token {

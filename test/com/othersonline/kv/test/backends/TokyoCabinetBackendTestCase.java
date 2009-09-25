@@ -54,7 +54,7 @@ public class TokyoCabinetBackendTestCase extends KeyValueStoreBackendTestCase {
 
 		// test iterator
 		int count = 0;
-		Iterator<String> keyIterator = store.iterkeys();
+		Iterator<String> keyIterator = store.iterkeys().iterator();
 		while (keyIterator.hasNext()) {
 			String key = keyIterator.next();
 			assertNotNull(key);
