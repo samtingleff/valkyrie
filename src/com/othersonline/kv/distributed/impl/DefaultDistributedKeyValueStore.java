@@ -98,7 +98,7 @@ public class DefaultDistributedKeyValueStore implements
 	/**
 	 * Low-level method to retrieve all versions for a given key.
 	 */
-	public List<Context<byte[]>> getContexts(String key, boolean considerNullAsSuccess)
+	public List<Context<byte[]>> getContexts(String key, boolean considerNullAsSuccess, boolean enableSlidingWindow)
 			throws KeyValueStoreException {
 		if (log.isTraceEnabled())
 			log.trace(String.format("getContexts(%1$s)", key));
@@ -141,7 +141,7 @@ public class DefaultDistributedKeyValueStore implements
 						.extractContext(result);
 				retval.add(context);
 			}
-			if (retval.size() >= config.getRequiredReads())
+			if ((retval.size() >= config.getRequiredReads()) || !enableSlidingWindow)
 				break;
 			offset += config.getReadReplicas();
 		}
@@ -204,7 +204,8 @@ public class DefaultDistributedKeyValueStore implements
 		if (log.isTraceEnabled())
 			log.trace(String.format("get(%1$s, %2$s)", key, filter));
 
-		List<Context<byte[]>> contexts = getContexts(key, true);
+		// by default, accept null responses as success and disable the sliding window
+		List<Context<byte[]>> contexts = getContexts(key, true, false);
 		ContextFilterResult<byte[]> filtered = filter.filter(contexts);
 		Context<byte[]> result = filtered.getContext();
 		List<Operation<byte[]>> additionalOperations = filtered
