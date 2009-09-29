@@ -71,8 +71,14 @@ public class ValkyrieRebalance implements Runnable, Callable<Map<String, Long>> 
 	@Option(name = "--sleep", usage = "Sleep time between keys (millis) (default: disabled)")
 	private long sleep = 0;
 
+	@Option(name = "--skip", usage = "Skip this many records first (default: 0)")
+	private int skip = 0;
+
 	@Option(name = "--max", usage = "Stop after x keys (default: disabled)")
 	private int max = -1;
+
+	@Option(name = "--delete", usage = "Delete from source (default: false")
+	private boolean delete = false;
 
 	private Transcoder byteTranscoder = new ByteArrayTranscoder();
 
@@ -87,6 +93,8 @@ public class ValkyrieRebalance implements Runnable, Callable<Map<String, Long>> 
 			System.out.println(String.format("%1$s\t%2$d", entry.getKey(),
 					entry.getValue()));
 		}
+		System.out.println("Completed successfully. Exiting.");
+		System.exit(0);
 	}
 
 	public void run() {
@@ -111,9 +119,13 @@ public class ValkyrieRebalance implements Runnable, Callable<Map<String, Long>> 
 				String key = iter.next();
 				++examined;
 
+				if (examined <= skip)
+					continue;
+
 				List<Node> preferenceList = valkyrie.getPreferenceList(key,
 						writeReplicas);
 				boolean set = true;
+
 				for (Node node : preferenceList) {
 					if (node.getId() == nodeId) {
 						set = false;
@@ -123,6 +135,7 @@ public class ValkyrieRebalance implements Runnable, Callable<Map<String, Long>> 
 				if (set) {
 					byte[] bytes = null;
 					boolean successfulMove = false;
+					
 					try {
 						bytes = (byte[]) src.get(key, byteTranscoder);
 					} catch (Exception e) {
@@ -140,7 +153,7 @@ public class ValkyrieRebalance implements Runnable, Callable<Map<String, Long>> 
 						++setFailures;
 					}
 					try {
-						if (successfulMove)
+						if (successfulMove && delete)
 							src.delete(key);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -150,6 +163,7 @@ public class ValkyrieRebalance implements Runnable, Callable<Map<String, Long>> 
 					++notMoved;
 
 				if (examined % 1000 == 0) {
+					System.out.println("Status");
 					System.out.println("examined: " + examined);
 					System.out.println("moved: " + moved);
 					System.out.println("getFailures: " + getFailures);
