@@ -27,7 +27,7 @@ public class ValkyrieBackendTestCase extends KeyValueStoreBackendTestCase {
 		String key = "test.key";
 		SampleV v1 = new SampleV(10, "hello world", 12.23);
 		store.set(key, v1);
-		List<Context<SampleV>> contexts = store.getContexts(key, true, true);
+		List<Context<SampleV>> contexts = store.getContexts(key, true, true, 1000);
 		assertNotNull(contexts);
 		assertEquals(contexts.size(), 1);
 		SampleV v2 = contexts.get(0).getValue();
@@ -40,7 +40,7 @@ public class ValkyrieBackendTestCase extends KeyValueStoreBackendTestCase {
 		Transcoder transcoder = new GzippingTranscoder(new StringTranscoder());
 		store.set(key, "short string", transcoder);
 		List<Context<String>> stringContexts = store.getContexts(key,
-				transcoder, true, true);
+				transcoder, true, true, 1000);
 		assertNotNull(stringContexts);
 		assertEquals(stringContexts.size(), 1);
 		String value = stringContexts.get(0).getValue();
@@ -50,7 +50,7 @@ public class ValkyrieBackendTestCase extends KeyValueStoreBackendTestCase {
 
 		// clean up
 		store.delete(key);
-		stringContexts = store.getContexts(key, transcoder, true, true);
+		stringContexts = store.getContexts(key, transcoder, true, true, 1000);
 		assertNotNull(stringContexts);
 		assertEquals(stringContexts.size(), 1);
 		assertEquals(stringContexts.get(0).getResult().getStatus(),
