@@ -144,21 +144,21 @@ public class DistributedKeyValueStoreClientImpl extends
 	}
 
 	public <V> List<Context<V>> getContexts(String key,
-			boolean considerNullAsSuccess, boolean enableSlidingWindow)
-			throws KeyValueStoreException, IOException {
+			boolean considerNullAsSuccess, boolean enableSlidingWindow,
+			long timeout) throws KeyValueStoreException, IOException {
 		return getContexts(key, defaultTranscoder, considerNullAsSuccess,
-				enableSlidingWindow);
+				enableSlidingWindow, timeout);
 	}
 
 	public <V> List<Context<V>> getContexts(String key, Transcoder transcoder,
-			boolean considerNullAsSuccess, boolean enableSlidingWindow)
-			throws KeyValueStoreException, IOException {
+			boolean considerNullAsSuccess, boolean enableSlidingWindow,
+			long timeout) throws KeyValueStoreException, IOException {
 		long start = System.currentTimeMillis();
 		boolean success = true;
 		try {
 			assertReadable();
 			List<Context<byte[]>> contexts = store.getContexts(key,
-					considerNullAsSuccess, enableSlidingWindow);
+					considerNullAsSuccess, enableSlidingWindow, timeout);
 			List<Context<V>> results = new ArrayList<Context<V>>(contexts
 					.size());
 			for (Context<byte[]> context : contexts) {
