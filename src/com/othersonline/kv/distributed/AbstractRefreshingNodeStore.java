@@ -3,6 +3,7 @@ package com.othersonline.kv.distributed;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -16,9 +17,15 @@ public abstract class AbstractRefreshingNodeStore implements NodeStore {
 
 	protected Log log = LogFactory.getLog(getClass());
 
+	protected Properties props;
+
 	protected List<NodeChangeListener> listeners = new LinkedList<NodeChangeListener>();
 
 	protected volatile List<Node> activeNodes = new LinkedList<Node>();
+
+	public void setProperties(Properties props) {
+		this.props = props;
+	}
 
 	public void start() throws IOException, ConfigurationException {
 		this.activeNodes = refreshActiveNodes();

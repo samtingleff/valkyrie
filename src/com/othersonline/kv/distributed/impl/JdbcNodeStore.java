@@ -47,8 +47,6 @@ public class JdbcNodeStore extends AbstractRefreshingNodeStore implements
 
 	public static final String JDBC_STORE_ID = "nodeStore.id";
 
-	private Properties props;
-
 	private DataSource ds;
 
 	private int storeId;
@@ -60,10 +58,6 @@ public class JdbcNodeStore extends AbstractRefreshingNodeStore implements
 	public JdbcNodeStore(Properties props) {
 		super();
 		setProperties(props);
-	}
-
-	public void setProperties(Properties props) {
-		this.props = props;
 	}
 
 	@Override
