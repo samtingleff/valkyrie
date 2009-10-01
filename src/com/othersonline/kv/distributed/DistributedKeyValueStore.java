@@ -9,7 +9,8 @@ public interface DistributedKeyValueStore {
 	public Configuration getConfiguration();
 
 	public List<Context<byte[]>> getContexts(String key,
-			boolean considerNullAsSuccess, boolean enableSlidingWindow, long timeout)
+			boolean considerNullAsSuccess, boolean enableSlidingWindow,
+			long singleRequestTimeout, long operationTimeout)
 			throws KeyValueStoreException;
 
 	public Context<byte[]> get(String key) throws KeyValueStoreException;

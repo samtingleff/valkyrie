@@ -11,10 +11,12 @@ public interface DistributedKeyValueStoreClient extends KeyValueStore {
 	public Configuration getConfiguration();
 
 	public <V> List<Context<V>> getContexts(String key,
-			boolean considerNullAsSuccess, boolean enableSlidingWindow, long timeout)
+			boolean considerNullAsSuccess, boolean enableSlidingWindow,
+			long singleRequestTimeout, long operationTimeout)
 			throws KeyValueStoreException, IOException;
 
 	public <V> List<Context<V>> getContexts(String key, Transcoder transcoder,
-			boolean considerNullAsSuccess, boolean enableSlidingWindow, long timeout)
+			boolean considerNullAsSuccess, boolean enableSlidingWindow,
+			long singleRequestTimeout, long operationTimeout)
 			throws KeyValueStoreException, IOException;
 }
