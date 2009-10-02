@@ -143,18 +143,25 @@ public class DistributedKeyValueStoreClientImpl extends
 		return store.getPreferenceList(key, replicas);
 	}
 
-	public <V> List<Context<V>> getContexts(String key, boolean considerNullAsSuccess)
+	public <V> List<Context<V>> getContexts(String key,
+			boolean considerNullAsSuccess, boolean enableSlidingWindow,
+			long singleRequestTimeout, long operationTimeout)
 			throws KeyValueStoreException, IOException {
-		return getContexts(key, defaultTranscoder, considerNullAsSuccess);
+		return getContexts(key, defaultTranscoder, considerNullAsSuccess,
+				enableSlidingWindow, singleRequestTimeout, operationTimeout);
 	}
 
-	public <V> List<Context<V>> getContexts(String key, Transcoder transcoder, boolean considerNullAsSuccess)
+	public <V> List<Context<V>> getContexts(String key, Transcoder transcoder,
+			boolean considerNullAsSuccess, boolean enableSlidingWindow,
+			long singleRequestTimeout, long operationTimeout)
 			throws KeyValueStoreException, IOException {
 		long start = System.currentTimeMillis();
 		boolean success = true;
 		try {
 			assertReadable();
-			List<Context<byte[]>> contexts = store.getContexts(key, considerNullAsSuccess);
+			List<Context<byte[]>> contexts = store.getContexts(key,
+					considerNullAsSuccess, enableSlidingWindow,
+					singleRequestTimeout, operationTimeout);
 			List<Context<V>> results = new ArrayList<Context<V>>(contexts
 					.size());
 			for (Context<byte[]> context : contexts) {

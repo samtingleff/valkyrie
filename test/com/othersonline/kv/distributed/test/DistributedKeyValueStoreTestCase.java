@@ -77,7 +77,7 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		String value = "hello world 2";
 
 		// fetch a null value
-		List<Context<byte[]>> values = store.getContexts(key, true);
+		List<Context<byte[]>> values = store.getContexts(key, true, true, 400, 2000);
 		assertNotNull(values);
 		assertTrue(values.size() >= config.getRequiredReads());
 		for (Context<byte[]> context : values) {
@@ -91,7 +91,7 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 
 		// set a value and fetch
 		store.set(key, value.getBytes());
-		values = store.getContexts(key, true);
+		values = store.getContexts(key, true, true, 400, 2000);
 		assertTrue(values.size() >= 2);
 		context = values.get(0);
 		String s = new String(context.getValue());
@@ -103,7 +103,7 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 
 		store.delete(key);
 
-		values = store.getContexts(key, true);
+		values = store.getContexts(key, true, true, 400, 2000);
 		assertTrue(values.size() >= 2);
 		context = values.get(0);
 		assertNull(context.getValue());
@@ -126,7 +126,7 @@ public class DistributedKeyValueStoreTestCase extends TestCase {
 		nodeStore.addNode(new DefaultNodeImpl(4, 4, "salt:4:4",
 				"hash://localhost?id=4"));
 		for (String key : keys) {
-			List<Context<byte[]>> contexts = store.getContexts(key, true);
+			List<Context<byte[]>> contexts = store.getContexts(key, true, true, 400, 2000);
 			assertNotNull(contexts);
 			assertTrue(contexts.size() >= 1);
 			// at least one should have non-null data

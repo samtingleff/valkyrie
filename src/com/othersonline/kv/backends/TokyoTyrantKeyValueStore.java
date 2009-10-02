@@ -147,7 +147,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	}
 
 	public void start() throws IOException {
-		log.warn("Creating connection pool.");
+		log.info("Creating connection pool.");
 		connectionPool = new GenericObjectPool(new RDBConnectionFactory(host,
 				port, socketTimeout), maxActive,
 				GenericObjectPool.WHEN_EXHAUSTED_BLOCK, maxWait, maxIdle,

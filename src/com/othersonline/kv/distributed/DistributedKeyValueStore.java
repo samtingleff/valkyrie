@@ -8,11 +8,15 @@ public interface DistributedKeyValueStore {
 
 	public Configuration getConfiguration();
 
-	public List<Context<byte[]>> getContexts(String key, boolean considerNullAsSuccess) throws KeyValueStoreException;
+	public List<Context<byte[]>> getContexts(String key,
+			boolean considerNullAsSuccess, boolean enableSlidingWindow,
+			long singleRequestTimeout, long operationTimeout)
+			throws KeyValueStoreException;
 
 	public Context<byte[]> get(String key) throws KeyValueStoreException;
 
-	public Context<byte[]> get(String key, ContextFilter<byte[]> contextFilter) throws KeyValueStoreException;
+	public Context<byte[]> get(String key, ContextFilter<byte[]> contextFilter)
+			throws KeyValueStoreException;
 
 	public void set(String key, byte[] bytes) throws KeyValueStoreException;
 

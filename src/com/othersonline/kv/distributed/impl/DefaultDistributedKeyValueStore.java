@@ -98,8 +98,10 @@ public class DefaultDistributedKeyValueStore implements
 	/**
 	 * Low-level method to retrieve all versions for a given key.
 	 */
-	public List<Context<byte[]>> getContexts(String key, boolean considerNullAsSuccess)
-			throws KeyValueStoreException {
+	public List<Context<byte[]>> getContexts(String key,
+			boolean considerNullAsSuccess, boolean enableSlidingWindow,
+			long singleRequestTimeout,
+			long operationTimeout) throws KeyValueStoreException {
 		if (log.isTraceEnabled())
 			log.trace(String.format("getContexts(%1$s)", key));
 
@@ -114,34 +116,39 @@ public class DefaultDistributedKeyValueStore implements
 		int offset = 0;
 
 		// While time remaining, ask the next r nodes for a response.
-		while ((System.currentTimeMillis() - start) < config
-				.getReadOperationTimeout()) {
+		while ((System.currentTimeMillis() - start) < operationTimeout) {
 			if (log.isDebugEnabled()) {
 				log.debug("Reaching into node list at offset " + offset
 						+ " for " + config.getReadReplicas() + " nodes");
 			}
-			int toIndex = Math.min(offset + config.getReadReplicas(), nodeList.size());
+
+			int toIndex = Math.min(offset + config.getReadReplicas(), nodeList
+					.size());
 			if (offset > toIndex)
 				break;
-			List<Node> nodeSublist = nodeList.subList(offset, Math.min(offset
-					+ config.getReadReplicas(), nodeList.size()));
+			List<Node> nodeSublist = nodeList.subList(offset, toIndex);
 
 			if (nodeSublist.size() == 0)
 				break;
 
+			// timeout for this request
+			// take the smaller of (1) provided single request timeout;
+			// or (2) (operation timeout - elapsed time)
+			long thisRequestTimeout = Math.min(singleRequestTimeout, operationTimeout - (System.currentTimeMillis() - start));
+
 			// ask for results from n nodes with a given offset and timeout
 			ResultsCollecter<OperationResult<byte[]>> results = operationHelper
 					.call(syncOperationQueue, op, nodeSublist, config
-							.getRequiredReads(), config
-							.getReadOperationTimeout()
-							- (System.currentTimeMillis() - start), considerNullAsSuccess);
+							.getRequiredReads(), thisRequestTimeout,
+							considerNullAsSuccess);
 			results.stop();
 			for (OperationResult<byte[]> result : results) {
 				Context<byte[]> context = contextSerializer
 						.extractContext(result);
 				retval.add(context);
 			}
-			if (retval.size() >= config.getRequiredReads())
+			if ((retval.size() >= config.getRequiredReads())
+					|| !enableSlidingWindow)
 				break;
 			offset += config.getReadReplicas();
 		}
@@ -204,7 +211,10 @@ public class DefaultDistributedKeyValueStore implements
 		if (log.isTraceEnabled())
 			log.trace(String.format("get(%1$s, %2$s)", key, filter));
 
-		List<Context<byte[]>> contexts = getContexts(key, true);
+		// by default, accept null responses as success and disable the sliding
+		// window
+		List<Context<byte[]>> contexts = getContexts(key, true, false, config
+				.getReadOperationTimeout(), config.getReadOperationTimeout());
 		ContextFilterResult<byte[]> filtered = filter.filter(contexts);
 		Context<byte[]> result = filtered.getContext();
 		List<Operation<byte[]>> additionalOperations = filtered
