@@ -37,8 +37,8 @@ import com.othersonline.kv.transcoder.Transcoder;
  *   nodestore.implementation=com.othersonline.kv.distributed.impl.JdbcNodeStore
  *   nodeStore.jdbcDriver=com.mysql.jdbc.Driver
  *   nodeStore.jdbcUrl=jdbc:mysql://dev-db/oz_central
- *   nodeStore.jdbcUsername=oo_user
- *   nodeStore.jdbcPassword=oo_user
+ *   nodeStore.jdbcUsername=username
+ *   nodeStore.jdbcPassword=s3cret
  *   nodeStore.id=1
  *   read.timeout = 5000
  *   read.replicas = 3

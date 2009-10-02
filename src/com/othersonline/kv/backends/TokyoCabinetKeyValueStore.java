@@ -51,7 +51,7 @@ public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore implemen
 	}
 
 	public void start() throws IOException {
-		if (btree) {
+		if ((btree) || (path.endsWith(".tcb"))) {
 			bdb = new BDB();
 			if (!bdb.open(path, BDB.OWRITER | BDB.OCREAT)) {
 				int ecode = bdb.ecode();
