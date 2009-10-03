@@ -229,14 +229,6 @@ public class DefaultDistributedKeyValueStore implements
 				.getReadOperationTimeout(), config.getReadOperationTimeout());
 		ContextFilterResult<byte[]> filtered = filter.filter(contexts);
 		Context<byte[]> result = filtered.getContext();
-		List<Operation<byte[]>> additionalOperations = filtered
-				.getAdditionalOperations();
-
-		if (additionalOperations != null) {
-			for (Operation<byte[]> op : additionalOperations) {
-				asyncOperationQueue.submit(op);
-			}
-		}
 
 		return result;
 	}
