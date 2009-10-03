@@ -25,7 +25,7 @@ public class DefaultOperationHelper {
 	public <V> ResultsCollecter<OperationResult<V>> call(
 			OperationQueue operationQueue, Operation<V> operation,
 			List<Node> nodeList, int requiredResponses, long operationTimeout,
-			boolean considerNullAsSuccess)
+			boolean considerNullAsSuccess, boolean throwInsufficientResponsesException)
 			throws InsufficientResponsesException {
 		long start = System.currentTimeMillis();
 
@@ -110,7 +110,7 @@ public class DefaultOperationHelper {
 				break;
 			}
 		}
-		if (successCounter.get() < requiredResponses) {
+		if ((successCounter.get() < requiredResponses) && (throwInsufficientResponsesException)) {
 			throw new InsufficientResponsesException(requiredResponses,
 					successCounter.get());
 		}
