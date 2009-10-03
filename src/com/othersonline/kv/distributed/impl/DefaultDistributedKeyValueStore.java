@@ -100,8 +100,8 @@ public class DefaultDistributedKeyValueStore implements
 	 */
 	public List<Context<byte[]>> getContexts(String key,
 			boolean considerNullAsSuccess, boolean enableSlidingWindow,
-			long singleRequestTimeout,
-			long operationTimeout) throws KeyValueStoreException {
+			long singleRequestTimeout, long operationTimeout)
+			throws KeyValueStoreException {
 		if (log.isTraceEnabled())
 			log.trace(String.format("getContexts(%1$s)", key));
 
@@ -134,7 +134,8 @@ public class DefaultDistributedKeyValueStore implements
 			// timeout for this request
 			// take the smaller of (1) provided single request timeout;
 			// or (2) (operation timeout - elapsed time)
-			long thisRequestTimeout = Math.min(singleRequestTimeout, operationTimeout - (System.currentTimeMillis() - start));
+			long thisRequestTimeout = Math.min(singleRequestTimeout,
+					operationTimeout - (System.currentTimeMillis() - start));
 
 			// ask for results from n nodes with a given offset and timeout
 			ResultsCollecter<OperationResult<byte[]>> results = operationHelper
@@ -152,6 +153,17 @@ public class DefaultDistributedKeyValueStore implements
 				break;
 			offset += config.getReadReplicas();
 		}
+
+		// backfill null/error responses from top x nodes
+		ContextFilterResult<byte[]> filtered = contextFilter.filter(retval);
+		List<Operation<byte[]>> additionalOperations = filtered
+				.getAdditionalOperations();
+		if (additionalOperations != null) {
+			for (Operation<byte[]> backfillOperation : additionalOperations) {
+				asyncOperationQueue.submit(backfillOperation);
+			}
+		}
+
 		return retval;
 	}
 
