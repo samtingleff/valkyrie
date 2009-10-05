@@ -148,7 +148,8 @@ public class DefaultDistributedKeyValueStore implements
 							considerNullAsSuccess, false);
 			results.stop();
 			for (OperationResult<byte[]> result : results) {
-				Context<byte[]> context = contextSerializer.extractContext(result);
+				Context<byte[]> context = contextSerializer
+						.extractContext(result);
 				retval.add(context);
 
 				if ((OperationStatus.Success.equals(result.getStatus()))
@@ -164,7 +165,8 @@ public class DefaultDistributedKeyValueStore implements
 		}
 
 		if (successes < config.getRequiredReads())
-			throw new InsufficientResponsesException(config.getRequiredReads(), successes);
+			throw new InsufficientResponsesException(config.getRequiredReads(),
+					successes);
 
 		// backfill null/error responses from top x nodes
 		ContextFilterResult<byte[]> filtered = contextFilter.filter(retval);
@@ -208,8 +210,7 @@ public class DefaultDistributedKeyValueStore implements
 			ResultsCollecter<OperationResult<byte[]>> results;
 
 			op = new GetBulkOperation<byte[]>(transcoder, keys);
-			results = operationHelper.call(syncOperationQueue, op, nodeList,
-					0,
+			results = operationHelper.call(syncOperationQueue, op, nodeList, 0,
 					config.getRequiredReads(),
 					config.getReadOperationTimeout(), true, true);
 			results.stop();
