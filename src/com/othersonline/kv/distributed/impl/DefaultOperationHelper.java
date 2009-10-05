@@ -24,7 +24,7 @@ public class DefaultOperationHelper {
 
 	public <V> ResultsCollecter<OperationResult<V>> call(
 			OperationQueue operationQueue, Operation<V> operation,
-			List<Node> nodeList, int requiredResponses, long operationTimeout,
+			List<Node> nodeList, int nodeRankOffset, int requiredResponses, long operationTimeout,
 			boolean considerNullAsSuccess, boolean throwInsufficientResponsesException)
 			throws InsufficientResponsesException {
 		long start = System.currentTimeMillis();
@@ -74,7 +74,7 @@ public class DefaultOperationHelper {
 			Operation<V> op = operation.copy();
 			op.setCallback(callback);
 			op.setNode(nodeList.get(i));
-			op.setNodeRank(i);
+			op.setNodeRank(i + nodeRankOffset);
 			Future<OperationResult<V>> future = operationQueue.submit(op);
 			futures.add(future);
 		}
