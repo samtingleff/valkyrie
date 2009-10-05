@@ -10,6 +10,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.othersonline.kv.distributed.InsufficientResponsesException;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.Operation;
@@ -22,10 +25,13 @@ public class DefaultOperationHelper {
 
 	private OperationLog operationLog = OperationLog.getInstance();
 
+	private Log log = LogFactory.getLog(getClass());
+
 	public <V> ResultsCollecter<OperationResult<V>> call(
 			OperationQueue operationQueue, Operation<V> operation,
-			List<Node> nodeList, int requiredResponses, long operationTimeout,
-			boolean considerNullAsSuccess)
+			List<Node> nodeList, int nodeRankOffset, int requiredResponses,
+			long operationTimeout, boolean considerNullAsSuccess,
+			boolean throwInsufficientResponsesException)
 			throws InsufficientResponsesException {
 		long start = System.currentTimeMillis();
 
@@ -74,7 +80,7 @@ public class DefaultOperationHelper {
 			Operation<V> op = operation.copy();
 			op.setCallback(callback);
 			op.setNode(nodeList.get(i));
-			op.setNodeRank(i);
+			op.setNodeRank(i + nodeRankOffset);
 			Future<OperationResult<V>> future = operationQueue.submit(op);
 			futures.add(future);
 		}
@@ -99,18 +105,19 @@ public class DefaultOperationHelper {
 								- (System.currentTimeMillis() - start),
 								TimeUnit.MILLISECONDS);
 					} catch (TimeoutException e) {
-						e.printStackTrace();
+						log.info("TimeoutException waiting on response", e);
 					} catch (ExecutionException e) {
-						e.printStackTrace();
+						log.info("ExecutionException waiting on response", e);
 					} catch (Exception e) {
-						e.printStackTrace();
+						log.info("Exception waiting on response", e);
 					}
 				}
 			} catch (NoSuchElementException e) {
 				break;
 			}
 		}
-		if (successCounter.get() < requiredResponses) {
+		if ((successCounter.get() < requiredResponses)
+				&& (throwInsufficientResponsesException)) {
 			throw new InsufficientResponsesException(requiredResponses,
 					successCounter.get());
 		}

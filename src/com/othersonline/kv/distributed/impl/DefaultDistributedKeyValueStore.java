@@ -14,11 +14,13 @@ import com.othersonline.kv.distributed.ContextFilter;
 import com.othersonline.kv.distributed.ContextFilterResult;
 import com.othersonline.kv.distributed.ContextSerializer;
 import com.othersonline.kv.distributed.DistributedKeyValueStore;
+import com.othersonline.kv.distributed.InsufficientResponsesException;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeLocator;
 import com.othersonline.kv.distributed.Operation;
 import com.othersonline.kv.distributed.OperationQueue;
 import com.othersonline.kv.distributed.OperationResult;
+import com.othersonline.kv.distributed.OperationStatus;
 import com.othersonline.kv.distributed.hashing.HashAlgorithm;
 import com.othersonline.kv.transcoder.ByteArrayTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
@@ -100,8 +102,8 @@ public class DefaultDistributedKeyValueStore implements
 	 */
 	public List<Context<byte[]>> getContexts(String key,
 			boolean considerNullAsSuccess, boolean enableSlidingWindow,
-			long singleRequestTimeout,
-			long operationTimeout) throws KeyValueStoreException {
+			long singleRequestTimeout, long operationTimeout)
+			throws KeyValueStoreException {
 		if (log.isTraceEnabled())
 			log.trace(String.format("getContexts(%1$s)", key));
 
@@ -114,6 +116,8 @@ public class DefaultDistributedKeyValueStore implements
 		List<Context<byte[]>> retval = new ArrayList<Context<byte[]>>();
 
 		int offset = 0;
+
+		int successes = 0;
 
 		// While time remaining, ask the next r nodes for a response.
 		while ((System.currentTimeMillis() - start) < operationTimeout) {
@@ -134,24 +138,46 @@ public class DefaultDistributedKeyValueStore implements
 			// timeout for this request
 			// take the smaller of (1) provided single request timeout;
 			// or (2) (operation timeout - elapsed time)
-			long thisRequestTimeout = Math.min(singleRequestTimeout, operationTimeout - (System.currentTimeMillis() - start));
+			long thisRequestTimeout = Math.min(singleRequestTimeout,
+					operationTimeout - (System.currentTimeMillis() - start));
 
 			// ask for results from n nodes with a given offset and timeout
 			ResultsCollecter<OperationResult<byte[]>> results = operationHelper
-					.call(syncOperationQueue, op, nodeSublist, config
+					.call(syncOperationQueue, op, nodeSublist, offset, config
 							.getRequiredReads(), thisRequestTimeout,
-							considerNullAsSuccess);
+							considerNullAsSuccess, false);
 			results.stop();
 			for (OperationResult<byte[]> result : results) {
 				Context<byte[]> context = contextSerializer
 						.extractContext(result);
 				retval.add(context);
+
+				if ((OperationStatus.Success.equals(result.getStatus()))
+						|| ((considerNullAsSuccess) && (OperationStatus.NullValue
+								.equals(result.getStatus())))) {
+					++successes;
+				}
 			}
-			if ((retval.size() >= config.getRequiredReads())
+			if ((successes >= config.getRequiredReads())
 					|| !enableSlidingWindow)
 				break;
 			offset += config.getReadReplicas();
 		}
+
+		if (successes < config.getRequiredReads())
+			throw new InsufficientResponsesException(config.getRequiredReads(),
+					successes);
+
+		// backfill null/error responses from top x nodes
+		ContextFilterResult<byte[]> filtered = contextFilter.filter(retval);
+		List<Operation<byte[]>> additionalOperations = filtered
+				.getAdditionalOperations();
+		if (additionalOperations != null) {
+			for (Operation<byte[]> backfillOperation : additionalOperations) {
+				asyncOperationQueue.submit(backfillOperation);
+			}
+		}
+
 		return retval;
 	}
 
@@ -184,9 +210,9 @@ public class DefaultDistributedKeyValueStore implements
 			ResultsCollecter<OperationResult<byte[]>> results;
 
 			op = new GetBulkOperation<byte[]>(transcoder, keys);
-			results = operationHelper.call(syncOperationQueue, op, nodeList,
+			results = operationHelper.call(syncOperationQueue, op, nodeList, 0,
 					config.getRequiredReads(),
-					config.getReadOperationTimeout(), true);
+					config.getReadOperationTimeout(), true, true);
 			results.stop();
 
 			retval = new ArrayList<BulkContext<byte[]>>(results.size());
@@ -217,14 +243,6 @@ public class DefaultDistributedKeyValueStore implements
 				.getReadOperationTimeout(), config.getReadOperationTimeout());
 		ContextFilterResult<byte[]> filtered = filter.filter(contexts);
 		Context<byte[]> result = filtered.getContext();
-		List<Operation<byte[]>> additionalOperations = filtered
-				.getAdditionalOperations();
-
-		if (additionalOperations != null) {
-			for (Operation<byte[]> op : additionalOperations) {
-				asyncOperationQueue.submit(op);
-			}
-		}
 
 		return result;
 	}
@@ -241,9 +259,9 @@ public class DefaultDistributedKeyValueStore implements
 		Operation<byte[]> op = new SetOperation<byte[]>(transcoder, key,
 				serializedData);
 		ResultsCollecter<OperationResult<byte[]>> results = operationHelper
-				.call(syncOperationQueue, op, nodeList, config
+				.call(syncOperationQueue, op, nodeList, 0, config
 						.getRequiredWrites(),
-						config.getWriteOperationTimeout(), true);
+						config.getWriteOperationTimeout(), true, true);
 	}
 
 	public void set(String key, Context<byte[]> bytes) {
@@ -262,8 +280,8 @@ public class DefaultDistributedKeyValueStore implements
 
 		Operation<byte[]> op = new DeleteOperation<byte[]>(key);
 		ResultsCollecter<OperationResult<byte[]>> results = operationHelper
-				.call(syncOperationQueue, op, nodeList, config
+				.call(syncOperationQueue, op, nodeList, 0, config
 						.getRequiredWrites(),
-						config.getWriteOperationTimeout(), true);
+						config.getWriteOperationTimeout(), true, true);
 	}
 }

@@ -65,7 +65,8 @@ public class NodeRankContextFilter<V> implements ContextFilter<V> {
 				if (context.getValue() == null) {
 					OperationStatus status = context.getResult().getStatus();
 					if ((status.equals(OperationStatus.NullValue))
-							&& (config.getFillNullGetResults())) {
+							&& (config.getFillNullGetResults())
+							&& (context.getNodeRank() < config.getWriteReplicas())) {
 						if (log.isDebugEnabled())
 							log
 									.debug(String
