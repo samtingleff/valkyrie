@@ -10,6 +10,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.othersonline.kv.distributed.InsufficientResponsesException;
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.Operation;
@@ -21,6 +24,8 @@ import com.othersonline.kv.distributed.OperationStatus;
 public class DefaultOperationHelper {
 
 	private OperationLog operationLog = OperationLog.getInstance();
+
+	private Log log = LogFactory.getLog(getClass());
 
 	public <V> ResultsCollecter<OperationResult<V>> call(
 			OperationQueue operationQueue, Operation<V> operation,
@@ -100,11 +105,11 @@ public class DefaultOperationHelper {
 								- (System.currentTimeMillis() - start),
 								TimeUnit.MILLISECONDS);
 					} catch (TimeoutException e) {
-						e.printStackTrace();
+						log.info("TimeoutException waiting on response", e);
 					} catch (ExecutionException e) {
-						e.printStackTrace();
+						log.info("ExecutionException waiting on response", e);
 					} catch (Exception e) {
-						e.printStackTrace();
+						log.info("Exception waiting on response", e);
 					}
 				}
 			} catch (NoSuchElementException e) {
