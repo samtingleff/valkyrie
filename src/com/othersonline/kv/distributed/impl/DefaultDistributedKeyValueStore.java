@@ -167,7 +167,7 @@ public class DefaultDistributedKeyValueStore implements
 			throw new InsufficientResponsesException(config.getRequiredReads(), successes);
 
 		// backfill null/error responses from top x nodes
-		ContextFilterResult<byte[]> filtered = contextFilter.filter(retval, config.getWriteReplicas());
+		ContextFilterResult<byte[]> filtered = contextFilter.filter(retval);
 		List<Operation<byte[]>> additionalOperations = filtered
 				.getAdditionalOperations();
 		if (additionalOperations != null) {
@@ -240,7 +240,7 @@ public class DefaultDistributedKeyValueStore implements
 		// window
 		List<Context<byte[]>> contexts = getContexts(key, true, false, config
 				.getReadOperationTimeout(), config.getReadOperationTimeout());
-		ContextFilterResult<byte[]> filtered = filter.filter(contexts, config.getWriteReplicas());
+		ContextFilterResult<byte[]> filtered = filter.filter(contexts);
 		Context<byte[]> result = filtered.getContext();
 
 		return result;

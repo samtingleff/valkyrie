@@ -29,7 +29,7 @@ public class ContextFilterTestCase extends TestCase {
 							new DefaultOperationResult<String>(null, "hello world", OperationStatus.NullValue, 200l, null), n, i, 0, "test.key", null);
 			contexts.add(ctx);
 		}
-		ContextFilterResult<String> result = filter.filter(contexts, 1);
+		ContextFilterResult<String> result = filter.filter(contexts);
 		assertNotNull(result);
 		Context<String> value = result.getContext();
 		assertNotNull(value);

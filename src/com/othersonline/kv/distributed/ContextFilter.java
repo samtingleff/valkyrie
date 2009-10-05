@@ -4,6 +4,6 @@ import java.util.List;
 
 public interface ContextFilter<V> {
 
-	public ContextFilterResult<V> filter(List<Context<V>> contexts, int replicas)
+	public ContextFilterResult<V> filter(List<Context<V>> contexts)
 			throws DistributedKeyValueStoreException;
 }

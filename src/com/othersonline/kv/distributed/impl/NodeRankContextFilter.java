@@ -40,7 +40,7 @@ public class NodeRankContextFilter<V> implements ContextFilter<V> {
 		this.config = config;
 	}
 
-	public ContextFilterResult<V> filter(List<Context<V>> contexts, int replicas)
+	public ContextFilterResult<V> filter(List<Context<V>> contexts)
 			throws DistributedKeyValueStoreException {
 		Collections.sort(contexts, comparator);
 
