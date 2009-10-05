@@ -119,7 +119,7 @@ public class PropertiesConfigurator implements Configurator {
 		config.setWriteReplicas(getIntProperty(p, WRITE_REPLICAS, 3));
 		config.setFillNullGetResults(getBooleanProperty(p,
 				BACKFILL_NULL_GET_REQUESTS, true));
-		config.setFillNullGetResults(getBooleanProperty(p,
+		config.setFillErrorGetResults(getBooleanProperty(p,
 				BACKFILL_FAILED_GET_REQUESTS, false));
 		return config;
 	}
