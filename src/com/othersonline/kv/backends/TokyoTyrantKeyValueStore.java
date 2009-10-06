@@ -69,7 +69,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 
 	private boolean readOnly = false;
 
-	private int syncFrequency = 1;
+	private int syncFrequency = 0;
 
 	private int maxActive = 10;
 
@@ -638,7 +638,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	}
 
 	private void syncOnWrite(RDB rdb) throws IOException {
-		if (random.nextInt(1000) < syncFrequency)
+		if ((syncFrequency > 0) && (random.nextInt(1000) < syncFrequency))
 			rdb.sync();
 	}
 
