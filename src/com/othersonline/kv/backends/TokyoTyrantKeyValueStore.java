@@ -25,6 +25,7 @@ import tokyotyrant.transcoder.SerializingTranscoder;
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
+import com.othersonline.kv.KeyValueStoreStatus;
 import com.othersonline.kv.annotations.Configurable;
 import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.Transcoder;
@@ -65,6 +66,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	private int port = 1978;
 
 	private int socketTimeout = 2000;
+
+	private boolean readOnly = false;
 
 	private int syncFrequency = 1;
 
@@ -109,6 +112,11 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	@Configurable(name = "socketTimeout", accepts = Type.IntType)
 	public void setSocketTimeout(int millis) {
 		this.socketTimeout = millis;
+	}
+
+	@Configurable(name = "readOnly", accepts = Type.BooleanType)
+	public void setreadOnly(boolean value) {
+		this.readOnly = value;
 	}
 
 	@Configurable(name = "syncFrequency", accepts = Type.IntType)
@@ -181,6 +189,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			}
 		}
 		super.start();
+		if (readOnly)
+			super.setStatus(KeyValueStoreStatus.ReadOnly);
 	}
 
 	public void stop() {
