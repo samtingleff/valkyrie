@@ -628,7 +628,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	}
 
 	private void syncOnWrite(RDB rdb) throws IOException {
-		if (random.nextInt(1000) <= syncFrequency)
+		if (random.nextInt(1000) < syncFrequency)
 			rdb.sync();
 	}
 
