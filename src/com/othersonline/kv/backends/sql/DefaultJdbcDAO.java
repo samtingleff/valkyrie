@@ -11,11 +11,11 @@ import com.othersonline.kv.transcoder.Transcoder;
 
 public class DefaultJdbcDAO implements JdbcDAO {
 
-	private String table;
+	protected String table;
 
-	private String keyField;
+	protected String keyField;
 
-	private String valueField;
+	protected String valueField;
 
 	public DefaultJdbcDAO(String table, String keyField, String valueField) {
 		this.table = table;
