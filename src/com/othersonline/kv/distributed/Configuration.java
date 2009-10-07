@@ -26,6 +26,10 @@ public class Configuration {
 	// reads (set low).
 	private int readReplicas = writeReplicas;
 
+	// number of reads required for an unambiguous null response
+	// currently not used within the framework
+	private int unambiguousReadCount = readReplicas;
+
 	// max wait time for reads
 	private long readOperationTimeout = 1000l;
 
@@ -106,6 +110,14 @@ public class Configuration {
 
 	public void setReadReplicas(int readReplicas) {
 		this.readReplicas = readReplicas;
+	}
+
+	public int getUnambiguousReadCount() {
+		return unambiguousReadCount;
+	}
+
+	public void setUnambiguousReadCount(int unambiguousReadCount) {
+		this.unambiguousReadCount = unambiguousReadCount;
 	}
 
 	public long getReadOperationTimeout() {
