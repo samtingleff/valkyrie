@@ -21,19 +21,19 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 	private Pattern urlPattern = Pattern
 			.compile("([\\w\\-]+):\\/\\/([\\w\\-\\.]+)(:([0-9]+))?(\\?(.*))?");
 
-	public Map<String, String> parseUri(String uri)
-	{
+	public Map<String, String> parseUri(String uri) {
 		Map<String, String> configs = new HashMap<String, String>();
 		Matcher m = urlPattern.matcher(uri);
 		if (!m.matches())
 			throw new IllegalArgumentException(
-					String.format(
-							"The url pattern %1$s does not match type://hostname:port?args...",
-							uri));
-		
+					String
+							.format(
+									"The url pattern %1$s does not match type://hostname:port?args...",
+									uri));
+
 		String type = m.group(1);
-			configs.put("type", type);
-			
+		configs.put("type", type);
+
 		if (m.group(2) != null) {
 			configs.put("host", m.group(2));
 		}
@@ -49,15 +49,15 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 				}
 			}
 		}
-		
+
 		return configs;
 	}
-	
+
 	protected KeyValueStore createStoreConnection(String uri)
 			throws IOException, KeyValueStoreUnavailable {
 		Map<String, String> configs;
 		configs = this.parseUri(uri);
-		
+
 		KeyValueStore store = openConnection(configs.get("type"));
 
 		try {
@@ -90,6 +90,8 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 			store = new VoldemortKeyValueStore();
 		else if ("dav".equals(type))
 			store = new WebDAVKeyValueStore();
+		else if ("sql".equals(type))
+			store = new JdbcKeyValueStore();
 		return store;
 	}
 }

@@ -36,6 +36,4 @@ public interface JdbcDAO {
 
 	public KeyValuePair read(ResultSet rs, Transcoder transcoder)
 			throws SQLException, IOException;
-
-	public void write(PreparedStatement ps, Object obj);
 }

@@ -116,7 +116,4 @@ public class DefaultJdbcDAO implements JdbcDAO {
 		return new KeyValuePair(key, obj);
 	}
 
-	public void write(PreparedStatement ps, Object obj) {
-	}
-
 }

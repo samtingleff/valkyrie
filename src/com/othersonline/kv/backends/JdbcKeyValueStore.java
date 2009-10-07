@@ -15,30 +15,29 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
-import com.othersonline.kv.KeyValueStoreUnavailable;
+import com.othersonline.kv.annotations.Configurable;
+import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.backends.sql.DefaultJdbcDAO;
 import com.othersonline.kv.backends.sql.JdbcDAO;
 import com.othersonline.kv.backends.sql.KeyValuePair;
 import com.othersonline.kv.backends.sql.SimpleDataSource;
 import com.othersonline.kv.transcoder.SerializableTranscoder;
-import com.othersonline.kv.transcoder.SerializingTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 
 public class JdbcKeyValueStore extends BaseManagedKeyValueStore implements
 		KeyValueStore, IterableKeyValueStore {
 	public static final String IDENTIFIER = "jdbc";
 
-	private Log log = LogFactory.getLog(getClass());
-
 	private Transcoder defaultTranscoder = new SerializableTranscoder();
 
+	private DataSource ds;
+
 	private JdbcDAO dao;
+
+	private String daoClassName;
 
 	private String dataSourceName;
 
@@ -47,8 +46,6 @@ public class JdbcKeyValueStore extends BaseManagedKeyValueStore implements
 	private String username;
 
 	private String password;
-
-	private DataSource ds;
 
 	private String table;
 
@@ -64,30 +61,46 @@ public class JdbcKeyValueStore extends BaseManagedKeyValueStore implements
 		this.ds = ds;
 	}
 
+	public void setDAO(JdbcDAO dao) {
+		this.dao = dao;
+	}
+
+	@Configurable(name = "dao", accepts = Type.StringType)
+	public void setDAOClass(String className) {
+		this.daoClassName = className;
+	}
+
+	@Configurable(name = "dataSource", accepts = Type.StringType)
 	public void setDataSourceName(String name) {
 		this.dataSourceName = name;
 	}
 
+	@Configurable(name = "url", accepts = Type.StringType)
 	public void setUrl(String url) {
 		this.url = url;
 	}
 
+	@Configurable(name = "username", accepts = Type.StringType)
 	public void setUsername(String username) {
 		this.username = username;
 	}
 
+	@Configurable(name = "password", accepts = Type.StringType)
 	public void setPassword(String password) {
 		this.password = password;
 	}
 
+	@Configurable(name = "table", accepts = Type.StringType)
 	public void setTable(String table) {
 		this.table = table;
 	}
 
+	@Configurable(name = "keyField", accepts = Type.StringType)
 	public void setKeyField(String keyField) {
 		this.keyField = keyField;
 	}
 
+	@Configurable(name = "valueField", accepts = Type.StringType)
 	public void setValueField(String valueField) {
 		this.valueField = valueField;
 	}
@@ -106,7 +119,12 @@ public class JdbcKeyValueStore extends BaseManagedKeyValueStore implements
 			throw new IOException(e);
 		} finally {
 		}
-		dao = new DefaultJdbcDAO(table, keyField, valueField);
+		if (dao == null)
+			try {
+				dao = getDAO();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		super.start();
 	}
 
@@ -302,6 +320,17 @@ public class JdbcKeyValueStore extends BaseManagedKeyValueStore implements
 			throw new KeyValueStoreException(e);
 		} finally {
 		}
+	}
+
+	private JdbcDAO getDAO() throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException {
+		JdbcDAO jdbcDAO = null;
+		if (daoClassName != null) {
+			jdbcDAO = (JdbcDAO) Class.forName(daoClassName).newInstance();
+		}
+		if (jdbcDAO == null)
+			jdbcDAO = new DefaultJdbcDAO(table, keyField, valueField);
+		return jdbcDAO;
 	}
 
 	private Connection getConnection() throws SQLException {
