@@ -164,17 +164,15 @@ public class DefaultDistributedKeyValueStore implements
 			offset += config.getReadReplicas();
 		}
 
-		if (successes < config.getRequiredReads())
-			throw new InsufficientResponsesException(config.getRequiredReads(),
-					successes);
-
 		// backfill null/error responses from top x nodes
 		ContextFilterResult<byte[]> filtered = contextFilter.filter(retval);
-		List<Operation<byte[]>> additionalOperations = filtered
-				.getAdditionalOperations();
-		if (additionalOperations != null) {
-			for (Operation<byte[]> backfillOperation : additionalOperations) {
-				asyncOperationQueue.submit(backfillOperation);
+		if (filtered != null) {
+			List<Operation<byte[]>> additionalOperations = filtered
+					.getAdditionalOperations();
+			if (additionalOperations != null) {
+				for (Operation<byte[]> backfillOperation : additionalOperations) {
+					asyncOperationQueue.submit(backfillOperation);
+				}
 			}
 		}
 
