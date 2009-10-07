@@ -34,8 +34,6 @@ public class PropertiesConfigurator implements Configurator {
 
 	public static final String REQUIRED_READS = "read.required";
 
-	public static final String READ_UNAMBIGUOUS_NULL = "read.unambiguousNull";
-
 	public static final String REQUIRED_WRITES = "write.required";
 
 	public static final String WRITE_OPERATION_TIMEOUT = "write.timeout";
@@ -113,7 +111,6 @@ public class PropertiesConfigurator implements Configurator {
 				READ_OPERATION_TIMEOUT, 500));
 		config.setReadReplicas(getIntProperty(p, READ_REPLICAS, 3));
 		config.setRequiredReads(getIntProperty(p, REQUIRED_READS, 2));
-		config.setUnambiguousReadCount(getIntProperty(p, READ_UNAMBIGUOUS_NULL, 2));
 		config.setRequiredWrites(getIntProperty(p, REQUIRED_WRITES, 2));
 		config.setSyncOperationQueue(new NonPersistentThreadPoolOperationQueue(
 				cf, syncOperationThreadPoolCount, asyncOperationMaxQueueSize));
