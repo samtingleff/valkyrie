@@ -1,5 +1,7 @@
 package com.othersonline.kv.distributed.impl;
 
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -28,18 +30,22 @@ public abstract class AbstractThreadPoolOperationQueue implements
 
 	protected ConnectionFactory connectionFactory;
 
+	protected Map defaultProperties;
+
 	protected int threadPoolCount = DEFAULT_THREAD_POOL_COUNT;
 
 	protected int maxQueueDepth = DEFAULT_MAX_QUEUE_DEPTH;
 
-	public AbstractThreadPoolOperationQueue(ConnectionFactory connectionFactory) {
-		this(connectionFactory, DEFAULT_THREAD_POOL_COUNT,
+	public AbstractThreadPoolOperationQueue(Map defaultProperties,
+			ConnectionFactory connectionFactory) {
+		this(defaultProperties, connectionFactory, DEFAULT_THREAD_POOL_COUNT,
 				DEFAULT_MAX_QUEUE_DEPTH);
 	}
 
-	public AbstractThreadPoolOperationQueue(
+	public AbstractThreadPoolOperationQueue(Map defaultProperties,
 			ConnectionFactory connectionFactory, int threadPoolCount,
 			int maxQueueDepth) {
+		this.defaultProperties = defaultProperties;
 		this.connectionFactory = connectionFactory;
 		this.threadPoolCount = threadPoolCount;
 		this.maxQueueDepth = maxQueueDepth;

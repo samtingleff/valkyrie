@@ -13,7 +13,7 @@ import com.othersonline.kv.annotations.Configurable;
 public abstract class AbstractConnectionFactory implements ConnectionFactory {
 	private Map<String, KeyValueStore> backends = new HashMap<String, KeyValueStore>();
 
-	public KeyValueStore getStore(String uri) throws IOException,
+	public KeyValueStore getStore(Map defaultProperties, String uri) throws IOException,
 			KeyValueStoreUnavailable {
 		KeyValueStore store = backends.get(uri);
 		if (store == null) {
@@ -25,9 +25,21 @@ public abstract class AbstractConnectionFactory implements ConnectionFactory {
 					// extra connection here and there nobody is going to care.
 					try {
 						store = createStoreConnection(uri);
+						// set the defaults from the provided map
+						if (defaultProperties != null)
+							configureStore(store, defaultProperties);
+						// set values from the given url
+						Map<String, String> props = getStoreProperties(uri);
+						if (props != null)
+							configureStore(store, props);
+						
 						store.start();
 						backends.put(uri, store);
 					} catch (IllegalArgumentException e) {
+						throw new KeyValueStoreUnavailable(e);
+					} catch (IllegalAccessException e) {
+						throw new KeyValueStoreUnavailable(e);
+					} catch (InvocationTargetException e) {
 						throw new KeyValueStoreUnavailable(e);
 					}
 				}
@@ -59,7 +71,10 @@ public abstract class AbstractConnectionFactory implements ConnectionFactory {
 		method.invoke(store, value);
 	}
 
-	protected abstract KeyValueStore createStoreConnection(String uri)
+	public abstract Map<String, String> getStoreProperties(String uri)
+		throws IllegalArgumentException;
+
+	public abstract KeyValueStore createStoreConnection(String uri)
 			throws IOException, KeyValueStoreUnavailable;
 
 }
