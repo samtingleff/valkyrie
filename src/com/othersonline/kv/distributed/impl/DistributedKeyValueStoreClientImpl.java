@@ -165,16 +165,18 @@ public class DistributedKeyValueStoreClientImpl extends
 			List<Context<V>> results = new ArrayList<Context<V>>(contexts
 					.size());
 			for (Context<byte[]> context : contexts) {
-				byte[] bytes = context.getValue();
-				V value = (bytes != null) ? (V) transcoder.decode(bytes) : null;
+				// check for context value NOT being instanceof byte
+				Object value = context.getValue();
+				// some backends deliver a V directly rather than byte[]
+				V v = (value instanceof byte[]) ? (V) transcoder.decode((byte[]) value) : (V) value;
 				Operation<V> op = new GetOperation<V>(transcoder, key);
 				OperationResult<V> operationResult = new DefaultOperationResult<V>(
-						op, value, context.getResult().getStatus(), context
+						op, v, context.getResult().getStatus(), context
 								.getResult().getDuration(), context.getResult()
 								.getError());
 				Context<V> ctx = new DefaultContext<V>(operationResult, context
 						.getSourceNode(), context.getNodeRank(), context
-						.getVersion(), context.getKey(), value);
+						.getVersion(), context.getKey(), v);
 				results.add(ctx);
 			}
 			return results;
