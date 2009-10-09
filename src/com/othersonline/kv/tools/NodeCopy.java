@@ -151,7 +151,7 @@ public class NodeCopy implements Runnable, Callable<Map<String, Long>> {
 	private KeyValueStore getKeyValueStore(String uri)
 			throws KeyValueStoreUnavailable, IOException {
 		UriConnectionFactory factory = new UriConnectionFactory();
-		KeyValueStore kv = factory.getStore(uri);
+		KeyValueStore kv = factory.getStore(null, uri);
 		return kv;
 	}
 }

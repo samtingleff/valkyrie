@@ -40,7 +40,7 @@ public class DummyOperationQueue implements OperationQueue {
 		long start = System.currentTimeMillis();
 		try {
 			node = operation.getNode();
-			KeyValueStore store = connectionFactory.getStore(node.getConnectionURI());
+			KeyValueStore store = connectionFactory.getStore(null, node.getConnectionURI());
 			Callable<OperationResult<V>> callable = operation
 					.getCallable(store);
 			result = callable.call();

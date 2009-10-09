@@ -1,5 +1,6 @@
 package com.othersonline.kv.distributed.impl;
 
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
@@ -22,20 +23,21 @@ public class NonPersistentThreadPoolOperationQueue extends
 
 	protected Log operationLog = LogFactory.getLog("haymitch.backendlog");
 
-	public NonPersistentThreadPoolOperationQueue() {
-		this(new UriConnectionFactory());
+	public NonPersistentThreadPoolOperationQueue(Map defaultProperties) {
+		this(defaultProperties, new UriConnectionFactory());
 	}
 
-	public NonPersistentThreadPoolOperationQueue(
+	public NonPersistentThreadPoolOperationQueue(Map defaultProperties,
 			ConnectionFactory connectionFactory) {
-		this(connectionFactory, DEFAULT_THREAD_POOL_COUNT,
+		this(defaultProperties, connectionFactory, DEFAULT_THREAD_POOL_COUNT,
 				DEFAULT_MAX_QUEUE_DEPTH);
 	}
 
-	public NonPersistentThreadPoolOperationQueue(
+	public NonPersistentThreadPoolOperationQueue(Map defaultProperties,
 			ConnectionFactory connectionFactory, int threadPoolCount,
 			int maxQueueDepth) {
-		super(connectionFactory, threadPoolCount, maxQueueDepth);
+		super(defaultProperties, connectionFactory, threadPoolCount,
+				maxQueueDepth);
 	}
 
 	public <V> Future<OperationResult<V>> submit(Operation<V> operation)
@@ -59,8 +61,8 @@ public class NonPersistentThreadPoolOperationQueue extends
 			long start = System.currentTimeMillis();
 			try {
 				node = op.getNode();
-				KeyValueStore store = connectionFactory.getStore(node
-						.getConnectionURI());
+				KeyValueStore store = connectionFactory.getStore(
+						defaultProperties, node.getConnectionURI());
 				Callable<OperationResult<V>> delegate = op.getCallable(store);
 				result = delegate.call();
 			} catch (Exception e) {

@@ -106,6 +106,7 @@ public class ValkyrieRebalance implements Runnable, Callable<Map<String, Long>> 
 	}
 
 	public Map<String, Long> call() throws Exception {
+		props = getProperties();
 		IterableKeyValueStore src = getSource();
 		DistributedKeyValueStoreClientImpl valkyrie = getDestination();
 
@@ -192,7 +193,7 @@ public class ValkyrieRebalance implements Runnable, Callable<Map<String, Long>> 
 	private IterableKeyValueStore getSource() throws KeyValueStoreUnavailable,
 			IOException {
 		UriConnectionFactory factory = new UriConnectionFactory();
-		KeyValueStore src = factory.getStore(source);
+		KeyValueStore src = factory.getStore(props, source);
 		if (!(src instanceof IterableKeyValueStore)) {
 			throw new IllegalArgumentException(
 					String
@@ -206,7 +207,6 @@ public class ValkyrieRebalance implements Runnable, Callable<Map<String, Long>> 
 	private DistributedKeyValueStoreClientImpl getDestination()
 			throws FileNotFoundException, IOException {
 		PropertiesConfigurator configurator = new PropertiesConfigurator();
-		this.props = getProperties();
 		configurator.load(props);
 		DistributedKeyValueStoreClientImpl dest = new DistributedKeyValueStoreClientImpl();
 		dest.setConfigurator(configurator);

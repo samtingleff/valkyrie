@@ -99,7 +99,7 @@ public class PropertiesConfigurator implements Configurator {
 		Configuration config = new Configuration();
 		config
 				.setAsyncOperationQueue(new NonPersistentThreadPoolOperationQueue(
-						cf, asyncOperationThreadPoolCount,
+						p, cf, asyncOperationThreadPoolCount,
 						syncOperationMaxQueueSize));
 		config.setConnectionFactory(cf);
 		config
@@ -112,8 +112,10 @@ public class PropertiesConfigurator implements Configurator {
 		config.setReadReplicas(getIntProperty(p, READ_REPLICAS, 3));
 		config.setRequiredReads(getIntProperty(p, REQUIRED_READS, 2));
 		config.setRequiredWrites(getIntProperty(p, REQUIRED_WRITES, 2));
-		config.setSyncOperationQueue(new NonPersistentThreadPoolOperationQueue(
-				cf, syncOperationThreadPoolCount, asyncOperationMaxQueueSize));
+		config
+				.setSyncOperationQueue(new NonPersistentThreadPoolOperationQueue(
+						p, cf, syncOperationThreadPoolCount,
+						asyncOperationMaxQueueSize));
 		config.setWriteOperationTimeout(getIntProperty(p,
 				WRITE_OPERATION_TIMEOUT, 500));
 		config.setWriteReplicas(getIntProperty(p, WRITE_REPLICAS, 3));

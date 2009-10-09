@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -24,6 +25,7 @@ import tokyotyrant.transcoder.SerializingTranscoder;
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
+import com.othersonline.kv.KeyValueStoreStatus;
 import com.othersonline.kv.annotations.Configurable;
 import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.Transcoder;
@@ -57,11 +59,17 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 
 	private tokyotyrant.transcoder.Transcoder tokyoByteTranscoder = new ByteArrayTranscoder();
 
+	private Random random = new Random();
+
 	private String host = "localhost";
 
 	private int port = 1978;
 
 	private int socketTimeout = 2000;
+
+	private boolean readOnly = false;
+
+	private int syncFrequency = 0;
 
 	private int maxActive = 10;
 
@@ -104,6 +112,16 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 	@Configurable(name = "socketTimeout", accepts = Type.IntType)
 	public void setSocketTimeout(int millis) {
 		this.socketTimeout = millis;
+	}
+
+	@Configurable(name = "readOnly", accepts = Type.BooleanType)
+	public void setreadOnly(boolean value) {
+		this.readOnly = value;
+	}
+
+	@Configurable(name = "syncFrequency", accepts = Type.IntType)
+	public void setSyncFrequency(int syncFrequency) {
+		this.syncFrequency = syncFrequency;
 	}
 
 	@Configurable(name = "maxActive", accepts = Type.IntType)
@@ -171,6 +189,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			}
 		}
 		super.start();
+		if (readOnly)
+			super.setStatus(KeyValueStoreStatus.ReadOnly);
 	}
 
 	public void stop() {
@@ -345,6 +365,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		try {
 			rdb = getRDB();
 			rdb.put(key, value, tokyoDefaultTranscoder);
+			syncOnWrite(rdb);
 		} catch (NoSuchElementException e) {
 			log.error("NoSuchElementException waiting for connection:"
 					+ e.getMessage());
@@ -368,6 +389,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			rdb = getRDB();
 			byte[] bytes = transcoder.encode(value);
 			rdb.put(key, bytes, tokyoByteTranscoder);
+			syncOnWrite(rdb);
 		} catch (NoSuchElementException e) {
 			log.error("NoSuchElementException waiting for connection:"
 					+ e.getMessage());
@@ -389,6 +411,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		try {
 			rdb = getRDB();
 			rdb.out(key);
+			syncOnWrite(rdb);
 		} catch (NoSuchElementException e) {
 			log.error("NoSuchElementException waiting for connection:"
 					+ e.getMessage());
@@ -467,6 +490,28 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 			throw new KeyValueStoreException(e);
 		} catch (Exception e) {
 			log.error("Exception inside size()", e);
+			throw new KeyValueStoreException(e);
+		} finally {
+			releaseRDB(rdb);
+		}
+	}
+
+	public boolean sync() throws KeyValueStoreException {
+		assertWriteable();
+		RDB rdb = null;
+		try {
+			rdb = getRDB();
+			return rdb.sync();
+		} catch (NoSuchElementException e) {
+			log.error("NoSuchElementException waiting for connection:"
+					+ e.getMessage());
+			throw new KeyValueStoreException(e);
+		} catch (SocketTimeoutException e) {
+			log.error("SocketTimeoutException inside sync(): "
+					+ e.getMessage());
+			throw new KeyValueStoreException(e);
+		} catch (Exception e) {
+			log.error("Exception inside sync()", e);
 			throw new KeyValueStoreException(e);
 		} finally {
 			releaseRDB(rdb);
@@ -590,6 +635,11 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		} finally {
 			releaseRDB(rdb);
 		}
+	}
+
+	private void syncOnWrite(RDB rdb) throws IOException {
+		if ((syncFrequency > 0) && (random.nextInt(1000) < syncFrequency))
+			rdb.sync();
 	}
 
 	private RDB getRDB() throws Exception {

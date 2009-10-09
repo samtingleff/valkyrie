@@ -15,6 +15,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.pool.BasePoolableObjectFactory;
+import org.apache.commons.pool.impl.GenericObjectPool;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
@@ -33,9 +35,9 @@ import com.othersonline.kv.util.DaemonThreadFactory;
 /**
  * Multithreaded Valkyrie rebalancing job.
  * 
- * Given an input node (by uri) and a destination valkryie store, will:
- * 1) Write data that does NOT belong on the input node to the output store
- * 2) Delete successful writes from above on the input node (if --delete is provided)
+ * Given an input node (by uri) and a destination valkryie store, will: 1) Write
+ * data that does NOT belong on the input node to the output store 2) Delete
+ * successful writes from above on the input node (if --delete is provided)
  * 
  * Usage:
  * 
@@ -58,7 +60,8 @@ import com.othersonline.kv.util.DaemonThreadFactory;
  * 
  * - Find the node id of the source node (say 12)
  * 
- * - Run it: java -classpath oo-kv-storage.jar:... com.othersonline.kv.tools.MultithreadedValkyrieRebalance --source "tyrant://dev-db:1978" --node 12 --sleep 20 --properties /tmp/valkyrie.properties
+ * - Run it: java -classpath oo-kv-storage.jar:... com.othersonline.kv.tools.MultithreadedValkyrieRebalance
+ * --source "tyrant://dev-db:1978" --node 12 --sleep 20 --properties /tmp/valkyrie.properties
  * 
  * @author stingleff
  * 
@@ -93,7 +96,27 @@ public class MultithreadedValkyrieRebalance implements Runnable,
 
 	private Transcoder byteTranscoder = new ByteArrayTranscoder();
 
+	private IterableKeyValueStore src;
+
+	private DistributedKeyValueStoreClientImpl valkyrie;
+
 	private Properties props;
+
+	private int writeReplicas;
+
+	private AtomicLong examined;
+
+	private AtomicLong getFailures;
+
+	private AtomicLong setFailures;
+
+	private AtomicLong deleteFailures;
+
+	private AtomicLong moved;
+
+	private AtomicLong notMoved;
+
+	private GenericObjectPool runnablePool;
 
 	public static void main(String[] args) throws Exception {
 		MultithreadedValkyrieRebalance vr = new MultithreadedValkyrieRebalance();
@@ -117,8 +140,9 @@ public class MultithreadedValkyrieRebalance implements Runnable,
 	}
 
 	public Map<String, AtomicLong> call() throws Exception {
-		IterableKeyValueStore src = getSource();
-		DistributedKeyValueStoreClientImpl valkyrie = getDestination();
+		props = getProperties();
+		src = getSource();
+		valkyrie = getDestination();
 
 		// start a thread pool with one thread per active node
 		List<Node> nodeList = valkyrie.getConfiguration().getNodeStore()
@@ -128,9 +152,17 @@ public class MultithreadedValkyrieRebalance implements Runnable,
 				.size());
 		ThreadPoolExecutor threadPool = getExecutor(poolSize);
 
-		AtomicLong examined = new AtomicLong(), moved = new AtomicLong(), notMoved = new AtomicLong(), getFailures = new AtomicLong(), setFailures = new AtomicLong(), deleteFailures = new AtomicLong();
-		int writeReplicas = Integer.parseInt(props
-				.getProperty("write.replicas"));
+		examined = new AtomicLong();
+		moved = new AtomicLong();
+		notMoved = new AtomicLong();
+		getFailures = new AtomicLong();
+		setFailures = new AtomicLong();
+		deleteFailures = new AtomicLong();
+		writeReplicas = Integer.parseInt(props.getProperty("write.replicas"));
+
+		runnablePool = new GenericObjectPool(new RunnableObjectFactory(),
+				poolSize, GenericObjectPool.WHEN_EXHAUSTED_GROW, -1);
+
 		KeyValueStoreIterator keyIterator = src.iterkeys();
 		try {
 			Iterator<String> iter = keyIterator.iterator();
@@ -151,8 +183,10 @@ public class MultithreadedValkyrieRebalance implements Runnable,
 				if ((max > 0) && (examined.get() >= max))
 					break;
 
-				threadPool.submit(new RebalancingRunnable(src, valkyrie, writeReplicas, key, examined, getFailures, setFailures, deleteFailures, moved, notMoved));
-
+				RebalancingRunnable r = (RebalancingRunnable) runnablePool
+						.borrowObject();
+				r.setKey(key);
+				threadPool.submit(new RebalancingRunnable(key));
 			}
 		} finally {
 			keyIterator.close();
@@ -174,7 +208,7 @@ public class MultithreadedValkyrieRebalance implements Runnable,
 	private IterableKeyValueStore getSource() throws KeyValueStoreUnavailable,
 			IOException {
 		UriConnectionFactory factory = new UriConnectionFactory();
-		KeyValueStore src = factory.getStore(source);
+		KeyValueStore src = factory.getStore(props, source);
 		if (!(src instanceof IterableKeyValueStore)) {
 			throw new IllegalArgumentException(
 					String
@@ -188,7 +222,6 @@ public class MultithreadedValkyrieRebalance implements Runnable,
 	private DistributedKeyValueStoreClientImpl getDestination()
 			throws FileNotFoundException, IOException {
 		PropertiesConfigurator configurator = new PropertiesConfigurator();
-		this.props = getProperties();
 		configurator.load(props);
 		DistributedKeyValueStoreClientImpl dest = new DistributedKeyValueStoreClientImpl();
 		dest.setConfigurator(configurator);
@@ -216,85 +249,87 @@ public class MultithreadedValkyrieRebalance implements Runnable,
 	}
 
 	private class RebalancingRunnable implements Runnable {
-		private KeyValueStore src;
-
-		private DistributedKeyValueStoreClientImpl valkyrie;
-
-		private int writeReplicas;
 
 		private String key;
 
-		private AtomicLong examined;
-		private AtomicLong getFailures;
-		private AtomicLong setFailures;
-		private AtomicLong deleteFailures;
-		private AtomicLong moved;
-		private AtomicLong notMoved;
-		public RebalancingRunnable(KeyValueStore src,
-				DistributedKeyValueStoreClientImpl valkyrie, int writeReplicas, String key, AtomicLong examined, AtomicLong getFailures, AtomicLong setFailures,
-				AtomicLong deleteFailures, AtomicLong moved, AtomicLong notMoved) {
-			this.src = src;
-			this.valkyrie = valkyrie;
-			this.writeReplicas = writeReplicas;
+		public RebalancingRunnable(String key) {
 			this.key = key;
-			this.examined = examined;
-			this.getFailures = getFailures;
-			this.setFailures = setFailures;
-			this.deleteFailures = deleteFailures;
-			this.moved = moved;
-			this.notMoved = notMoved;
+		}
+
+		public RebalancingRunnable() {
+		}
+
+		public void setKey(String key) {
+			this.key = key;
 		}
 
 		public void run() {
-			List<Node> preferenceList = valkyrie.getPreferenceList(key,
-					writeReplicas);
-			boolean set = true;
+			try {
+				List<Node> preferenceList = valkyrie.getPreferenceList(key,
+						writeReplicas);
+				boolean set = true;
 
-			for (Node node : preferenceList) {
-				if (node.getId() == nodeId) {
-					set = false;
-					return;
-				}
-			}
-			if (set) {
-				byte[] bytes = null;
-				boolean successfulMove = false;
-
-				try {
-					bytes = (byte[]) src.get(key, byteTranscoder);
-				} catch (Exception e) {
-					e.printStackTrace();
-					getFailures.incrementAndGet();
-				}
-				try {
-					if (bytes != null) {
-						valkyrie.set(key, bytes, byteTranscoder);
-						successfulMove = true;
-						moved.incrementAndGet();
+				for (Node node : preferenceList) {
+					if (node.getId() == nodeId) {
+						set = false;
+						return;
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
-					setFailures.incrementAndGet();
 				}
-				try {
-					if (successfulMove && delete)
-						src.delete(key);
-				} catch (Exception e) {
-					e.printStackTrace();
-					deleteFailures.incrementAndGet();
-				}
-			} else
-				notMoved.incrementAndGet();
+				if (set) {
+					byte[] bytes = null;
+					boolean successfulMove = false;
 
-			if (examined.get() % 1000 == 0) {
-				System.out.println("Status");
-				System.out.println("examined:       " + examined.get());
-				System.out.println("moved:          " + moved.get());
-				System.out.println("notMoved:       " + notMoved.get());
-				System.out.println("getFailures:    " + getFailures.get());
-				System.out.println("setFailures:    " + setFailures.get());
-				System.out.println("deleteFailures: " + deleteFailures.get());
+					try {
+						bytes = (byte[]) src.get(key, byteTranscoder);
+					} catch (Exception e) {
+						e.printStackTrace();
+						getFailures.incrementAndGet();
+					}
+					try {
+						if (bytes != null) {
+							valkyrie.set(key, bytes, byteTranscoder);
+							successfulMove = true;
+							moved.incrementAndGet();
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						setFailures.incrementAndGet();
+					}
+					try {
+						if (successfulMove && delete)
+							src.delete(key);
+					} catch (Exception e) {
+						e.printStackTrace();
+						deleteFailures.incrementAndGet();
+					}
+				} else
+					notMoved.incrementAndGet();
+
+				if (examined.get() % 1000 == 0) {
+					System.out.println("Status");
+					System.out.println("examined:       " + examined.get());
+					System.out.println("moved:          " + moved.get());
+					System.out.println("notMoved:       " + notMoved.get());
+					System.out.println("getFailures:    " + getFailures.get());
+					System.out.println("setFailures:    " + setFailures.get());
+					System.out.println("deleteFailures: "
+							+ deleteFailures.get());
+				}
+			} finally {
+				try {
+					runnablePool.returnObject(this);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
+	}
+
+	private class RunnableObjectFactory extends BasePoolableObjectFactory {
+
+		public Object makeObject() throws Exception {
+			return new RebalancingRunnable();
+		}
+
 	}
 }
