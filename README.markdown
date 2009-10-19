@@ -41,7 +41,7 @@ permanent storage:
 		store.setCache(cache);
 		store.start();
 
-		// this will save to tokyo tyrant, then to memcached
+		// this will save to memcached then to tokyo tyrant
 		String key = "some.key";
 		store.set(key, new Integer(14));
 		assertEquals(master.get(key), cache.get(key));
@@ -72,7 +72,7 @@ permanent storage:
 				oscache);
 		firstCache.start();
 
-		// this will save to tokyo tyrant, then to memcached
+		// this will save to OsCache, then memcached, then Tokyo Tyrant
 		String key = "some.key";
 		firstCache.set(key, new Integer(14));
 		assertEquals(master.get(key), firstCache.get(key));
