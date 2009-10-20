@@ -84,7 +84,7 @@ public class BDBKeyValueStore extends BaseManagedKeyValueStore implements
 		this.environmentConfig = cfg;
 	}
 
-	@Configurable(name = "transaction", accepts = Type.BooleanType)
+	@Configurable(name = "transactional", accepts = Type.BooleanType)
 	public void setTransactional(boolean transactional) {
 		this.transactional = transactional;
 	}
