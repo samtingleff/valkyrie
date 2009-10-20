@@ -12,6 +12,7 @@ Currently supported backends include:
 - [OsCache](http://www.opensymphony.com/oscache/ "OsCache")
 - [memcached](http://www.danga.com/memcached/ "memcached") (and cousins [MemcacheQ](http://memcachedb.org/memcacheq/ "MemcacheQ") and [MemcacheDB](http://memcachedb.org/ "MemcacheDB"))
 - [BDB JE](http://www.oracle.com/database/berkeley-db/je/ "BDB Java Edition")
+- [BDB](http://www.oracle.com/database/berkeley-db/ "BDB native using JNI")
 - [Tokyo Cabinet](http://1978th.net/tokyocabinet/ "Tokyo Tyrant")
 - [Tokyo Tyrant](http://1978th.net/tokyotyrant/ "Tokyo Tyrant")
 - [Project Voldemort](http://project-voldemort.com/ "Project Voldemort")
