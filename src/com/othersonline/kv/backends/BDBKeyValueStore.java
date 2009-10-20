@@ -14,6 +14,8 @@ import org.apache.commons.logging.LogFactory;
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
+import com.othersonline.kv.annotations.Configurable;
+import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.SerializableTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 import com.sleepycat.db.Cursor;
@@ -42,14 +44,14 @@ public class BDBKeyValueStore extends BaseManagedKeyValueStore implements
 	private boolean transactional = EnvironmentConfig.DEFAULT
 			.getTransactional();
 
+	private boolean enableLogging = EnvironmentConfig.DEFAULT
+			.getInitializeLogging();
+
+	private boolean flushTransactions = false;
+
 	private long cacheSize = EnvironmentConfig.DEFAULT.getCacheSize();
 
-	private boolean allowCreate = EnvironmentConfig.DEFAULT.getAllowCreate();
-
 	private int maxLogFileSize = EnvironmentConfig.DEFAULT.getMaxLogFileSize();
-
-	private boolean sortedDuplicates = DatabaseConfig.DEFAULT
-			.getSortedDuplicates();
 
 	private String dataDirectory;
 
@@ -78,29 +80,57 @@ public class BDBKeyValueStore extends BaseManagedKeyValueStore implements
 		return IDENTIFIER;
 	}
 
+	public void setEnvironmentConfig(EnvironmentConfig cfg) {
+		this.environmentConfig = cfg;
+	}
+
+	@Configurable(name = "transaction", accepts = Type.BooleanType)
 	public void setTransactional(boolean transactional) {
 		this.transactional = transactional;
 	}
 
+	@Configurable(name = "enableLogging", accepts = Type.BooleanType)
+	public void setEnableLogging(boolean enableLogging) {
+		this.enableLogging = enableLogging;
+	}
+
+	@Configurable(name = "flushTransactions", accepts = Type.BooleanType)
+	public void setFlushTransactions(boolean flushTransactions) {
+		this.flushTransactions = flushTransactions;
+	}
+
+	@Configurable(name = "cacheSize", accepts = Type.LongType)
 	public void setCacheSize(long cacheSize) {
 		this.cacheSize = cacheSize;
 	}
 
-	public void setAllowCreate(boolean allowCreate) {
-		this.allowCreate = allowCreate;
+	@Configurable(name = "maxLogFileSize", accepts = Type.IntType)
+	public void setMaxLogFileSize(int maxLogFileSize) {
+		this.maxLogFileSize = maxLogFileSize;
+	}
+
+	@Configurable(name = "dataDirectory", accepts = Type.StringType)
+	public void setDataDirectory(String dataDirectory) {
+		this.dataDirectory = dataDirectory;
+	}
+
+	@Configurable(name = "dbType", accepts = Type.StringType)
+	public void setDbType(String dbType) {
+		this.dbType = dbType;
+	}
+
+	@Configurable(name = "filename", accepts = Type.StringType)
+	public void setFilename(String filename) {
+		this.filename = filename;
 	}
 
 	public void start() throws IOException {
 		log.trace("start()");
 		try {
-			environmentConfig = new EnvironmentConfig();
-			environmentConfig.setTransactional(transactional);
-			environmentConfig.setCacheSize(cacheSize);
-			environmentConfig.setAllowCreate(allowCreate);
-			environmentConfig.setMaxLogFileSize(maxLogFileSize);
+			environmentConfig = getEnvironmentConfig();
 			databaseConfig = new DatabaseConfig();
-			databaseConfig.setAllowCreate(allowCreate);
-			databaseConfig.setSortedDuplicates(sortedDuplicates);
+			databaseConfig.setAllowCreate(true);
+			databaseConfig.setSortedDuplicates(false);
 			databaseConfig.setTransactional(transactional);
 			databaseConfig.setType(getDatabaseType(dbType));
 			bdbdir = new File(dataDirectory);
@@ -110,12 +140,42 @@ public class BDBKeyValueStore extends BaseManagedKeyValueStore implements
 				bdbdir.mkdirs();
 			}
 			environment = new Environment(bdbdir, environmentConfig);
-			db = new Database(filename, null, databaseConfig);
+			if (transactional) {
+				Transaction dbTx = environment.beginTransaction(null, null);
+				db = environment.openDatabase(dbTx, filename, null,
+						databaseConfig);
+				dbTx.commit();
+			} else {
+				db = new Database(filename, null, databaseConfig);
+			}
 			super.start();
 		} catch (DatabaseException e) {
 			log.error("DatabaseException inside start()", e);
 			throw new IOException(e);
 		}
+	}
+
+	private EnvironmentConfig getEnvironmentConfig() {
+		if (environmentConfig != null)
+			return environmentConfig;
+		environmentConfig = new EnvironmentConfig();
+		environmentConfig.setTransactional(transactional);
+		environmentConfig.setCacheSize(cacheSize);
+		environmentConfig.setInitializeCache(true);
+		environmentConfig.setInitializeLocking(true);
+		environmentConfig.setInitializeLogging(enableLogging);
+		if (transactional && flushTransactions) {
+			environmentConfig.setTxnNoSync(false);
+			environmentConfig.setTxnWriteNoSync(false);
+		} else if (transactional && !flushTransactions) {
+			environmentConfig.setTxnNoSync(false);
+			environmentConfig.setTxnWriteNoSync(true);
+		} else {
+			environmentConfig.setTxnNoSync(true);
+		}
+		environmentConfig.setAllowCreate(true);
+		environmentConfig.setMaxLogFileSize(maxLogFileSize);
+		return environmentConfig;
 	}
 
 	public void stop() {
