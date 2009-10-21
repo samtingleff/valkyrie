@@ -433,6 +433,15 @@ public class BDBKeyValueStore extends BaseManagedKeyValueStore implements
 		}
 	}
 
+	public void sync() throws KeyValueStoreException {
+		try {
+			db.sync();
+		} catch (DatabaseException e) {
+			log.error("DatabaseException calling sync()", e);
+			throw new KeyValueStoreException(e);
+		}
+	}
+
 	private DatabaseType getDatabaseType(String type) {
 		if (type == null)
 			return DatabaseType.BTREE;
