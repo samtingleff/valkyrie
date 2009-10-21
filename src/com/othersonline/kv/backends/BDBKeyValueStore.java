@@ -35,6 +35,14 @@ public class BDBKeyValueStore extends BaseManagedKeyValueStore implements
 
 	public static final String IDENTIFIER = "bdb";
 
+	public static final String BTREE = "btree";
+
+	public static final String HASH = "hash";
+
+	public static final String QUEUE = "queue";
+
+	public static final String RECNO = "recno";
+
 	private static Log log = LogFactory.getLog(BDBKeyValueStore.class);
 
 	private static Transcoder defaultTranscoder = new SerializableTranscoder();
@@ -428,13 +436,13 @@ public class BDBKeyValueStore extends BaseManagedKeyValueStore implements
 	private DatabaseType getDatabaseType(String type) {
 		if (type == null)
 			return DatabaseType.BTREE;
-		else if ("btree".equals(type))
+		else if (BTREE.equals(type))
 			return DatabaseType.BTREE;
-		else if ("hash".equals(type))
+		else if (HASH.equals(type))
 			return DatabaseType.HASH;
-		else if ("queue".equals(type))
+		else if (QUEUE.equals(type))
 			return DatabaseType.QUEUE;
-		else if ("recno".equals(type))
+		else if (RECNO.equals(type))
 			return DatabaseType.RECNO;
 		else {
 			log.error("Unknown database type " + type);
