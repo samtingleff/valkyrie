@@ -137,6 +137,8 @@ public class NodeCopy implements Runnable, Callable<Map<String, Long>> {
 			}
 		} finally {
 			keyIterator.close();
+			src.stop();
+			kv.stop();
 		}
 		Map<String, Long> results = new HashMap<String, Long>();
 		results.put("examined", examined);

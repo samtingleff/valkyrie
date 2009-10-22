@@ -12,7 +12,9 @@ Currently supported backends include:
 - [OsCache](http://www.opensymphony.com/oscache/ "OsCache")
 - [memcached](http://www.danga.com/memcached/ "memcached") (and cousins [MemcacheQ](http://memcachedb.org/memcacheq/ "MemcacheQ") and [MemcacheDB](http://memcachedb.org/ "MemcacheDB"))
 - [BDB JE](http://www.oracle.com/database/berkeley-db/je/ "BDB Java Edition")
-- [Tokyo Tyrant](http://tokyocabinet.sourceforge.net/tyrantdoc/ "Tokyo Tyrant")
+- [BDB](http://www.oracle.com/database/berkeley-db/ "BDB native using JNI")
+- [Tokyo Cabinet](http://1978th.net/tokyocabinet/ "Tokyo Tyrant")
+- [Tokyo Tyrant](http://1978th.net/tokyotyrant/ "Tokyo Tyrant")
 - [Project Voldemort](http://project-voldemort.com/ "Project Voldemort")
 - a simple file-system backed store
 - WebDAV (tested against Apache mod_dav, nginx and lighttpd)
@@ -40,7 +42,7 @@ permanent storage:
 		store.setCache(cache);
 		store.start();
 
-		// this will save to tokyo tyrant, then to memcached
+		// this will save to memcached then to tokyo tyrant
 		String key = "some.key";
 		store.set(key, new Integer(14));
 		assertEquals(master.get(key), cache.get(key));
@@ -71,7 +73,7 @@ permanent storage:
 				oscache);
 		firstCache.start();
 
-		// this will save to tokyo tyrant, then to memcached
+		// this will save to OsCache, then memcached, then Tokyo Tyrant
 		String key = "some.key";
 		firstCache.set(key, new Integer(14));
 		assertEquals(master.get(key), firstCache.get(key));

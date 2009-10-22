@@ -29,5 +29,6 @@
 	<classpathentry kind="lib" path="lib/tokyotyrant-0.9.jar"/>
 	<classpathentry kind="lib" path="lib/tokyocabinet-1.20.jar"/>
 	<classpathentry kind="lib" path="lib/args4j-2.0.12.jar"/>
+	<classpathentry kind="lib" path="lib/bdb-alt-4.7.25.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

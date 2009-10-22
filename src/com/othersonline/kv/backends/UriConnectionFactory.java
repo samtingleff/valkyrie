@@ -70,7 +70,9 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 
 	private KeyValueStore openConnection(String type) {
 		KeyValueStore store = null;
-		if ("bdbje".equals(type))
+		if ("bdb".equals(type))
+			store = new BDBKeyValueStore();
+		else if ("bdbje".equals(type))
 			store = new BDBJEKeyValueStore();
 		else if ("hash".equals(type))
 			store = new ConcurrentHashMapKeyValueStore();
