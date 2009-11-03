@@ -31,7 +31,7 @@ import com.sleepycat.db.OperationStatus;
 import com.sleepycat.db.Transaction;
 
 public class BDBKeyValueStore extends BaseManagedKeyValueStore implements
-		KeyValueStore, IterableKeyValueStore {
+		KeyValueStore, IterableKeyValueStore, LocalKeyValueStore {
 
 	public static final String IDENTIFIER = "bdb";
 
