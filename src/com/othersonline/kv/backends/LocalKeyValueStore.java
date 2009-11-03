@@ -6,4 +6,5 @@ public interface LocalKeyValueStore {
 
 	public void sync() throws KeyValueStoreException;
 
+	public void stop() throws KeyValueStoreException;
 }
