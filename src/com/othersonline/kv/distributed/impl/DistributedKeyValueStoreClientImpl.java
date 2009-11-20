@@ -90,6 +90,7 @@ public class DistributedKeyValueStoreClientImpl extends
 	@Override
 	public void stop() {
 		super.stop();
+		store.stop();
 	}
 
 	public boolean exists(String key) throws KeyValueStoreException,

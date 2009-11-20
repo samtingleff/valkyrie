@@ -10,6 +10,8 @@ public interface OperationQueue {
 
 	public void start();
 
+	public void stop();
+
 	public int getQueueSize();
 
 	public <V> Future<OperationResult<V>> submit(Operation<V> operation)
