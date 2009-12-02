@@ -31,6 +31,7 @@ public abstract class KeyValueStoreBackendTestCase extends TestCase {
 
 	protected void doTestBackend(KeyValueStore store) throws Exception {
 		String key = "some/key";
+		SerializableTranscoder serializer = new SerializableTranscoder();
 		assertEquals(store.getStatus(), KeyValueStoreStatus.Offline);
 		try {
 			store.get(key);
@@ -50,10 +51,10 @@ public abstract class KeyValueStoreBackendTestCase extends TestCase {
 		assertEquals(store.get(key), "hello world");
 
 		SampleV v = new SampleV(10, "hello world", 12);
-		store.set(key, v);
+		store.set(key, v, new SerializableTranscoder());
 		Thread.sleep(100l);
 		assertTrue(store.exists(key));
-		SampleV v2 = (SampleV) store.get(key);
+		SampleV v2 = (SampleV) store.get(key, serializer);
 		assertNotNull(v2);
 		assertEquals(v2.someRequiredInt, v.someRequiredInt);
 		assertEquals(v2.someString, v.someString);
@@ -63,12 +64,12 @@ public abstract class KeyValueStoreBackendTestCase extends TestCase {
 		Map<String, Object> map = store.getBulk("xyz123", "abcdefg",
 				"sdfdsfer", "weruiwer");
 		assertEquals(map.size(), 0);
-		map = store.getBulk(key, "abcdefg");
+		map = store.getBulk(Arrays.asList(new String[] { key, "abcdefg" }), serializer);
 		assertEquals(map.size(), 1);
 		assertEquals(((SampleV) map.get(key)).someRequiredInt,
 				v.someRequiredInt);
 		map = store.getBulk(Arrays
-				.asList(new String[] { "sxyzxv", "123", key }));
+				.asList(new String[] { "sxyzxv", "123", key }), serializer);
 		assertEquals(map.size(), 1);
 		assertEquals(((SampleV) map.get(key)).someRequiredInt,
 				v.someRequiredInt);
@@ -83,7 +84,7 @@ public abstract class KeyValueStoreBackendTestCase extends TestCase {
 
 		// set status to read only
 		store.setStatus(KeyValueStoreStatus.ReadOnly);
-		SampleV v3 = (SampleV) store.get(key);
+		SampleV v3 = (SampleV) store.get(key, serializer);
 		assertNotNull(v3);
 		try {
 			store.set(key, v3);
