@@ -98,7 +98,7 @@ public class TokyoCabinetBackendTestCase extends KeyValueStoreBackendTestCase {
 		assertTrue(store.optimize());
 
 		// test sync()
-		assertTrue(store.sync());
+		store.sync();
 
 		// test vanish()
 		assertTrue(store.vanish());

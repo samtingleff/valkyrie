@@ -57,6 +57,8 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 
 	private boolean useKetama = true;
 
+	private boolean isDaemon = false;
+
 	private long getOperationTimeout = 1000l;
 
 	private long setOperationTimeout = 1000l;
@@ -103,6 +105,11 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		this.useKetama = useKetama;
 	}
 
+	@Configurable(name = "isDaemon", accepts = Type.BooleanType)
+	public void setIsDaemon(boolean isDaemon) {
+		this.isDaemon = isDaemon;
+	}
+
 	@Configurable(name = "getOperationTimeout", accepts = Type.LongType)
 	public void setGetOperationTimeout(long millis) {
 		this.getOperationTimeout = millis;
@@ -116,13 +123,13 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	public void start() throws IOException {
 		ConnectionFactory cf = null;
 		if (useBinaryProtocol && useKetama)
-			cf = new KetamaBinaryConnectionFactory();
+			cf = new DaemonizableKetamaBinaryConnectionFactory(isDaemon);
 		else if (useBinaryProtocol)
-			cf = new BinaryConnectionFactory();
+			cf = new DaemonizableBinaryConnectionFactory(isDaemon);
 		else if (useKetama)
-			cf = new KetamaConnectionFactory();
+			cf = new DaemonizableKetamaConnectionFactory(isDaemon);
 		else
-			cf = new DefaultConnectionFactory();
+			cf = new DaemonizableConnectionFactory(isDaemon);
 		if (hosts == null)
 			hosts = Arrays.asList(new InetSocketAddress(host, port));
 		mcc = new MemcachedClient(cf, hosts);
@@ -506,20 +513,54 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	}
 
 	/**
+	 * Subclassing DefaultConnectionFactory to allow isDaemon() to return true
+	 * if desired. Without this our hadoop jobs using the spy memcached client
+	 * would zombify and the process would live forever.
+	 * 
+	 * @author sam
+	 * 
+	 */
+	private static class DaemonizableConnectionFactory extends
+			DefaultConnectionFactory {
+		private boolean isDaemonThread = false;
+
+		public DaemonizableConnectionFactory(int qLen, int bufSize,
+				HashAlgorithm hash, boolean isDaemon) {
+			super(qLen, bufSize, hash);
+			this.isDaemonThread = isDaemon;
+		}
+
+		public DaemonizableConnectionFactory(int qLen, int bufSize,
+				boolean isDaemon) {
+			super(qLen, bufSize);
+			this.isDaemonThread = isDaemon;
+		}
+
+		public DaemonizableConnectionFactory(boolean isDaemon) {
+			super();
+			this.isDaemonThread = isDaemon;
+		}
+
+		public boolean isDaemon() {
+			return isDaemonThread;
+		}
+	}
+
+	/**
 	 * A binary wire protocol that uses ketama hashing and ketama node locator.
 	 * 
 	 * @author sam
 	 * 
 	 */
-	private static class KetamaBinaryConnectionFactory extends
-			DefaultConnectionFactory {
-
-		public KetamaBinaryConnectionFactory(int qLen, int bufSize) {
-			super(qLen, bufSize, HashAlgorithm.KETAMA_HASH);
+	private static class DaemonizableKetamaBinaryConnectionFactory extends
+			DaemonizableConnectionFactory {
+		public DaemonizableKetamaBinaryConnectionFactory(int qLen, int bufSize,
+				boolean isDaemon) {
+			super(qLen, bufSize, HashAlgorithm.KETAMA_HASH, isDaemon);
 		}
 
-		public KetamaBinaryConnectionFactory() {
-			this(DEFAULT_OP_QUEUE_LEN, DEFAULT_READ_BUFFER_SIZE);
+		public DaemonizableKetamaBinaryConnectionFactory(boolean isDaemon) {
+			this(DEFAULT_OP_QUEUE_LEN, DEFAULT_READ_BUFFER_SIZE, isDaemon);
 		}
 
 		public NodeLocator createLocator(List<MemcachedNode> nodes) {
@@ -536,5 +577,34 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		public OperationFactory getOperationFactory() {
 			return new BinaryOperationFactory();
 		}
+	}
+
+	private static class DaemonizableKetamaConnectionFactory extends
+			KetamaConnectionFactory {
+		private boolean isDaemonThread = false;
+
+		public DaemonizableKetamaConnectionFactory(boolean isDaemon) {
+			super();
+			this.isDaemonThread = isDaemon;
+		}
+
+		public boolean isDaemon() {
+			return isDaemonThread;
+		}
+	}
+
+	private static class DaemonizableBinaryConnectionFactory extends
+			BinaryConnectionFactory {
+		private boolean isDaemonThread = false;
+
+		public DaemonizableBinaryConnectionFactory(boolean isDaemon) {
+			super();
+			this.isDaemonThread = isDaemon;
+		}
+
+		public boolean isDaemon() {
+			return isDaemonThread;
+		}
+
 	}
 }

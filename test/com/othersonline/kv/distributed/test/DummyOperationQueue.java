@@ -30,6 +30,9 @@ public class DummyOperationQueue implements OperationQueue {
 	public void start() {
 	}
 
+	public void stop() {
+	}
+
 	public int getQueueSize() {
 		return 0;
 	}

@@ -1,14 +1,10 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import tokyocabinet.BDB;
 import tokyocabinet.DBM;
@@ -22,10 +18,9 @@ import com.othersonline.kv.annotations.Configurable.Type;
 import com.othersonline.kv.transcoder.SerializableTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 
-public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore implements IterableKeyValueStore {
+public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore
+		implements IterableKeyValueStore, LocalKeyValueStore {
 	public static final String IDENTIFIER = "tokyocabinet";
-
-	private Log log = LogFactory.getLog(getClass());
 
 	private Transcoder defaultTranscoder = new SerializableTranscoder();
 
@@ -196,12 +191,12 @@ public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore implemen
 		return dbm.fsiz();
 	}
 
-	public boolean sync() throws KeyValueStoreUnavailable {
+	public void sync() throws KeyValueStoreUnavailable {
 		assertWriteable();
 		if (btree)
-			return bdb.sync();
+			bdb.sync();
 		else
-			return hdb.sync();
+			hdb.sync();
 	}
 
 	public boolean optimize() throws KeyValueStoreUnavailable {
@@ -220,9 +215,12 @@ public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore implemen
 			return hdb.vanish();
 	}
 
-	private class TokyoCabinetIterator implements KeyValueStoreIterator, Iterator<String> {
+	private class TokyoCabinetIterator implements KeyValueStoreIterator,
+			Iterator<String> {
 		private DBM dbm;
+
 		private String next;
+
 		public TokyoCabinetIterator(DBM dbm) {
 			this.dbm = dbm;
 		}
@@ -230,6 +228,7 @@ public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore implemen
 		public Iterator<String> iterator() {
 			return this;
 		}
+
 		public void close() {
 		}
 
@@ -245,9 +244,11 @@ public class TokyoCabinetKeyValueStore extends BaseManagedKeyValueStore implemen
 		public void remove() {
 			dbm.out(next);
 		}
-		
+
 	}
-	private static class NullIterator implements KeyValueStoreIterator, Iterator<String> {
+
+	private static class NullIterator implements KeyValueStoreIterator,
+			Iterator<String> {
 		public Iterator<String> iterator() {
 			return this;
 		}

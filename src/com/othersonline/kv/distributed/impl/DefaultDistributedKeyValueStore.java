@@ -87,6 +87,11 @@ public class DefaultDistributedKeyValueStore implements
 			contextFilter = new NodeRankContextFilter<byte[]>(config);
 	}
 
+	public void stop() {
+		syncOperationQueue.stop();
+		asyncOperationQueue.stop();
+	}
+
 	/**
 	 * Low-level method to return node list for a given key.
 	 */
