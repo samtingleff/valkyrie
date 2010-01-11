@@ -10,8 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -26,6 +28,7 @@ import net.spy.memcached.MemcachedClient;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.NodeLocator;
 import net.spy.memcached.OperationFactory;
+import net.spy.memcached.ops.Operation;
 import net.spy.memcached.protocol.binary.BinaryMemcachedNodeImpl;
 import net.spy.memcached.protocol.binary.BinaryOperationFactory;
 
@@ -62,6 +65,10 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	private long getOperationTimeout = 1000l;
 
 	private long setOperationTimeout = 1000l;
+
+	private int readOperationCapacity = -1;
+
+	private int writeOperationCapacity = -1;
 
 	private List<InetSocketAddress> hosts;
 
@@ -120,16 +127,30 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		this.setOperationTimeout = millis;
 	}
 
+	@Configurable(name = "readOperationCapacity", accepts = Type.IntType)
+	public void setReadOperationCapacity(int capacity) {
+		this.readOperationCapacity = capacity;
+	}
+
+	@Configurable(name = "writeOperationCapacity", accepts = Type.IntType)
+	public void setWriteOperationCapacity(int capacity) {
+		this.writeOperationCapacity = capacity;
+	}
+
 	public void start() throws IOException {
 		ConnectionFactory cf = null;
 		if (useBinaryProtocol && useKetama)
-			cf = new DaemonizableKetamaBinaryConnectionFactory(isDaemon);
+			cf = new DaemonizableKetamaBinaryConnectionFactory(isDaemon,
+					readOperationCapacity, writeOperationCapacity);
 		else if (useBinaryProtocol)
-			cf = new DaemonizableBinaryConnectionFactory(isDaemon);
+			cf = new DaemonizableBinaryConnectionFactory(isDaemon,
+					readOperationCapacity, writeOperationCapacity);
 		else if (useKetama)
-			cf = new DaemonizableKetamaConnectionFactory(isDaemon);
+			cf = new DaemonizableKetamaConnectionFactory(isDaemon,
+					readOperationCapacity, writeOperationCapacity);
 		else
-			cf = new DaemonizableConnectionFactory(isDaemon);
+			cf = new DaemonizableConnectionFactory(isDaemon,
+					readOperationCapacity, writeOperationCapacity);
 		if (hosts == null)
 			hosts = Arrays.asList(new InetSocketAddress(host, port));
 		mcc = new MemcachedClient(cf, hosts);
@@ -513,9 +534,10 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	}
 
 	/**
-	 * Subclassing DefaultConnectionFactory to allow isDaemon() to return true
-	 * if desired. Without this our hadoop jobs using the spy memcached client
-	 * would zombify and the process would live forever.
+	 * Subclassing DefaultConnectionFactory to (1) allow isDaemon() to return
+	 * true if desired and (2) allow for bounded read/write op queues. Without
+	 * (1) our hadoop jobs using the spy memcached client would zombify and the
+	 * process would live forever.
 	 * 
 	 * @author sam
 	 * 
@@ -524,26 +546,52 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 			DefaultConnectionFactory {
 		private boolean isDaemonThread = false;
 
+		private int readOperationCapacity;
+
+		private int writeOperationCapacity;
+
 		public DaemonizableConnectionFactory(int qLen, int bufSize,
-				HashAlgorithm hash, boolean isDaemon) {
+				HashAlgorithm hash, boolean isDaemon,
+				int readOperationCapacity, int writeOperationCapacity) {
 			super(qLen, bufSize, hash);
 			this.isDaemonThread = isDaemon;
+			this.readOperationCapacity = readOperationCapacity;
+			this.writeOperationCapacity = writeOperationCapacity;
 		}
 
 		public DaemonizableConnectionFactory(int qLen, int bufSize,
-				boolean isDaemon) {
+				boolean isDaemon, int readOperationCapacity,
+				int writeOperationCapacity) {
 			super(qLen, bufSize);
 			this.isDaemonThread = isDaemon;
+			this.readOperationCapacity = readOperationCapacity;
+			this.writeOperationCapacity = writeOperationCapacity;
 		}
 
-		public DaemonizableConnectionFactory(boolean isDaemon) {
+		public DaemonizableConnectionFactory(boolean isDaemon,
+				int readOperationCapacity, int writeOperationCapacity) {
 			super();
 			this.isDaemonThread = isDaemon;
+			this.readOperationCapacity = readOperationCapacity;
+			this.writeOperationCapacity = writeOperationCapacity;
 		}
 
 		public boolean isDaemon() {
 			return isDaemonThread;
 		}
+
+		public BlockingQueue<Operation> createReadOperationQueue() {
+			return (readOperationCapacity > 0) ? new LinkedBlockingQueue<Operation>(
+					readOperationCapacity)
+					: new LinkedBlockingQueue<Operation>();
+		}
+
+		public BlockingQueue<Operation> createWriteOperationQueue() {
+			return (writeOperationCapacity > 0) ? new LinkedBlockingQueue<Operation>(
+					writeOperationCapacity)
+					: new LinkedBlockingQueue<Operation>();
+		}
+
 	}
 
 	/**
@@ -555,12 +603,16 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 	private static class DaemonizableKetamaBinaryConnectionFactory extends
 			DaemonizableConnectionFactory {
 		public DaemonizableKetamaBinaryConnectionFactory(int qLen, int bufSize,
-				boolean isDaemon) {
-			super(qLen, bufSize, HashAlgorithm.KETAMA_HASH, isDaemon);
+				boolean isDaemon, int readOperationCapacity,
+				int writeOperationCapacity) {
+			super(qLen, bufSize, HashAlgorithm.KETAMA_HASH, isDaemon,
+					readOperationCapacity, writeOperationCapacity);
 		}
 
-		public DaemonizableKetamaBinaryConnectionFactory(boolean isDaemon) {
-			this(DEFAULT_OP_QUEUE_LEN, DEFAULT_READ_BUFFER_SIZE, isDaemon);
+		public DaemonizableKetamaBinaryConnectionFactory(boolean isDaemon,
+				int readOperationCapacity, int writeOperationCapacity) {
+			this(DEFAULT_OP_QUEUE_LEN, DEFAULT_READ_BUFFER_SIZE, isDaemon,
+					readOperationCapacity, writeOperationCapacity);
 		}
 
 		public NodeLocator createLocator(List<MemcachedNode> nodes) {
@@ -583,13 +635,30 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 			KetamaConnectionFactory {
 		private boolean isDaemonThread = false;
 
-		public DaemonizableKetamaConnectionFactory(boolean isDaemon) {
+		private int readOperationCapacity;
+
+		private int writeOperationCapacity;
+
+		public DaemonizableKetamaConnectionFactory(boolean isDaemon,
+				int readOperationCapacity, int writeOperationCapacity) {
 			super();
 			this.isDaemonThread = isDaemon;
 		}
 
 		public boolean isDaemon() {
 			return isDaemonThread;
+		}
+
+		public BlockingQueue<Operation> createReadOperationQueue() {
+			return (readOperationCapacity > 0) ? new LinkedBlockingQueue<Operation>(
+					readOperationCapacity)
+					: new LinkedBlockingQueue<Operation>();
+		}
+
+		public BlockingQueue<Operation> createWriteOperationQueue() {
+			return (writeOperationCapacity > 0) ? new LinkedBlockingQueue<Operation>(
+					writeOperationCapacity)
+					: new LinkedBlockingQueue<Operation>();
 		}
 	}
 
@@ -597,7 +666,12 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 			BinaryConnectionFactory {
 		private boolean isDaemonThread = false;
 
-		public DaemonizableBinaryConnectionFactory(boolean isDaemon) {
+		private int readOperationCapacity;
+
+		private int writeOperationCapacity;
+
+		public DaemonizableBinaryConnectionFactory(boolean isDaemon,
+				int readOperationCapacity, int writeOperationCapacity) {
 			super();
 			this.isDaemonThread = isDaemon;
 		}
@@ -606,5 +680,16 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 			return isDaemonThread;
 		}
 
+		public BlockingQueue<Operation> createReadOperationQueue() {
+			return (readOperationCapacity > 0) ? new LinkedBlockingQueue<Operation>(
+					readOperationCapacity)
+					: new LinkedBlockingQueue<Operation>();
+		}
+
+		public BlockingQueue<Operation> createWriteOperationQueue() {
+			return (writeOperationCapacity > 0) ? new LinkedBlockingQueue<Operation>(
+					writeOperationCapacity)
+					: new LinkedBlockingQueue<Operation>();
+		}
 	}
 }
