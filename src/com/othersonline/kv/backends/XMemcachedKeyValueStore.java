@@ -156,7 +156,8 @@ public class XMemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		assertReadable();
 		MemcachedClient mcc = getMemcachedClient();
 		try {
-			Object value = (getOperationTimeout > 0) ? mcc.get(key, getOperationTimeout) : mcc.get(key);
+			Object value = (getOperationTimeout > 0) ? mcc.get(key,
+					getOperationTimeout) : mcc.get(key);
 			return value;
 		} catch (InterruptedException e) {
 			throw new KeyValueStoreException(e);
@@ -174,7 +175,9 @@ public class XMemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		assertReadable();
 		MemcachedClient mcc = getMemcachedClient();
 		try {
-			byte[] bytes = (getOperationTimeout > 0) ? mcc.get(key, getOperationTimeout, xmemcachedTranscoder) : mcc.get(key, xmemcachedTranscoder);
+			byte[] bytes = (getOperationTimeout > 0) ? mcc.get(key,
+					getOperationTimeout, xmemcachedTranscoder) : mcc.get(key,
+					xmemcachedTranscoder);
 			if (bytes == null)
 				return null;
 			else {
@@ -197,7 +200,9 @@ public class XMemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		assertReadable();
 		MemcachedClient mcc = getMemcachedClient();
 		try {
-			Map<String, Object> results = (getOperationTimeout > 0) ? mcc.get(Arrays.asList(keys), getOperationTimeout) : mcc.get(Arrays.asList(keys));
+			Map<String, Object> results = (getOperationTimeout > 0) ? mcc.get(
+					Arrays.asList(keys), getOperationTimeout) : mcc.get(Arrays
+					.asList(keys));
 			return results;
 		} catch (InterruptedException e) {
 			throw new KeyValueStoreException(e);
@@ -215,7 +220,8 @@ public class XMemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		assertReadable();
 		MemcachedClient mcc = getMemcachedClient();
 		try {
-			Map<String, Object> results = (getOperationTimeout > 0) ? mcc.get(keys, getOperationTimeout) : mcc.get(keys);
+			Map<String, Object> results = (getOperationTimeout > 0) ? mcc.get(
+					keys, getOperationTimeout) : mcc.get(keys);
 			return results;
 		} catch (InterruptedException e) {
 			throw new KeyValueStoreException(e);
@@ -233,7 +239,9 @@ public class XMemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		assertReadable();
 		MemcachedClient mcc = getMemcachedClient();
 		try {
-			Map<String, byte[]> results = (getOperationTimeout > 0) ? mcc.get(keys, getOperationTimeout, xmemcachedTranscoder) : mcc.get(keys, xmemcachedTranscoder);
+			Map<String, byte[]> results = (getOperationTimeout > 0) ? mcc.get(
+					keys, getOperationTimeout, xmemcachedTranscoder) : mcc.get(
+					keys, xmemcachedTranscoder);
 			Map<String, Object> retval = new HashMap<String, Object>(results
 					.size());
 			for (Entry<String, byte[]> entry : results.entrySet()) {
@@ -290,7 +298,8 @@ public class XMemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		try {
 			byte[] bytes = transcoder.encode(value);
 			if (setOperationTimeout > 0)
-			mcc.set(key, exp, bytes, xmemcachedTranscoder, setOperationTimeout);
+				mcc.set(key, exp, bytes, xmemcachedTranscoder,
+						setOperationTimeout);
 			else
 				mcc.set(key, exp, bytes, xmemcachedTranscoder);
 		} catch (InterruptedException e) {
@@ -336,7 +345,8 @@ public class XMemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 			throws KeyValueStoreException {
 		MemcachedClient mcc = getMemcachedClient();
 		try {
-			return (setOperationTimeout > 0) ? mcc.incr(key, by, def, setOperationTimeout) : mcc.incr(key, by, def);
+			return (setOperationTimeout > 0) ? mcc.incr(key, by, def,
+					setOperationTimeout) : mcc.incr(key, by, def);
 		} catch (TimeoutException e) {
 			throw new KeyValueStoreException(e);
 		} catch (InterruptedException e) {
@@ -364,7 +374,8 @@ public class XMemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 			throws KeyValueStoreException {
 		MemcachedClient mcc = getMemcachedClient();
 		try {
-			return (setOperationTimeout > 0) ? mcc.decr(key, by, def, setOperationTimeout) : mcc.incr(key, by, def);
+			return (setOperationTimeout > 0) ? mcc.decr(key, by, def,
+					setOperationTimeout) : mcc.incr(key, by, def);
 		} catch (TimeoutException e) {
 			throw new KeyValueStoreException(e);
 		} catch (InterruptedException e) {
