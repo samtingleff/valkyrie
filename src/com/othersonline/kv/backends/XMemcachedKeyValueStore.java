@@ -44,6 +44,8 @@ public class XMemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 
 	private boolean useKetama = true;
 
+	private int connectionPoolSize = 0;
+
 	private long getOperationTimeout = 1000l;
 
 	private long setOperationTimeout = 1000l;
@@ -90,6 +92,11 @@ public class XMemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 		this.useKetama = useKetama;
 	}
 
+	@Configurable(name = "connectionPoolSize", accepts = Type.IntType)
+	public void setconnectionPoolSize(int connectionPoolSize) {
+		this.connectionPoolSize = connectionPoolSize;
+	}
+
 	@Configurable(name = "getOperationTimeout", accepts = Type.LongType)
 	public void setGetOperationTimeout(long millis) {
 		this.getOperationTimeout = millis;
@@ -108,6 +115,8 @@ public class XMemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 			builder.setCommandFactory(new BinaryCommandFactory());
 		if (useKetama)
 			builder.setSessionLocator(new KetamaMemcachedSessionLocator());
+		if (connectionPoolSize > 0)
+			builder.setConnectionPoolSize(connectionPoolSize);
 		this.mcc = builder.build();
 		super.start();
 	}
