@@ -94,6 +94,8 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 			store = new WebDAVKeyValueStore();
 		else if ("sql".equals(type))
 			store = new JdbcKeyValueStore();
+		else if ("xmemcached".equals(type))
+			store = new XMemcachedKeyValueStore();
 		return store;
 	}
 }
