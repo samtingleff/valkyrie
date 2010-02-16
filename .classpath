@@ -4,7 +4,6 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/spy-memcached-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.0.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.5.6.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.5.6.jar"/>
@@ -30,5 +29,8 @@
 	<classpathentry kind="lib" path="lib/tokyocabinet-1.20.jar"/>
 	<classpathentry kind="lib" path="lib/args4j-2.0.12.jar"/>
 	<classpathentry kind="lib" path="lib/bdb-alt-4.7.25.jar"/>
+	<classpathentry kind="lib" path="lib/spy-memcached-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/xmemcached-1.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/yanf4j-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
