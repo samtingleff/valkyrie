@@ -9,33 +9,93 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Collections;
+import java.util.BitSet;
+import java.util.Arrays;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.thrift.*;
 import org.apache.thrift.meta_data.*;
 import org.apache.thrift.protocol.*;
 
-public class GetResult implements TBase, java.io.Serializable, Cloneable {
+public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable, Cloneable, Comparable<GetResult> {
   private static final TStruct STRUCT_DESC = new TStruct("GetResult");
+
   private static final TField EXISTS_FIELD_DESC = new TField("exists", TType.BOOL, (short)1);
   private static final TField DATA_FIELD_DESC = new TField("data", TType.STRING, (short)2);
 
   private boolean exists;
-  public static final int EXISTS = 1;
   private byte[] data;
-  public static final int DATA = 2;
 
-  private final Isset __isset = new Isset();
-  private static final class Isset implements java.io.Serializable {
-    public boolean exists = false;
+  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+  public enum _Fields implements TFieldIdEnum {
+    EXISTS((short)1, "exists"),
+    DATA((short)2, "data");
+
+    private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
+    private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+    static {
+      for (_Fields field : EnumSet.allOf(_Fields.class)) {
+        byId.put((int)field._thriftId, field);
+        byName.put(field.getFieldName(), field);
+      }
+    }
+
+    /**
+     * Find the _Fields constant that matches fieldId, or null if its not found.
+     */
+    public static _Fields findByThriftId(int fieldId) {
+      return byId.get(fieldId);
+    }
+
+    /**
+     * Find the _Fields constant that matches fieldId, throwing an exception
+     * if it is not found.
+     */
+    public static _Fields findByThriftIdOrThrow(int fieldId) {
+      _Fields fields = findByThriftId(fieldId);
+      if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+      return fields;
+    }
+
+    /**
+     * Find the _Fields constant that matches name, or null if its not found.
+     */
+    public static _Fields findByName(String name) {
+      return byName.get(name);
+    }
+
+    private final short _thriftId;
+    private final String _fieldName;
+
+    _Fields(short thriftId, String fieldName) {
+      _thriftId = thriftId;
+      _fieldName = fieldName;
+    }
+
+    public short getThriftFieldId() {
+      return _thriftId;
+    }
+
+    public String getFieldName() {
+      return _fieldName;
+    }
   }
 
-  public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
-    put(EXISTS, new FieldMetaData("exists", TFieldRequirementType.DEFAULT, 
+  // isset id assignments
+  private static final int __EXISTS_ISSET_ID = 0;
+  private BitSet __isset_bit_vector = new BitSet(1);
+
+  public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
+    put(_Fields.EXISTS, new FieldMetaData("exists", TFieldRequirementType.DEFAULT, 
         new FieldValueMetaData(TType.BOOL)));
-    put(DATA, new FieldMetaData("data", TFieldRequirementType.DEFAULT, 
+    put(_Fields.DATA, new FieldMetaData("data", TFieldRequirementType.DEFAULT, 
         new FieldValueMetaData(TType.STRING)));
   }});
 
@@ -52,7 +112,7 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
   {
     this();
     this.exists = exists;
-    this.__isset.exists = true;
+    setExistsIsSet(true);
     this.data = data;
   }
 
@@ -60,7 +120,8 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
    * Performs a deep copy on <i>other</i>.
    */
   public GetResult(GetResult other) {
-    __isset.exists = other.__isset.exists;
+    __isset_bit_vector.clear();
+    __isset_bit_vector.or(other.__isset_bit_vector);
     this.exists = other.exists;
     if (other.isSetData()) {
       this.data = new byte[other.data.length];
@@ -68,7 +129,11 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
     }
   }
 
-  @Override
+  public GetResult deepCopy() {
+    return new GetResult(this);
+  }
+
+  @Deprecated
   public GetResult clone() {
     return new GetResult(this);
   }
@@ -77,39 +142,51 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
     return this.exists;
   }
 
-  public void setExists(boolean exists) {
+  public GetResult setExists(boolean exists) {
     this.exists = exists;
-    this.__isset.exists = true;
+    setExistsIsSet(true);
+    return this;
   }
 
   public void unsetExists() {
-    this.__isset.exists = false;
+    __isset_bit_vector.clear(__EXISTS_ISSET_ID);
   }
 
-  // Returns true if field exists is set (has been asigned a value) and false otherwise
+  /** Returns true if field exists is set (has been asigned a value) and false otherwise */
   public boolean isSetExists() {
-    return this.__isset.exists;
+    return __isset_bit_vector.get(__EXISTS_ISSET_ID);
+  }
+
+  public void setExistsIsSet(boolean value) {
+    __isset_bit_vector.set(__EXISTS_ISSET_ID, value);
   }
 
   public byte[] getData() {
     return this.data;
   }
 
-  public void setData(byte[] data) {
+  public GetResult setData(byte[] data) {
     this.data = data;
+    return this;
   }
 
   public void unsetData() {
     this.data = null;
   }
 
-  // Returns true if field data is set (has been asigned a value) and false otherwise
+  /** Returns true if field data is set (has been asigned a value) and false otherwise */
   public boolean isSetData() {
     return this.data != null;
   }
 
-  public void setFieldValue(int fieldID, Object value) {
-    switch (fieldID) {
+  public void setDataIsSet(boolean value) {
+    if (!value) {
+      this.data = null;
+    }
+  }
+
+  public void setFieldValue(_Fields field, Object value) {
+    switch (field) {
     case EXISTS:
       if (value == null) {
         unsetExists();
@@ -126,34 +203,42 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
       }
       break;
 
-    default:
-      throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
     }
   }
 
-  public Object getFieldValue(int fieldID) {
-    switch (fieldID) {
+  public void setFieldValue(int fieldID, Object value) {
+    setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
+  }
+
+  public Object getFieldValue(_Fields field) {
+    switch (field) {
     case EXISTS:
       return new Boolean(isExists());
 
     case DATA:
       return getData();
 
-    default:
-      throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
     }
+    throw new IllegalStateException();
   }
 
-  // Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise
-  public boolean isSet(int fieldID) {
-    switch (fieldID) {
+  public Object getFieldValue(int fieldId) {
+    return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
+  }
+
+  /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+  public boolean isSet(_Fields field) {
+    switch (field) {
     case EXISTS:
       return isSetExists();
     case DATA:
       return isSetData();
-    default:
-      throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
     }
+    throw new IllegalStateException();
+  }
+
+  public boolean isSet(int fieldID) {
+    return isSet(_Fields.findByThriftIdOrThrow(fieldID));
   }
 
   @Override
@@ -195,6 +280,35 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
     return 0;
   }
 
+  public int compareTo(GetResult other) {
+    if (!getClass().equals(other.getClass())) {
+      return getClass().getName().compareTo(other.getClass().getName());
+    }
+
+    int lastComparison = 0;
+    GetResult typedOther = (GetResult)other;
+
+    lastComparison = Boolean.valueOf(isSetExists()).compareTo(typedOther.isSetExists());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetExists()) {      lastComparison = TBaseHelper.compareTo(exists, typedOther.exists);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetData()).compareTo(typedOther.isSetData());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetData()) {      lastComparison = TBaseHelper.compareTo(data, typedOther.data);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    return 0;
+  }
+
   public void read(TProtocol iprot) throws TException {
     TField field;
     iprot.readStructBegin();
@@ -204,17 +318,16 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
       if (field.type == TType.STOP) { 
         break;
       }
-      switch (field.id)
-      {
-        case EXISTS:
+      switch (field.id) {
+        case 1: // EXISTS
           if (field.type == TType.BOOL) {
             this.exists = iprot.readBool();
-            this.__isset.exists = true;
+            setExistsIsSet(true);
           } else { 
             TProtocolUtil.skip(iprot, field.type);
           }
           break;
-        case DATA:
+        case 2: // DATA
           if (field.type == TType.STRING) {
             this.data = iprot.readBinary();
           } else { 
@@ -223,12 +336,10 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
           break;
         default:
           TProtocolUtil.skip(iprot, field.type);
-          break;
       }
       iprot.readFieldEnd();
     }
     iprot.readStructEnd();
-
     validate();
   }
 
@@ -275,7 +386,6 @@ public class GetResult implements TBase, java.io.Serializable, Cloneable {
 
   public void validate() throws TException {
     // check for required fields
-    // check that fields of type enum have valid values
   }
 
 }

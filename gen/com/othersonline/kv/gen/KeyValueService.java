@@ -9,9 +9,15 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Collections;
+import java.util.BitSet;
+import java.util.Arrays;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.thrift.*;
 import org.apache.thrift.meta_data.*;
@@ -252,6 +258,7 @@ public class KeyValueService {
 
   }
   public static class Processor implements TProcessor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class.getName());
     public Processor(Iface iface)
     {
       iface_ = iface;
@@ -291,16 +298,34 @@ public class KeyValueService {
       public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
       {
         exists_args args = new exists_args();
-        args.read(iprot);
+        try {
+          args.read(iprot);
+        } catch (TProtocolException e) {
+          iprot.readMessageEnd();
+          TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new TMessage("exists", TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
+        }
         iprot.readMessageEnd();
         exists_result result = new exists_result();
         try {
           result.success = iface_.exists(args.key);
-          result.__isset.success = true;
+          result.setSuccessIsSet(true);
         } catch (KeyValueStoreIOException ioException) {
           result.ioException = ioException;
         } catch (KeyValueStoreException keyValueStoreException) {
           result.keyValueStoreException = keyValueStoreException;
+        } catch (Throwable th) {
+          LOGGER.error("Internal error processing exists", th);
+          TApplicationException x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing exists");
+          oprot.writeMessageBegin(new TMessage("exists", TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
         }
         oprot.writeMessageBegin(new TMessage("exists", TMessageType.REPLY, seqid));
         result.write(oprot);
@@ -314,7 +339,17 @@ public class KeyValueService {
       public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
       {
         getValue_args args = new getValue_args();
-        args.read(iprot);
+        try {
+          args.read(iprot);
+        } catch (TProtocolException e) {
+          iprot.readMessageEnd();
+          TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new TMessage("getValue", TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
+        }
         iprot.readMessageEnd();
         getValue_result result = new getValue_result();
         try {
@@ -323,6 +358,14 @@ public class KeyValueService {
           result.ioException = ioException;
         } catch (KeyValueStoreException keyValueStoreException) {
           result.keyValueStoreException = keyValueStoreException;
+        } catch (Throwable th) {
+          LOGGER.error("Internal error processing getValue", th);
+          TApplicationException x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing getValue");
+          oprot.writeMessageBegin(new TMessage("getValue", TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
         }
         oprot.writeMessageBegin(new TMessage("getValue", TMessageType.REPLY, seqid));
         result.write(oprot);
@@ -336,7 +379,17 @@ public class KeyValueService {
       public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
       {
         getBulk_args args = new getBulk_args();
-        args.read(iprot);
+        try {
+          args.read(iprot);
+        } catch (TProtocolException e) {
+          iprot.readMessageEnd();
+          TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new TMessage("getBulk", TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
+        }
         iprot.readMessageEnd();
         getBulk_result result = new getBulk_result();
         try {
@@ -345,6 +398,14 @@ public class KeyValueService {
           result.ioException = ioException;
         } catch (KeyValueStoreException keyValueStoreException) {
           result.keyValueStoreException = keyValueStoreException;
+        } catch (Throwable th) {
+          LOGGER.error("Internal error processing getBulk", th);
+          TApplicationException x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing getBulk");
+          oprot.writeMessageBegin(new TMessage("getBulk", TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
         }
         oprot.writeMessageBegin(new TMessage("getBulk", TMessageType.REPLY, seqid));
         result.write(oprot);
@@ -358,7 +419,17 @@ public class KeyValueService {
       public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
       {
         setValue_args args = new setValue_args();
-        args.read(iprot);
+        try {
+          args.read(iprot);
+        } catch (TProtocolException e) {
+          iprot.readMessageEnd();
+          TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new TMessage("setValue", TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
+        }
         iprot.readMessageEnd();
         setValue_result result = new setValue_result();
         try {
@@ -367,6 +438,14 @@ public class KeyValueService {
           result.ioException = ioException;
         } catch (KeyValueStoreException keyValueStoreException) {
           result.keyValueStoreException = keyValueStoreException;
+        } catch (Throwable th) {
+          LOGGER.error("Internal error processing setValue", th);
+          TApplicationException x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing setValue");
+          oprot.writeMessageBegin(new TMessage("setValue", TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
         }
         oprot.writeMessageBegin(new TMessage("setValue", TMessageType.REPLY, seqid));
         result.write(oprot);
@@ -380,7 +459,17 @@ public class KeyValueService {
       public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
       {
         deleteValue_args args = new deleteValue_args();
-        args.read(iprot);
+        try {
+          args.read(iprot);
+        } catch (TProtocolException e) {
+          iprot.readMessageEnd();
+          TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new TMessage("deleteValue", TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
+        }
         iprot.readMessageEnd();
         deleteValue_result result = new deleteValue_result();
         try {
@@ -389,6 +478,14 @@ public class KeyValueService {
           result.ioException = ioException;
         } catch (KeyValueStoreException keyValueStoreException) {
           result.keyValueStoreException = keyValueStoreException;
+        } catch (Throwable th) {
+          LOGGER.error("Internal error processing deleteValue", th);
+          TApplicationException x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing deleteValue");
+          oprot.writeMessageBegin(new TMessage("deleteValue", TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
         }
         oprot.writeMessageBegin(new TMessage("deleteValue", TMessageType.REPLY, seqid));
         result.write(oprot);
@@ -400,19 +497,72 @@ public class KeyValueService {
 
   }
 
-  public static class exists_args implements TBase, java.io.Serializable, Cloneable   {
+  public static class exists_args implements TBase<exists_args._Fields>, java.io.Serializable, Cloneable, Comparable<exists_args>   {
     private static final TStruct STRUCT_DESC = new TStruct("exists_args");
+
     private static final TField KEY_FIELD_DESC = new TField("key", TType.STRING, (short)1);
 
     private String key;
-    public static final int KEY = 1;
 
-    private final Isset __isset = new Isset();
-    private static final class Isset implements java.io.Serializable {
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements TFieldIdEnum {
+      KEY((short)1, "key");
+
+      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byId.put((int)field._thriftId, field);
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        return byId.get(fieldId);
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
     }
 
-    public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
-      put(KEY, new FieldMetaData("key", TFieldRequirementType.DEFAULT, 
+    // isset id assignments
+
+    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
+      put(_Fields.KEY, new FieldMetaData("key", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRING)));
     }});
 
@@ -439,7 +589,11 @@ public class KeyValueService {
       }
     }
 
-    @Override
+    public exists_args deepCopy() {
+      return new exists_args(this);
+    }
+
+    @Deprecated
     public exists_args clone() {
       return new exists_args(this);
     }
@@ -448,21 +602,28 @@ public class KeyValueService {
       return this.key;
     }
 
-    public void setKey(String key) {
+    public exists_args setKey(String key) {
       this.key = key;
+      return this;
     }
 
     public void unsetKey() {
       this.key = null;
     }
 
-    // Returns true if field key is set (has been asigned a value) and false otherwise
+    /** Returns true if field key is set (has been asigned a value) and false otherwise */
     public boolean isSetKey() {
       return this.key != null;
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      switch (fieldID) {
+    public void setKeyIsSet(boolean value) {
+      if (!value) {
+        this.key = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
       case KEY:
         if (value == null) {
           unsetKey();
@@ -471,29 +632,37 @@ public class KeyValueService {
         }
         break;
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
     }
 
-    public Object getFieldValue(int fieldID) {
-      switch (fieldID) {
+    public void setFieldValue(int fieldID, Object value) {
+      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
       case KEY:
         return getKey();
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
     }
 
-    // Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise
-    public boolean isSet(int fieldID) {
-      switch (fieldID) {
+    public Object getFieldValue(int fieldId) {
+      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      switch (field) {
       case KEY:
         return isSetKey();
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
+    }
+
+    public boolean isSet(int fieldID) {
+      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -526,6 +695,26 @@ public class KeyValueService {
       return 0;
     }
 
+    public int compareTo(exists_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      exists_args typedOther = (exists_args)other;
+
+      lastComparison = Boolean.valueOf(isSetKey()).compareTo(typedOther.isSetKey());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKey()) {        lastComparison = TBaseHelper.compareTo(key, typedOther.key);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
     public void read(TProtocol iprot) throws TException {
       TField field;
       iprot.readStructBegin();
@@ -535,9 +724,8 @@ public class KeyValueService {
         if (field.type == TType.STOP) { 
           break;
         }
-        switch (field.id)
-        {
-          case KEY:
+        switch (field.id) {
+          case 1: // KEY
             if (field.type == TType.STRING) {
               this.key = iprot.readString();
             } else { 
@@ -546,12 +734,10 @@ public class KeyValueService {
             break;
           default:
             TProtocolUtil.skip(iprot, field.type);
-            break;
         }
         iprot.readFieldEnd();
       }
       iprot.readStructEnd();
-
       validate();
     }
 
@@ -586,35 +772,88 @@ public class KeyValueService {
 
     public void validate() throws TException {
       // check for required fields
-      // check that fields of type enum have valid values
     }
 
   }
 
-  public static class exists_result implements TBase, java.io.Serializable, Cloneable   {
+  public static class exists_result implements TBase<exists_result._Fields>, java.io.Serializable, Cloneable, Comparable<exists_result>   {
     private static final TStruct STRUCT_DESC = new TStruct("exists_result");
+
     private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.BOOL, (short)0);
     private static final TField IO_EXCEPTION_FIELD_DESC = new TField("ioException", TType.STRUCT, (short)1);
     private static final TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new TField("keyValueStoreException", TType.STRUCT, (short)2);
 
     private boolean success;
-    public static final int SUCCESS = 0;
     private KeyValueStoreIOException ioException;
-    public static final int IOEXCEPTION = 1;
     private KeyValueStoreException keyValueStoreException;
-    public static final int KEYVALUESTOREEXCEPTION = 2;
 
-    private final Isset __isset = new Isset();
-    private static final class Isset implements java.io.Serializable {
-      public boolean success = false;
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements TFieldIdEnum {
+      SUCCESS((short)0, "success"),
+      IO_EXCEPTION((short)1, "ioException"),
+      KEY_VALUE_STORE_EXCEPTION((short)2, "keyValueStoreException");
+
+      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byId.put((int)field._thriftId, field);
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        return byId.get(fieldId);
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
     }
 
-    public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
-      put(SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT, 
+    // isset id assignments
+    private static final int __SUCCESS_ISSET_ID = 0;
+    private BitSet __isset_bit_vector = new BitSet(1);
+
+    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
+      put(_Fields.SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.BOOL)));
-      put(IOEXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
+      put(_Fields.IO_EXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRUCT)));
-      put(KEYVALUESTOREEXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
+      put(_Fields.KEY_VALUE_STORE_EXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRUCT)));
     }});
 
@@ -632,7 +871,7 @@ public class KeyValueService {
     {
       this();
       this.success = success;
-      this.__isset.success = true;
+      setSuccessIsSet(true);
       this.ioException = ioException;
       this.keyValueStoreException = keyValueStoreException;
     }
@@ -641,7 +880,8 @@ public class KeyValueService {
      * Performs a deep copy on <i>other</i>.
      */
     public exists_result(exists_result other) {
-      __isset.success = other.__isset.success;
+      __isset_bit_vector.clear();
+      __isset_bit_vector.or(other.__isset_bit_vector);
       this.success = other.success;
       if (other.isSetIoException()) {
         this.ioException = new KeyValueStoreIOException(other.ioException);
@@ -651,7 +891,11 @@ public class KeyValueService {
       }
     }
 
-    @Override
+    public exists_result deepCopy() {
+      return new exists_result(this);
+    }
+
+    @Deprecated
     public exists_result clone() {
       return new exists_result(this);
     }
@@ -660,56 +904,75 @@ public class KeyValueService {
       return this.success;
     }
 
-    public void setSuccess(boolean success) {
+    public exists_result setSuccess(boolean success) {
       this.success = success;
-      this.__isset.success = true;
+      setSuccessIsSet(true);
+      return this;
     }
 
     public void unsetSuccess() {
-      this.__isset.success = false;
+      __isset_bit_vector.clear(__SUCCESS_ISSET_ID);
     }
 
-    // Returns true if field success is set (has been asigned a value) and false otherwise
+    /** Returns true if field success is set (has been asigned a value) and false otherwise */
     public boolean isSetSuccess() {
-      return this.__isset.success;
+      return __isset_bit_vector.get(__SUCCESS_ISSET_ID);
+    }
+
+    public void setSuccessIsSet(boolean value) {
+      __isset_bit_vector.set(__SUCCESS_ISSET_ID, value);
     }
 
     public KeyValueStoreIOException getIoException() {
       return this.ioException;
     }
 
-    public void setIoException(KeyValueStoreIOException ioException) {
+    public exists_result setIoException(KeyValueStoreIOException ioException) {
       this.ioException = ioException;
+      return this;
     }
 
     public void unsetIoException() {
       this.ioException = null;
     }
 
-    // Returns true if field ioException is set (has been asigned a value) and false otherwise
+    /** Returns true if field ioException is set (has been asigned a value) and false otherwise */
     public boolean isSetIoException() {
       return this.ioException != null;
+    }
+
+    public void setIoExceptionIsSet(boolean value) {
+      if (!value) {
+        this.ioException = null;
+      }
     }
 
     public KeyValueStoreException getKeyValueStoreException() {
       return this.keyValueStoreException;
     }
 
-    public void setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
+    public exists_result setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
       this.keyValueStoreException = keyValueStoreException;
+      return this;
     }
 
     public void unsetKeyValueStoreException() {
       this.keyValueStoreException = null;
     }
 
-    // Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise
+    /** Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise */
     public boolean isSetKeyValueStoreException() {
       return this.keyValueStoreException != null;
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      switch (fieldID) {
+    public void setKeyValueStoreExceptionIsSet(boolean value) {
+      if (!value) {
+        this.keyValueStoreException = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
       case SUCCESS:
         if (value == null) {
           unsetSuccess();
@@ -718,7 +981,7 @@ public class KeyValueService {
         }
         break;
 
-      case IOEXCEPTION:
+      case IO_EXCEPTION:
         if (value == null) {
           unsetIoException();
         } else {
@@ -726,7 +989,7 @@ public class KeyValueService {
         }
         break;
 
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         if (value == null) {
           unsetKeyValueStoreException();
         } else {
@@ -734,39 +997,47 @@ public class KeyValueService {
         }
         break;
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
     }
 
-    public Object getFieldValue(int fieldID) {
-      switch (fieldID) {
+    public void setFieldValue(int fieldID, Object value) {
+      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
       case SUCCESS:
         return new Boolean(isSuccess());
 
-      case IOEXCEPTION:
+      case IO_EXCEPTION:
         return getIoException();
 
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         return getKeyValueStoreException();
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
     }
 
-    // Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise
-    public boolean isSet(int fieldID) {
-      switch (fieldID) {
+    public Object getFieldValue(int fieldId) {
+      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      switch (field) {
       case SUCCESS:
         return isSetSuccess();
-      case IOEXCEPTION:
+      case IO_EXCEPTION:
         return isSetIoException();
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         return isSetKeyValueStoreException();
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
+    }
+
+    public boolean isSet(int fieldID) {
+      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -817,6 +1088,44 @@ public class KeyValueService {
       return 0;
     }
 
+    public int compareTo(exists_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      exists_result typedOther = (exists_result)other;
+
+      lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(typedOther.isSetSuccess());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSuccess()) {        lastComparison = TBaseHelper.compareTo(success, typedOther.success);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetIoException()).compareTo(typedOther.isSetIoException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetIoException()) {        lastComparison = TBaseHelper.compareTo(ioException, typedOther.ioException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetKeyValueStoreException()).compareTo(typedOther.isSetKeyValueStoreException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKeyValueStoreException()) {        lastComparison = TBaseHelper.compareTo(keyValueStoreException, typedOther.keyValueStoreException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
     public void read(TProtocol iprot) throws TException {
       TField field;
       iprot.readStructBegin();
@@ -826,17 +1135,16 @@ public class KeyValueService {
         if (field.type == TType.STOP) { 
           break;
         }
-        switch (field.id)
-        {
-          case SUCCESS:
+        switch (field.id) {
+          case 0: // SUCCESS
             if (field.type == TType.BOOL) {
               this.success = iprot.readBool();
-              this.__isset.success = true;
+              setSuccessIsSet(true);
             } else { 
               TProtocolUtil.skip(iprot, field.type);
             }
             break;
-          case IOEXCEPTION:
+          case 1: // IO_EXCEPTION
             if (field.type == TType.STRUCT) {
               this.ioException = new KeyValueStoreIOException();
               this.ioException.read(iprot);
@@ -844,7 +1152,7 @@ public class KeyValueService {
               TProtocolUtil.skip(iprot, field.type);
             }
             break;
-          case KEYVALUESTOREEXCEPTION:
+          case 2: // KEY_VALUE_STORE_EXCEPTION
             if (field.type == TType.STRUCT) {
               this.keyValueStoreException = new KeyValueStoreException();
               this.keyValueStoreException.read(iprot);
@@ -854,12 +1162,10 @@ public class KeyValueService {
             break;
           default:
             TProtocolUtil.skip(iprot, field.type);
-            break;
         }
         iprot.readFieldEnd();
       }
       iprot.readStructEnd();
-
       validate();
     }
 
@@ -913,24 +1219,76 @@ public class KeyValueService {
 
     public void validate() throws TException {
       // check for required fields
-      // check that fields of type enum have valid values
     }
 
   }
 
-  public static class getValue_args implements TBase, java.io.Serializable, Cloneable   {
+  public static class getValue_args implements TBase<getValue_args._Fields>, java.io.Serializable, Cloneable, Comparable<getValue_args>   {
     private static final TStruct STRUCT_DESC = new TStruct("getValue_args");
+
     private static final TField KEY_FIELD_DESC = new TField("key", TType.STRING, (short)1);
 
     private String key;
-    public static final int KEY = 1;
 
-    private final Isset __isset = new Isset();
-    private static final class Isset implements java.io.Serializable {
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements TFieldIdEnum {
+      KEY((short)1, "key");
+
+      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byId.put((int)field._thriftId, field);
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        return byId.get(fieldId);
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
     }
 
-    public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
-      put(KEY, new FieldMetaData("key", TFieldRequirementType.DEFAULT, 
+    // isset id assignments
+
+    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
+      put(_Fields.KEY, new FieldMetaData("key", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRING)));
     }});
 
@@ -957,7 +1315,11 @@ public class KeyValueService {
       }
     }
 
-    @Override
+    public getValue_args deepCopy() {
+      return new getValue_args(this);
+    }
+
+    @Deprecated
     public getValue_args clone() {
       return new getValue_args(this);
     }
@@ -966,21 +1328,28 @@ public class KeyValueService {
       return this.key;
     }
 
-    public void setKey(String key) {
+    public getValue_args setKey(String key) {
       this.key = key;
+      return this;
     }
 
     public void unsetKey() {
       this.key = null;
     }
 
-    // Returns true if field key is set (has been asigned a value) and false otherwise
+    /** Returns true if field key is set (has been asigned a value) and false otherwise */
     public boolean isSetKey() {
       return this.key != null;
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      switch (fieldID) {
+    public void setKeyIsSet(boolean value) {
+      if (!value) {
+        this.key = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
       case KEY:
         if (value == null) {
           unsetKey();
@@ -989,29 +1358,37 @@ public class KeyValueService {
         }
         break;
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
     }
 
-    public Object getFieldValue(int fieldID) {
-      switch (fieldID) {
+    public void setFieldValue(int fieldID, Object value) {
+      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
       case KEY:
         return getKey();
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
     }
 
-    // Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise
-    public boolean isSet(int fieldID) {
-      switch (fieldID) {
+    public Object getFieldValue(int fieldId) {
+      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      switch (field) {
       case KEY:
         return isSetKey();
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
+    }
+
+    public boolean isSet(int fieldID) {
+      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -1044,6 +1421,26 @@ public class KeyValueService {
       return 0;
     }
 
+    public int compareTo(getValue_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      getValue_args typedOther = (getValue_args)other;
+
+      lastComparison = Boolean.valueOf(isSetKey()).compareTo(typedOther.isSetKey());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKey()) {        lastComparison = TBaseHelper.compareTo(key, typedOther.key);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
     public void read(TProtocol iprot) throws TException {
       TField field;
       iprot.readStructBegin();
@@ -1053,9 +1450,8 @@ public class KeyValueService {
         if (field.type == TType.STOP) { 
           break;
         }
-        switch (field.id)
-        {
-          case KEY:
+        switch (field.id) {
+          case 1: // KEY
             if (field.type == TType.STRING) {
               this.key = iprot.readString();
             } else { 
@@ -1064,12 +1460,10 @@ public class KeyValueService {
             break;
           default:
             TProtocolUtil.skip(iprot, field.type);
-            break;
         }
         iprot.readFieldEnd();
       }
       iprot.readStructEnd();
-
       validate();
     }
 
@@ -1104,34 +1498,86 @@ public class KeyValueService {
 
     public void validate() throws TException {
       // check for required fields
-      // check that fields of type enum have valid values
     }
 
   }
 
-  public static class getValue_result implements TBase, java.io.Serializable, Cloneable   {
+  public static class getValue_result implements TBase<getValue_result._Fields>, java.io.Serializable, Cloneable, Comparable<getValue_result>   {
     private static final TStruct STRUCT_DESC = new TStruct("getValue_result");
+
     private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.STRUCT, (short)0);
     private static final TField IO_EXCEPTION_FIELD_DESC = new TField("ioException", TType.STRUCT, (short)1);
     private static final TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new TField("keyValueStoreException", TType.STRUCT, (short)2);
 
     private GetResult success;
-    public static final int SUCCESS = 0;
     private KeyValueStoreIOException ioException;
-    public static final int IOEXCEPTION = 1;
     private KeyValueStoreException keyValueStoreException;
-    public static final int KEYVALUESTOREEXCEPTION = 2;
 
-    private final Isset __isset = new Isset();
-    private static final class Isset implements java.io.Serializable {
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements TFieldIdEnum {
+      SUCCESS((short)0, "success"),
+      IO_EXCEPTION((short)1, "ioException"),
+      KEY_VALUE_STORE_EXCEPTION((short)2, "keyValueStoreException");
+
+      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byId.put((int)field._thriftId, field);
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        return byId.get(fieldId);
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
     }
 
-    public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
-      put(SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT, 
+    // isset id assignments
+
+    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
+      put(_Fields.SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT, 
           new StructMetaData(TType.STRUCT, GetResult.class)));
-      put(IOEXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
+      put(_Fields.IO_EXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRUCT)));
-      put(KEYVALUESTOREEXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
+      put(_Fields.KEY_VALUE_STORE_EXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRUCT)));
     }});
 
@@ -1168,7 +1614,11 @@ public class KeyValueService {
       }
     }
 
-    @Override
+    public getValue_result deepCopy() {
+      return new getValue_result(this);
+    }
+
+    @Deprecated
     public getValue_result clone() {
       return new getValue_result(this);
     }
@@ -1177,55 +1627,76 @@ public class KeyValueService {
       return this.success;
     }
 
-    public void setSuccess(GetResult success) {
+    public getValue_result setSuccess(GetResult success) {
       this.success = success;
+      return this;
     }
 
     public void unsetSuccess() {
       this.success = null;
     }
 
-    // Returns true if field success is set (has been asigned a value) and false otherwise
+    /** Returns true if field success is set (has been asigned a value) and false otherwise */
     public boolean isSetSuccess() {
       return this.success != null;
+    }
+
+    public void setSuccessIsSet(boolean value) {
+      if (!value) {
+        this.success = null;
+      }
     }
 
     public KeyValueStoreIOException getIoException() {
       return this.ioException;
     }
 
-    public void setIoException(KeyValueStoreIOException ioException) {
+    public getValue_result setIoException(KeyValueStoreIOException ioException) {
       this.ioException = ioException;
+      return this;
     }
 
     public void unsetIoException() {
       this.ioException = null;
     }
 
-    // Returns true if field ioException is set (has been asigned a value) and false otherwise
+    /** Returns true if field ioException is set (has been asigned a value) and false otherwise */
     public boolean isSetIoException() {
       return this.ioException != null;
+    }
+
+    public void setIoExceptionIsSet(boolean value) {
+      if (!value) {
+        this.ioException = null;
+      }
     }
 
     public KeyValueStoreException getKeyValueStoreException() {
       return this.keyValueStoreException;
     }
 
-    public void setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
+    public getValue_result setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
       this.keyValueStoreException = keyValueStoreException;
+      return this;
     }
 
     public void unsetKeyValueStoreException() {
       this.keyValueStoreException = null;
     }
 
-    // Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise
+    /** Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise */
     public boolean isSetKeyValueStoreException() {
       return this.keyValueStoreException != null;
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      switch (fieldID) {
+    public void setKeyValueStoreExceptionIsSet(boolean value) {
+      if (!value) {
+        this.keyValueStoreException = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
       case SUCCESS:
         if (value == null) {
           unsetSuccess();
@@ -1234,7 +1705,7 @@ public class KeyValueService {
         }
         break;
 
-      case IOEXCEPTION:
+      case IO_EXCEPTION:
         if (value == null) {
           unsetIoException();
         } else {
@@ -1242,7 +1713,7 @@ public class KeyValueService {
         }
         break;
 
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         if (value == null) {
           unsetKeyValueStoreException();
         } else {
@@ -1250,39 +1721,47 @@ public class KeyValueService {
         }
         break;
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
     }
 
-    public Object getFieldValue(int fieldID) {
-      switch (fieldID) {
+    public void setFieldValue(int fieldID, Object value) {
+      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
       case SUCCESS:
         return getSuccess();
 
-      case IOEXCEPTION:
+      case IO_EXCEPTION:
         return getIoException();
 
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         return getKeyValueStoreException();
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
     }
 
-    // Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise
-    public boolean isSet(int fieldID) {
-      switch (fieldID) {
+    public Object getFieldValue(int fieldId) {
+      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      switch (field) {
       case SUCCESS:
         return isSetSuccess();
-      case IOEXCEPTION:
+      case IO_EXCEPTION:
         return isSetIoException();
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         return isSetKeyValueStoreException();
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
+    }
+
+    public boolean isSet(int fieldID) {
+      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -1333,6 +1812,44 @@ public class KeyValueService {
       return 0;
     }
 
+    public int compareTo(getValue_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      getValue_result typedOther = (getValue_result)other;
+
+      lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(typedOther.isSetSuccess());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSuccess()) {        lastComparison = TBaseHelper.compareTo(success, typedOther.success);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetIoException()).compareTo(typedOther.isSetIoException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetIoException()) {        lastComparison = TBaseHelper.compareTo(ioException, typedOther.ioException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetKeyValueStoreException()).compareTo(typedOther.isSetKeyValueStoreException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKeyValueStoreException()) {        lastComparison = TBaseHelper.compareTo(keyValueStoreException, typedOther.keyValueStoreException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
     public void read(TProtocol iprot) throws TException {
       TField field;
       iprot.readStructBegin();
@@ -1342,9 +1859,8 @@ public class KeyValueService {
         if (field.type == TType.STOP) { 
           break;
         }
-        switch (field.id)
-        {
-          case SUCCESS:
+        switch (field.id) {
+          case 0: // SUCCESS
             if (field.type == TType.STRUCT) {
               this.success = new GetResult();
               this.success.read(iprot);
@@ -1352,7 +1868,7 @@ public class KeyValueService {
               TProtocolUtil.skip(iprot, field.type);
             }
             break;
-          case IOEXCEPTION:
+          case 1: // IO_EXCEPTION
             if (field.type == TType.STRUCT) {
               this.ioException = new KeyValueStoreIOException();
               this.ioException.read(iprot);
@@ -1360,7 +1876,7 @@ public class KeyValueService {
               TProtocolUtil.skip(iprot, field.type);
             }
             break;
-          case KEYVALUESTOREEXCEPTION:
+          case 2: // KEY_VALUE_STORE_EXCEPTION
             if (field.type == TType.STRUCT) {
               this.keyValueStoreException = new KeyValueStoreException();
               this.keyValueStoreException.read(iprot);
@@ -1370,12 +1886,10 @@ public class KeyValueService {
             break;
           default:
             TProtocolUtil.skip(iprot, field.type);
-            break;
         }
         iprot.readFieldEnd();
       }
       iprot.readStructEnd();
-
       validate();
     }
 
@@ -1433,24 +1947,76 @@ public class KeyValueService {
 
     public void validate() throws TException {
       // check for required fields
-      // check that fields of type enum have valid values
     }
 
   }
 
-  public static class getBulk_args implements TBase, java.io.Serializable, Cloneable   {
+  public static class getBulk_args implements TBase<getBulk_args._Fields>, java.io.Serializable, Cloneable, Comparable<getBulk_args>   {
     private static final TStruct STRUCT_DESC = new TStruct("getBulk_args");
+
     private static final TField KEYS_FIELD_DESC = new TField("keys", TType.LIST, (short)1);
 
     private List<String> keys;
-    public static final int KEYS = 1;
 
-    private final Isset __isset = new Isset();
-    private static final class Isset implements java.io.Serializable {
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements TFieldIdEnum {
+      KEYS((short)1, "keys");
+
+      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byId.put((int)field._thriftId, field);
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        return byId.get(fieldId);
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
     }
 
-    public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
-      put(KEYS, new FieldMetaData("keys", TFieldRequirementType.DEFAULT, 
+    // isset id assignments
+
+    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
+      put(_Fields.KEYS, new FieldMetaData("keys", TFieldRequirementType.DEFAULT, 
           new ListMetaData(TType.LIST, 
               new FieldValueMetaData(TType.STRING))));
     }});
@@ -1482,7 +2048,11 @@ public class KeyValueService {
       }
     }
 
-    @Override
+    public getBulk_args deepCopy() {
+      return new getBulk_args(this);
+    }
+
+    @Deprecated
     public getBulk_args clone() {
       return new getBulk_args(this);
     }
@@ -1506,21 +2076,28 @@ public class KeyValueService {
       return this.keys;
     }
 
-    public void setKeys(List<String> keys) {
+    public getBulk_args setKeys(List<String> keys) {
       this.keys = keys;
+      return this;
     }
 
     public void unsetKeys() {
       this.keys = null;
     }
 
-    // Returns true if field keys is set (has been asigned a value) and false otherwise
+    /** Returns true if field keys is set (has been asigned a value) and false otherwise */
     public boolean isSetKeys() {
       return this.keys != null;
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      switch (fieldID) {
+    public void setKeysIsSet(boolean value) {
+      if (!value) {
+        this.keys = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
       case KEYS:
         if (value == null) {
           unsetKeys();
@@ -1529,29 +2106,37 @@ public class KeyValueService {
         }
         break;
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
     }
 
-    public Object getFieldValue(int fieldID) {
-      switch (fieldID) {
+    public void setFieldValue(int fieldID, Object value) {
+      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
       case KEYS:
         return getKeys();
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
     }
 
-    // Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise
-    public boolean isSet(int fieldID) {
-      switch (fieldID) {
+    public Object getFieldValue(int fieldId) {
+      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      switch (field) {
       case KEYS:
         return isSetKeys();
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
+    }
+
+    public boolean isSet(int fieldID) {
+      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -1584,6 +2169,26 @@ public class KeyValueService {
       return 0;
     }
 
+    public int compareTo(getBulk_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      getBulk_args typedOther = (getBulk_args)other;
+
+      lastComparison = Boolean.valueOf(isSetKeys()).compareTo(typedOther.isSetKeys());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKeys()) {        lastComparison = TBaseHelper.compareTo(keys, typedOther.keys);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
     public void read(TProtocol iprot) throws TException {
       TField field;
       iprot.readStructBegin();
@@ -1593,9 +2198,8 @@ public class KeyValueService {
         if (field.type == TType.STOP) { 
           break;
         }
-        switch (field.id)
-        {
-          case KEYS:
+        switch (field.id) {
+          case 1: // KEYS
             if (field.type == TType.LIST) {
               {
                 TList _list0 = iprot.readListBegin();
@@ -1614,12 +2218,10 @@ public class KeyValueService {
             break;
           default:
             TProtocolUtil.skip(iprot, field.type);
-            break;
         }
         iprot.readFieldEnd();
       }
       iprot.readStructEnd();
-
       validate();
     }
 
@@ -1631,7 +2233,8 @@ public class KeyValueService {
         oprot.writeFieldBegin(KEYS_FIELD_DESC);
         {
           oprot.writeListBegin(new TList(TType.STRING, this.keys.size()));
-          for (String _iter3 : this.keys)          {
+          for (String _iter3 : this.keys)
+          {
             oprot.writeString(_iter3);
           }
           oprot.writeListEnd();
@@ -1660,36 +2263,88 @@ public class KeyValueService {
 
     public void validate() throws TException {
       // check for required fields
-      // check that fields of type enum have valid values
     }
 
   }
 
-  public static class getBulk_result implements TBase, java.io.Serializable, Cloneable   {
+  public static class getBulk_result implements TBase<getBulk_result._Fields>, java.io.Serializable, Cloneable   {
     private static final TStruct STRUCT_DESC = new TStruct("getBulk_result");
+
     private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.MAP, (short)0);
     private static final TField IO_EXCEPTION_FIELD_DESC = new TField("ioException", TType.STRUCT, (short)1);
     private static final TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new TField("keyValueStoreException", TType.STRUCT, (short)2);
 
     private Map<String,GetResult> success;
-    public static final int SUCCESS = 0;
     private KeyValueStoreIOException ioException;
-    public static final int IOEXCEPTION = 1;
     private KeyValueStoreException keyValueStoreException;
-    public static final int KEYVALUESTOREEXCEPTION = 2;
 
-    private final Isset __isset = new Isset();
-    private static final class Isset implements java.io.Serializable {
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements TFieldIdEnum {
+      SUCCESS((short)0, "success"),
+      IO_EXCEPTION((short)1, "ioException"),
+      KEY_VALUE_STORE_EXCEPTION((short)2, "keyValueStoreException");
+
+      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byId.put((int)field._thriftId, field);
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        return byId.get(fieldId);
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
     }
 
-    public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
-      put(SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT, 
+    // isset id assignments
+
+    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
+      put(_Fields.SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT, 
           new MapMetaData(TType.MAP, 
               new FieldValueMetaData(TType.STRING), 
               new StructMetaData(TType.STRUCT, GetResult.class))));
-      put(IOEXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
+      put(_Fields.IO_EXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRUCT)));
-      put(KEYVALUESTOREEXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
+      put(_Fields.KEY_VALUE_STORE_EXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRUCT)));
     }});
 
@@ -1738,7 +2393,11 @@ public class KeyValueService {
       }
     }
 
-    @Override
+    public getBulk_result deepCopy() {
+      return new getBulk_result(this);
+    }
+
+    @Deprecated
     public getBulk_result clone() {
       return new getBulk_result(this);
     }
@@ -1758,55 +2417,76 @@ public class KeyValueService {
       return this.success;
     }
 
-    public void setSuccess(Map<String,GetResult> success) {
+    public getBulk_result setSuccess(Map<String,GetResult> success) {
       this.success = success;
+      return this;
     }
 
     public void unsetSuccess() {
       this.success = null;
     }
 
-    // Returns true if field success is set (has been asigned a value) and false otherwise
+    /** Returns true if field success is set (has been asigned a value) and false otherwise */
     public boolean isSetSuccess() {
       return this.success != null;
+    }
+
+    public void setSuccessIsSet(boolean value) {
+      if (!value) {
+        this.success = null;
+      }
     }
 
     public KeyValueStoreIOException getIoException() {
       return this.ioException;
     }
 
-    public void setIoException(KeyValueStoreIOException ioException) {
+    public getBulk_result setIoException(KeyValueStoreIOException ioException) {
       this.ioException = ioException;
+      return this;
     }
 
     public void unsetIoException() {
       this.ioException = null;
     }
 
-    // Returns true if field ioException is set (has been asigned a value) and false otherwise
+    /** Returns true if field ioException is set (has been asigned a value) and false otherwise */
     public boolean isSetIoException() {
       return this.ioException != null;
+    }
+
+    public void setIoExceptionIsSet(boolean value) {
+      if (!value) {
+        this.ioException = null;
+      }
     }
 
     public KeyValueStoreException getKeyValueStoreException() {
       return this.keyValueStoreException;
     }
 
-    public void setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
+    public getBulk_result setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
       this.keyValueStoreException = keyValueStoreException;
+      return this;
     }
 
     public void unsetKeyValueStoreException() {
       this.keyValueStoreException = null;
     }
 
-    // Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise
+    /** Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise */
     public boolean isSetKeyValueStoreException() {
       return this.keyValueStoreException != null;
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      switch (fieldID) {
+    public void setKeyValueStoreExceptionIsSet(boolean value) {
+      if (!value) {
+        this.keyValueStoreException = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
       case SUCCESS:
         if (value == null) {
           unsetSuccess();
@@ -1815,7 +2495,7 @@ public class KeyValueService {
         }
         break;
 
-      case IOEXCEPTION:
+      case IO_EXCEPTION:
         if (value == null) {
           unsetIoException();
         } else {
@@ -1823,7 +2503,7 @@ public class KeyValueService {
         }
         break;
 
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         if (value == null) {
           unsetKeyValueStoreException();
         } else {
@@ -1831,39 +2511,47 @@ public class KeyValueService {
         }
         break;
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
     }
 
-    public Object getFieldValue(int fieldID) {
-      switch (fieldID) {
+    public void setFieldValue(int fieldID, Object value) {
+      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
       case SUCCESS:
         return getSuccess();
 
-      case IOEXCEPTION:
+      case IO_EXCEPTION:
         return getIoException();
 
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         return getKeyValueStoreException();
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
     }
 
-    // Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise
-    public boolean isSet(int fieldID) {
-      switch (fieldID) {
+    public Object getFieldValue(int fieldId) {
+      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      switch (field) {
       case SUCCESS:
         return isSetSuccess();
-      case IOEXCEPTION:
+      case IO_EXCEPTION:
         return isSetIoException();
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         return isSetKeyValueStoreException();
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
+    }
+
+    public boolean isSet(int fieldID) {
+      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -1923,9 +2611,8 @@ public class KeyValueService {
         if (field.type == TType.STOP) { 
           break;
         }
-        switch (field.id)
-        {
-          case SUCCESS:
+        switch (field.id) {
+          case 0: // SUCCESS
             if (field.type == TType.MAP) {
               {
                 TMap _map4 = iprot.readMapBegin();
@@ -1945,7 +2632,7 @@ public class KeyValueService {
               TProtocolUtil.skip(iprot, field.type);
             }
             break;
-          case IOEXCEPTION:
+          case 1: // IO_EXCEPTION
             if (field.type == TType.STRUCT) {
               this.ioException = new KeyValueStoreIOException();
               this.ioException.read(iprot);
@@ -1953,7 +2640,7 @@ public class KeyValueService {
               TProtocolUtil.skip(iprot, field.type);
             }
             break;
-          case KEYVALUESTOREEXCEPTION:
+          case 2: // KEY_VALUE_STORE_EXCEPTION
             if (field.type == TType.STRUCT) {
               this.keyValueStoreException = new KeyValueStoreException();
               this.keyValueStoreException.read(iprot);
@@ -1963,12 +2650,10 @@ public class KeyValueService {
             break;
           default:
             TProtocolUtil.skip(iprot, field.type);
-            break;
         }
         iprot.readFieldEnd();
       }
       iprot.readStructEnd();
-
       validate();
     }
 
@@ -1979,7 +2664,8 @@ public class KeyValueService {
         oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
         {
           oprot.writeMapBegin(new TMap(TType.STRING, TType.STRUCT, this.success.size()));
-          for (Map.Entry<String, GetResult> _iter8 : this.success.entrySet())          {
+          for (Map.Entry<String, GetResult> _iter8 : this.success.entrySet())
+          {
             oprot.writeString(_iter8.getKey());
             _iter8.getValue().write(oprot);
           }
@@ -2033,29 +2719,81 @@ public class KeyValueService {
 
     public void validate() throws TException {
       // check for required fields
-      // check that fields of type enum have valid values
     }
 
   }
 
-  public static class setValue_args implements TBase, java.io.Serializable, Cloneable   {
+  public static class setValue_args implements TBase<setValue_args._Fields>, java.io.Serializable, Cloneable, Comparable<setValue_args>   {
     private static final TStruct STRUCT_DESC = new TStruct("setValue_args");
+
     private static final TField KEY_FIELD_DESC = new TField("key", TType.STRING, (short)1);
     private static final TField DATA_FIELD_DESC = new TField("data", TType.STRING, (short)2);
 
     private String key;
-    public static final int KEY = 1;
     private byte[] data;
-    public static final int DATA = 2;
 
-    private final Isset __isset = new Isset();
-    private static final class Isset implements java.io.Serializable {
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements TFieldIdEnum {
+      KEY((short)1, "key"),
+      DATA((short)2, "data");
+
+      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byId.put((int)field._thriftId, field);
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        return byId.get(fieldId);
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
     }
 
-    public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
-      put(KEY, new FieldMetaData("key", TFieldRequirementType.DEFAULT, 
+    // isset id assignments
+
+    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
+      put(_Fields.KEY, new FieldMetaData("key", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRING)));
-      put(DATA, new FieldMetaData("data", TFieldRequirementType.DEFAULT, 
+      put(_Fields.DATA, new FieldMetaData("data", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRING)));
     }});
 
@@ -2088,7 +2826,11 @@ public class KeyValueService {
       }
     }
 
-    @Override
+    public setValue_args deepCopy() {
+      return new setValue_args(this);
+    }
+
+    @Deprecated
     public setValue_args clone() {
       return new setValue_args(this);
     }
@@ -2097,38 +2839,52 @@ public class KeyValueService {
       return this.key;
     }
 
-    public void setKey(String key) {
+    public setValue_args setKey(String key) {
       this.key = key;
+      return this;
     }
 
     public void unsetKey() {
       this.key = null;
     }
 
-    // Returns true if field key is set (has been asigned a value) and false otherwise
+    /** Returns true if field key is set (has been asigned a value) and false otherwise */
     public boolean isSetKey() {
       return this.key != null;
+    }
+
+    public void setKeyIsSet(boolean value) {
+      if (!value) {
+        this.key = null;
+      }
     }
 
     public byte[] getData() {
       return this.data;
     }
 
-    public void setData(byte[] data) {
+    public setValue_args setData(byte[] data) {
       this.data = data;
+      return this;
     }
 
     public void unsetData() {
       this.data = null;
     }
 
-    // Returns true if field data is set (has been asigned a value) and false otherwise
+    /** Returns true if field data is set (has been asigned a value) and false otherwise */
     public boolean isSetData() {
       return this.data != null;
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      switch (fieldID) {
+    public void setDataIsSet(boolean value) {
+      if (!value) {
+        this.data = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
       case KEY:
         if (value == null) {
           unsetKey();
@@ -2145,34 +2901,42 @@ public class KeyValueService {
         }
         break;
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
     }
 
-    public Object getFieldValue(int fieldID) {
-      switch (fieldID) {
+    public void setFieldValue(int fieldID, Object value) {
+      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
       case KEY:
         return getKey();
 
       case DATA:
         return getData();
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
     }
 
-    // Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise
-    public boolean isSet(int fieldID) {
-      switch (fieldID) {
+    public Object getFieldValue(int fieldId) {
+      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      switch (field) {
       case KEY:
         return isSetKey();
       case DATA:
         return isSetData();
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
+    }
+
+    public boolean isSet(int fieldID) {
+      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -2214,6 +2978,35 @@ public class KeyValueService {
       return 0;
     }
 
+    public int compareTo(setValue_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      setValue_args typedOther = (setValue_args)other;
+
+      lastComparison = Boolean.valueOf(isSetKey()).compareTo(typedOther.isSetKey());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKey()) {        lastComparison = TBaseHelper.compareTo(key, typedOther.key);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetData()).compareTo(typedOther.isSetData());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetData()) {        lastComparison = TBaseHelper.compareTo(data, typedOther.data);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
     public void read(TProtocol iprot) throws TException {
       TField field;
       iprot.readStructBegin();
@@ -2223,16 +3016,15 @@ public class KeyValueService {
         if (field.type == TType.STOP) { 
           break;
         }
-        switch (field.id)
-        {
-          case KEY:
+        switch (field.id) {
+          case 1: // KEY
             if (field.type == TType.STRING) {
               this.key = iprot.readString();
             } else { 
               TProtocolUtil.skip(iprot, field.type);
             }
             break;
-          case DATA:
+          case 2: // DATA
             if (field.type == TType.STRING) {
               this.data = iprot.readBinary();
             } else { 
@@ -2241,12 +3033,10 @@ public class KeyValueService {
             break;
           default:
             TProtocolUtil.skip(iprot, field.type);
-            break;
         }
         iprot.readFieldEnd();
       }
       iprot.readStructEnd();
-
       validate();
     }
 
@@ -2299,29 +3089,81 @@ public class KeyValueService {
 
     public void validate() throws TException {
       // check for required fields
-      // check that fields of type enum have valid values
     }
 
   }
 
-  public static class setValue_result implements TBase, java.io.Serializable, Cloneable   {
+  public static class setValue_result implements TBase<setValue_result._Fields>, java.io.Serializable, Cloneable, Comparable<setValue_result>   {
     private static final TStruct STRUCT_DESC = new TStruct("setValue_result");
+
     private static final TField IO_EXCEPTION_FIELD_DESC = new TField("ioException", TType.STRUCT, (short)1);
     private static final TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new TField("keyValueStoreException", TType.STRUCT, (short)2);
 
     private KeyValueStoreIOException ioException;
-    public static final int IOEXCEPTION = 1;
     private KeyValueStoreException keyValueStoreException;
-    public static final int KEYVALUESTOREEXCEPTION = 2;
 
-    private final Isset __isset = new Isset();
-    private static final class Isset implements java.io.Serializable {
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements TFieldIdEnum {
+      IO_EXCEPTION((short)1, "ioException"),
+      KEY_VALUE_STORE_EXCEPTION((short)2, "keyValueStoreException");
+
+      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byId.put((int)field._thriftId, field);
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        return byId.get(fieldId);
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
     }
 
-    public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
-      put(IOEXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
+    // isset id assignments
+
+    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
+      put(_Fields.IO_EXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRUCT)));
-      put(KEYVALUESTOREEXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
+      put(_Fields.KEY_VALUE_STORE_EXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRUCT)));
     }});
 
@@ -2353,7 +3195,11 @@ public class KeyValueService {
       }
     }
 
-    @Override
+    public setValue_result deepCopy() {
+      return new setValue_result(this);
+    }
+
+    @Deprecated
     public setValue_result clone() {
       return new setValue_result(this);
     }
@@ -2362,39 +3208,53 @@ public class KeyValueService {
       return this.ioException;
     }
 
-    public void setIoException(KeyValueStoreIOException ioException) {
+    public setValue_result setIoException(KeyValueStoreIOException ioException) {
       this.ioException = ioException;
+      return this;
     }
 
     public void unsetIoException() {
       this.ioException = null;
     }
 
-    // Returns true if field ioException is set (has been asigned a value) and false otherwise
+    /** Returns true if field ioException is set (has been asigned a value) and false otherwise */
     public boolean isSetIoException() {
       return this.ioException != null;
+    }
+
+    public void setIoExceptionIsSet(boolean value) {
+      if (!value) {
+        this.ioException = null;
+      }
     }
 
     public KeyValueStoreException getKeyValueStoreException() {
       return this.keyValueStoreException;
     }
 
-    public void setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
+    public setValue_result setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
       this.keyValueStoreException = keyValueStoreException;
+      return this;
     }
 
     public void unsetKeyValueStoreException() {
       this.keyValueStoreException = null;
     }
 
-    // Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise
+    /** Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise */
     public boolean isSetKeyValueStoreException() {
       return this.keyValueStoreException != null;
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      switch (fieldID) {
-      case IOEXCEPTION:
+    public void setKeyValueStoreExceptionIsSet(boolean value) {
+      if (!value) {
+        this.keyValueStoreException = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case IO_EXCEPTION:
         if (value == null) {
           unsetIoException();
         } else {
@@ -2402,7 +3262,7 @@ public class KeyValueService {
         }
         break;
 
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         if (value == null) {
           unsetKeyValueStoreException();
         } else {
@@ -2410,34 +3270,42 @@ public class KeyValueService {
         }
         break;
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
     }
 
-    public Object getFieldValue(int fieldID) {
-      switch (fieldID) {
-      case IOEXCEPTION:
+    public void setFieldValue(int fieldID, Object value) {
+      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case IO_EXCEPTION:
         return getIoException();
 
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         return getKeyValueStoreException();
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
     }
 
-    // Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise
-    public boolean isSet(int fieldID) {
-      switch (fieldID) {
-      case IOEXCEPTION:
+    public Object getFieldValue(int fieldId) {
+      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      switch (field) {
+      case IO_EXCEPTION:
         return isSetIoException();
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         return isSetKeyValueStoreException();
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
+    }
+
+    public boolean isSet(int fieldID) {
+      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -2479,6 +3347,35 @@ public class KeyValueService {
       return 0;
     }
 
+    public int compareTo(setValue_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      setValue_result typedOther = (setValue_result)other;
+
+      lastComparison = Boolean.valueOf(isSetIoException()).compareTo(typedOther.isSetIoException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetIoException()) {        lastComparison = TBaseHelper.compareTo(ioException, typedOther.ioException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetKeyValueStoreException()).compareTo(typedOther.isSetKeyValueStoreException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKeyValueStoreException()) {        lastComparison = TBaseHelper.compareTo(keyValueStoreException, typedOther.keyValueStoreException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
     public void read(TProtocol iprot) throws TException {
       TField field;
       iprot.readStructBegin();
@@ -2488,9 +3385,8 @@ public class KeyValueService {
         if (field.type == TType.STOP) { 
           break;
         }
-        switch (field.id)
-        {
-          case IOEXCEPTION:
+        switch (field.id) {
+          case 1: // IO_EXCEPTION
             if (field.type == TType.STRUCT) {
               this.ioException = new KeyValueStoreIOException();
               this.ioException.read(iprot);
@@ -2498,7 +3394,7 @@ public class KeyValueService {
               TProtocolUtil.skip(iprot, field.type);
             }
             break;
-          case KEYVALUESTOREEXCEPTION:
+          case 2: // KEY_VALUE_STORE_EXCEPTION
             if (field.type == TType.STRUCT) {
               this.keyValueStoreException = new KeyValueStoreException();
               this.keyValueStoreException.read(iprot);
@@ -2508,12 +3404,10 @@ public class KeyValueService {
             break;
           default:
             TProtocolUtil.skip(iprot, field.type);
-            break;
         }
         iprot.readFieldEnd();
       }
       iprot.readStructEnd();
-
       validate();
     }
 
@@ -2559,24 +3453,76 @@ public class KeyValueService {
 
     public void validate() throws TException {
       // check for required fields
-      // check that fields of type enum have valid values
     }
 
   }
 
-  public static class deleteValue_args implements TBase, java.io.Serializable, Cloneable   {
+  public static class deleteValue_args implements TBase<deleteValue_args._Fields>, java.io.Serializable, Cloneable, Comparable<deleteValue_args>   {
     private static final TStruct STRUCT_DESC = new TStruct("deleteValue_args");
+
     private static final TField KEY_FIELD_DESC = new TField("key", TType.STRING, (short)1);
 
     private String key;
-    public static final int KEY = 1;
 
-    private final Isset __isset = new Isset();
-    private static final class Isset implements java.io.Serializable {
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements TFieldIdEnum {
+      KEY((short)1, "key");
+
+      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byId.put((int)field._thriftId, field);
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        return byId.get(fieldId);
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
     }
 
-    public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
-      put(KEY, new FieldMetaData("key", TFieldRequirementType.DEFAULT, 
+    // isset id assignments
+
+    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
+      put(_Fields.KEY, new FieldMetaData("key", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRING)));
     }});
 
@@ -2603,7 +3549,11 @@ public class KeyValueService {
       }
     }
 
-    @Override
+    public deleteValue_args deepCopy() {
+      return new deleteValue_args(this);
+    }
+
+    @Deprecated
     public deleteValue_args clone() {
       return new deleteValue_args(this);
     }
@@ -2612,21 +3562,28 @@ public class KeyValueService {
       return this.key;
     }
 
-    public void setKey(String key) {
+    public deleteValue_args setKey(String key) {
       this.key = key;
+      return this;
     }
 
     public void unsetKey() {
       this.key = null;
     }
 
-    // Returns true if field key is set (has been asigned a value) and false otherwise
+    /** Returns true if field key is set (has been asigned a value) and false otherwise */
     public boolean isSetKey() {
       return this.key != null;
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      switch (fieldID) {
+    public void setKeyIsSet(boolean value) {
+      if (!value) {
+        this.key = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
       case KEY:
         if (value == null) {
           unsetKey();
@@ -2635,29 +3592,37 @@ public class KeyValueService {
         }
         break;
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
     }
 
-    public Object getFieldValue(int fieldID) {
-      switch (fieldID) {
+    public void setFieldValue(int fieldID, Object value) {
+      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
       case KEY:
         return getKey();
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
     }
 
-    // Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise
-    public boolean isSet(int fieldID) {
-      switch (fieldID) {
+    public Object getFieldValue(int fieldId) {
+      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      switch (field) {
       case KEY:
         return isSetKey();
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
+    }
+
+    public boolean isSet(int fieldID) {
+      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -2690,6 +3655,26 @@ public class KeyValueService {
       return 0;
     }
 
+    public int compareTo(deleteValue_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      deleteValue_args typedOther = (deleteValue_args)other;
+
+      lastComparison = Boolean.valueOf(isSetKey()).compareTo(typedOther.isSetKey());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKey()) {        lastComparison = TBaseHelper.compareTo(key, typedOther.key);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
     public void read(TProtocol iprot) throws TException {
       TField field;
       iprot.readStructBegin();
@@ -2699,9 +3684,8 @@ public class KeyValueService {
         if (field.type == TType.STOP) { 
           break;
         }
-        switch (field.id)
-        {
-          case KEY:
+        switch (field.id) {
+          case 1: // KEY
             if (field.type == TType.STRING) {
               this.key = iprot.readString();
             } else { 
@@ -2710,12 +3694,10 @@ public class KeyValueService {
             break;
           default:
             TProtocolUtil.skip(iprot, field.type);
-            break;
         }
         iprot.readFieldEnd();
       }
       iprot.readStructEnd();
-
       validate();
     }
 
@@ -2750,29 +3732,81 @@ public class KeyValueService {
 
     public void validate() throws TException {
       // check for required fields
-      // check that fields of type enum have valid values
     }
 
   }
 
-  public static class deleteValue_result implements TBase, java.io.Serializable, Cloneable   {
+  public static class deleteValue_result implements TBase<deleteValue_result._Fields>, java.io.Serializable, Cloneable, Comparable<deleteValue_result>   {
     private static final TStruct STRUCT_DESC = new TStruct("deleteValue_result");
+
     private static final TField IO_EXCEPTION_FIELD_DESC = new TField("ioException", TType.STRUCT, (short)1);
     private static final TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new TField("keyValueStoreException", TType.STRUCT, (short)2);
 
     private KeyValueStoreIOException ioException;
-    public static final int IOEXCEPTION = 1;
     private KeyValueStoreException keyValueStoreException;
-    public static final int KEYVALUESTOREEXCEPTION = 2;
 
-    private final Isset __isset = new Isset();
-    private static final class Isset implements java.io.Serializable {
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements TFieldIdEnum {
+      IO_EXCEPTION((short)1, "ioException"),
+      KEY_VALUE_STORE_EXCEPTION((short)2, "keyValueStoreException");
+
+      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byId.put((int)field._thriftId, field);
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        return byId.get(fieldId);
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
     }
 
-    public static final Map<Integer, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new HashMap<Integer, FieldMetaData>() {{
-      put(IOEXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
+    // isset id assignments
+
+    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
+      put(_Fields.IO_EXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRUCT)));
-      put(KEYVALUESTOREEXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
+      put(_Fields.KEY_VALUE_STORE_EXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
           new FieldValueMetaData(TType.STRUCT)));
     }});
 
@@ -2804,7 +3838,11 @@ public class KeyValueService {
       }
     }
 
-    @Override
+    public deleteValue_result deepCopy() {
+      return new deleteValue_result(this);
+    }
+
+    @Deprecated
     public deleteValue_result clone() {
       return new deleteValue_result(this);
     }
@@ -2813,39 +3851,53 @@ public class KeyValueService {
       return this.ioException;
     }
 
-    public void setIoException(KeyValueStoreIOException ioException) {
+    public deleteValue_result setIoException(KeyValueStoreIOException ioException) {
       this.ioException = ioException;
+      return this;
     }
 
     public void unsetIoException() {
       this.ioException = null;
     }
 
-    // Returns true if field ioException is set (has been asigned a value) and false otherwise
+    /** Returns true if field ioException is set (has been asigned a value) and false otherwise */
     public boolean isSetIoException() {
       return this.ioException != null;
+    }
+
+    public void setIoExceptionIsSet(boolean value) {
+      if (!value) {
+        this.ioException = null;
+      }
     }
 
     public KeyValueStoreException getKeyValueStoreException() {
       return this.keyValueStoreException;
     }
 
-    public void setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
+    public deleteValue_result setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
       this.keyValueStoreException = keyValueStoreException;
+      return this;
     }
 
     public void unsetKeyValueStoreException() {
       this.keyValueStoreException = null;
     }
 
-    // Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise
+    /** Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise */
     public boolean isSetKeyValueStoreException() {
       return this.keyValueStoreException != null;
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      switch (fieldID) {
-      case IOEXCEPTION:
+    public void setKeyValueStoreExceptionIsSet(boolean value) {
+      if (!value) {
+        this.keyValueStoreException = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case IO_EXCEPTION:
         if (value == null) {
           unsetIoException();
         } else {
@@ -2853,7 +3905,7 @@ public class KeyValueService {
         }
         break;
 
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         if (value == null) {
           unsetKeyValueStoreException();
         } else {
@@ -2861,34 +3913,42 @@ public class KeyValueService {
         }
         break;
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
     }
 
-    public Object getFieldValue(int fieldID) {
-      switch (fieldID) {
-      case IOEXCEPTION:
+    public void setFieldValue(int fieldID, Object value) {
+      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case IO_EXCEPTION:
         return getIoException();
 
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         return getKeyValueStoreException();
 
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
     }
 
-    // Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise
-    public boolean isSet(int fieldID) {
-      switch (fieldID) {
-      case IOEXCEPTION:
+    public Object getFieldValue(int fieldId) {
+      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      switch (field) {
+      case IO_EXCEPTION:
         return isSetIoException();
-      case KEYVALUESTOREEXCEPTION:
+      case KEY_VALUE_STORE_EXCEPTION:
         return isSetKeyValueStoreException();
-      default:
-        throw new IllegalArgumentException("Field " + fieldID + " doesn't exist!");
       }
+      throw new IllegalStateException();
+    }
+
+    public boolean isSet(int fieldID) {
+      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -2930,6 +3990,35 @@ public class KeyValueService {
       return 0;
     }
 
+    public int compareTo(deleteValue_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      deleteValue_result typedOther = (deleteValue_result)other;
+
+      lastComparison = Boolean.valueOf(isSetIoException()).compareTo(typedOther.isSetIoException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetIoException()) {        lastComparison = TBaseHelper.compareTo(ioException, typedOther.ioException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetKeyValueStoreException()).compareTo(typedOther.isSetKeyValueStoreException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKeyValueStoreException()) {        lastComparison = TBaseHelper.compareTo(keyValueStoreException, typedOther.keyValueStoreException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
     public void read(TProtocol iprot) throws TException {
       TField field;
       iprot.readStructBegin();
@@ -2939,9 +4028,8 @@ public class KeyValueService {
         if (field.type == TType.STOP) { 
           break;
         }
-        switch (field.id)
-        {
-          case IOEXCEPTION:
+        switch (field.id) {
+          case 1: // IO_EXCEPTION
             if (field.type == TType.STRUCT) {
               this.ioException = new KeyValueStoreIOException();
               this.ioException.read(iprot);
@@ -2949,7 +4037,7 @@ public class KeyValueService {
               TProtocolUtil.skip(iprot, field.type);
             }
             break;
-          case KEYVALUESTOREEXCEPTION:
+          case 2: // KEY_VALUE_STORE_EXCEPTION
             if (field.type == TType.STRUCT) {
               this.keyValueStoreException = new KeyValueStoreException();
               this.keyValueStoreException.read(iprot);
@@ -2959,12 +4047,10 @@ public class KeyValueService {
             break;
           default:
             TProtocolUtil.skip(iprot, field.type);
-            break;
         }
         iprot.readFieldEnd();
       }
       iprot.readStructEnd();
-
       validate();
     }
 
@@ -3010,7 +4096,6 @@ public class KeyValueService {
 
     public void validate() throws TException {
       // check for required fields
-      // check that fields of type enum have valid values
     }
 
   }
