@@ -721,7 +721,8 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		public Object makeObject() throws Exception {
 			RDB rdb = new RDB();
 			try {
-				log.info("Creating connection to " + host + ":" + port);
+				log.warn("Creating connection to " + host + ":" + port);
+
 				rdb.open(new InetSocketAddress(host, port), socketTimeout);
 			} catch (ConnectException e) {
 				log.error(String.format("Could not connect to %1$s:%2$d", host,
@@ -733,7 +734,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 
 		public void destroyObject(Object obj) {
 			try {
-				log.info("Closing connection to " + host + ":" + port);
+				log.warn("Closing connection to " + host + ":" + port);
 				RDB rdb = (RDB) obj;
 				rdb.close();
 			} catch (Exception e) {
@@ -744,7 +745,7 @@ public class TokyoTyrantKeyValueStore extends BaseManagedKeyValueStore
 		public boolean validateObject(Object obj) {
 			boolean result = false;
 			try {
-				log.info("Validating connection to " + host + ":" + port);
+				log.info("Validating connection to "+host+":"+port);
 				RDB rdb = (RDB) obj;
 				long rnum = rdb.rnum();
 				result = true;

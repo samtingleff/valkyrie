@@ -100,7 +100,7 @@ public class PropertiesConfigurator implements Configurator {
 		config
 				.setAsyncOperationQueue(new NonPersistentThreadPoolOperationQueue(
 						p, cf, asyncOperationThreadPoolCount,
-						syncOperationMaxQueueSize));
+						asyncOperationMaxQueueSize));
 		config.setConnectionFactory(cf);
 		config
 				.setMaxNodeErrorCount(getIntProperty(p, MAX_NODE_ERROR_COUNT,
@@ -115,7 +115,7 @@ public class PropertiesConfigurator implements Configurator {
 		config
 				.setSyncOperationQueue(new NonPersistentThreadPoolOperationQueue(
 						p, cf, syncOperationThreadPoolCount,
-						asyncOperationMaxQueueSize));
+						syncOperationMaxQueueSize));
 		config.setWriteOperationTimeout(getIntProperty(p,
 				WRITE_OPERATION_TIMEOUT, 500));
 		config.setWriteReplicas(getIntProperty(p, WRITE_REPLICAS, 3));
