@@ -15,6 +15,7 @@ Currently supported backends include:
 - [BDB](http://www.oracle.com/database/berkeley-db/ "BDB native using JNI")
 - [Tokyo Cabinet](http://1978th.net/tokyocabinet/ "Tokyo Tyrant")
 - [Tokyo Tyrant](http://1978th.net/tokyotyrant/ "Tokyo Tyrant")
+- [Cassandra](http://cassandra.apache.org/ "Cassandra")
 - [Project Voldemort](http://project-voldemort.com/ "Project Voldemort")
 - a simple file-system backed store
 - WebDAV (tested against Apache mod_dav, nginx and lighttpd)
