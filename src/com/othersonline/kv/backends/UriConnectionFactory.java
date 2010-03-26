@@ -74,6 +74,8 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 			store = new BDBKeyValueStore();
 		else if ("bdbje".equals(type))
 			store = new BDBJEKeyValueStore();
+		else if ("cassandra".equals(type))
+			store = new CassandraKeyValueStore();
 		else if ("hash".equals(type))
 			store = new ConcurrentHashMapKeyValueStore();
 		else if ("fs".equals(type))
