@@ -25,6 +25,8 @@ public class SpyMemcachedDelegatingTranscoder<T> implements Transcoder<T> {
 		if (data == null)
 			return null;
 		byte[] bytes = data.getData();
+		if (bytes == null)
+			return null;
 		try {
 			return ((T) delegate.decode(bytes));
 		} catch (IOException e) {
