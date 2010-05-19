@@ -11,6 +11,14 @@ public class SpyMemcachedDelegatingTranscoder<T> implements Transcoder<T> {
 
 	private com.othersonline.kv.transcoder.Transcoder delegate = new SerializingTranscoder();
 
+	public SpyMemcachedDelegatingTranscoder() {
+	}
+
+	public SpyMemcachedDelegatingTranscoder(
+			com.othersonline.kv.transcoder.Transcoder delegate) {
+		this.delegate = delegate;
+	}
+
 	public T decode(CachedData data) {
 		if (data == null)
 			return null;
