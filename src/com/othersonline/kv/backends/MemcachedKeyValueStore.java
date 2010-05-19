@@ -621,9 +621,8 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 
 		public MemcachedNode createMemcachedNode(SocketAddress sa,
 				SocketChannel c, int bufSize) {
-			return new BinaryMemcachedNodeImpl(sa, c, bufSize,
-					createReadOperationQueue(), createWriteOperationQueue(),
-					createOperationQueue());
+			return new BinaryMemcachedNodeImpl(sa, c, bufSize, createReadOperationQueue(),
+					createWriteOperationQueue(), createOperationQueue(), 1000l, false);
 		}
 
 		public OperationFactory getOperationFactory() {
