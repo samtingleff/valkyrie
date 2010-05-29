@@ -98,6 +98,8 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 			store = new JdbcKeyValueStore();
 		else if ("xmemcached".equals(type))
 			store = new XMemcachedKeyValueStore();
+		else if ("riak".equals(type))
+			store = new RiakKeyValueStore();
 		return store;
 	}
 }

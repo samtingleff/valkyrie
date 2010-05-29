@@ -1,5 +1,6 @@
 package com.othersonline.kv.test;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -30,7 +31,8 @@ public abstract class KeyValueStoreBackendTestCase extends TestCase {
 	public abstract void testBackend() throws Exception;
 
 	protected void doTestBackend(KeyValueStore store) throws Exception {
-		String key = "some/key";
+		String key = "some.key";
+		String objectKey = "some.object.key";
 		SerializableTranscoder serializer = new SerializableTranscoder();
 		assertEquals(store.getStatus(), KeyValueStoreStatus.Offline);
 		try {
@@ -46,15 +48,30 @@ public abstract class KeyValueStoreBackendTestCase extends TestCase {
 		assertNull(store.get(key));
 		assertFalse(store.exists(key));
 
+		// test with a string, using object transcoder
 		store.set(key, "hello world");
 		assertTrue(store.exists(key));
 		assertEquals(store.get(key), "hello world");
+		
+		// test with a string, using UTF-8 transcoder
+		Transcoder t = new Transcoder() {
+			public Object decode(byte[] bytes) throws IOException {
+				return new String(bytes, "UTF-8");
+			}
+
+			public byte[] encode(Object value) throws IOException {
+				return ((String) value).getBytes("UTF-8");
+			}
+		};
+		store.set(key, "hello dude", t);
+		assertTrue(store.exists(key));
+		assertEquals(store.get(key, t), "hello dude");
 
 		SampleV v = new SampleV(10, "hello world", 12);
-		store.set(key, v, new SerializableTranscoder());
+		store.set(objectKey, v, new SerializableTranscoder());
 		Thread.sleep(100l);
-		assertTrue(store.exists(key));
-		SampleV v2 = (SampleV) store.get(key, serializer);
+		assertTrue(store.exists(objectKey));
+		SampleV v2 = (SampleV) store.get(objectKey, serializer);
 		assertNotNull(v2);
 		assertEquals(v2.someRequiredInt, v.someRequiredInt);
 		assertEquals(v2.someString, v.someString);
@@ -64,17 +81,17 @@ public abstract class KeyValueStoreBackendTestCase extends TestCase {
 		Map<String, Object> map = store.getBulk("xyz123", "abcdefg",
 				"sdfdsfer", "weruiwer");
 		assertEquals(map.size(), 0);
-		map = store.getBulk(Arrays.asList(new String[] { key, "abcdefg" }), serializer);
+		map = store.getBulk(Arrays.asList(new String[] { objectKey, "abcdefg" }), serializer);
 		assertEquals(map.size(), 1);
-		assertEquals(((SampleV) map.get(key)).someRequiredInt,
+		assertEquals(((SampleV) map.get(objectKey)).someRequiredInt,
 				v.someRequiredInt);
 		map = store.getBulk(Arrays
-				.asList(new String[] { "sxyzxv", "123", key }), serializer);
+				.asList(new String[] { "sxyzxv", "123", objectKey }), serializer);
 		assertEquals(map.size(), 1);
-		assertEquals(((SampleV) map.get(key)).someRequiredInt,
+		assertEquals(((SampleV) map.get(objectKey)).someRequiredInt,
 				v.someRequiredInt);
 		map = store.getBulk(Arrays
-				.asList(new String[] { "12345", key, "sfdsdf" }),
+				.asList(new String[] { "12345", objectKey, "sfdsdf" }),
 				new ByteArrayTranscoder());
 		assertEquals(map.size(), 1);
 
@@ -84,7 +101,7 @@ public abstract class KeyValueStoreBackendTestCase extends TestCase {
 
 		// set status to read only
 		store.setStatus(KeyValueStoreStatus.ReadOnly);
-		SampleV v3 = (SampleV) store.get(key, serializer);
+		SampleV v3 = (SampleV) store.get(objectKey, serializer);
 		assertNotNull(v3);
 		try {
 			store.set(key, v3);
