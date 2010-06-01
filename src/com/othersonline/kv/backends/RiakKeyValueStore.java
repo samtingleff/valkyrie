@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -50,18 +52,20 @@ public class RiakKeyValueStore extends BaseManagedKeyValueStore implements
 
 	private String host;
 
-	private int port;
+	private int port = 8098;
+
+	private String prefix = "/riak";
 
 	private String baseUrl;
 
 	private String bucket;
 
 	private int w = 1;
-	
+
 	private int dw = 0;
-	
+
 	private int r = 1;
-	
+
 	private int maxConnectionsPerHost = 500;
 
 	private int maxTotalConnections = 500;
@@ -85,6 +89,11 @@ public class RiakKeyValueStore extends BaseManagedKeyValueStore implements
 	@Configurable(name = "port", accepts = Type.IntType)
 	public void setPort(int port) {
 		this.port = port;
+	}
+
+	@Configurable(name = "prefix", accepts = Type.StringType)
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
 	}
 
 	@Configurable(name = "baseUrl", accepts = Type.StringType)
@@ -145,14 +154,14 @@ public class RiakKeyValueStore extends BaseManagedKeyValueStore implements
 		httpClient = new HttpClient(mgr);
 
 		if (baseUrl == null)
-			baseUrl = String.format("http://%1$s:%2$d", host, port);
+			baseUrl = String.format("http://%1$s:%2$d%3$s", host, port, prefix);
 
 		RiakConfig config = new RiakConfig(baseUrl);
 		config.setHttpClient(httpClient);
 		client = new RiakClient(config);
 
-		writeRequestMeta = new RequestMeta().writeParams(w, dw)
-				.setQueryParam("returnbody", "false");
+		writeRequestMeta = new RequestMeta().writeParams(w, dw).setQueryParam(
+				"returnbody", "false");
 		readRequestMeta = new RequestMeta().readParams(r);
 
 		super.start();
@@ -163,62 +172,10 @@ public class RiakKeyValueStore extends BaseManagedKeyValueStore implements
 		super.stop();
 	}
 
-	public void dotest() throws Exception {
-		String key = "some.key.name.txt";
-		int size = 100;
-		Random random = new Random();
-		byte[] outboundBytes = new byte[size];
-		for (int i = 0; i < size; ++i) {
-			outboundBytes[i] = (byte) (random.nextInt(100) - 10);
-		}
-
-		RiakObject roOutbound = new RiakObject(bucket, key);
-		roOutbound.setValue(outboundBytes);
-		StoreResponse sr = client.store(roOutbound, new RequestMeta());
-		if (sr.isSuccess())
-			roOutbound.updateMeta(sr);
-		FetchResponse fr = client.stream(bucket, key);
-		try {
-			InputStream is = fr.getStream();
-			try {
-				byte[] buffer = new byte[is.available()];
-				ByteArrayOutputStream baos = new ByteArrayOutputStream(is
-						.available());
-				int read = 0;
-				while ((read = is.read(buffer)) > 0) {
-					baos.write(buffer, 0, read);
-				}
-				byte[] inboundBytes = baos.toByteArray();
-
-				for (int i = 0; i < outboundBytes.length; ++i) {
-					if (outboundBytes[i] != inboundBytes[i])
-						System.err.println(outboundBytes[i] + " != "
-								+ inboundBytes[i]);
-				}
-
-				File f = new File("/tmp/some.key.name.txt");
-				FileOutputStream fos = new FileOutputStream(f);
-				fos.write(outboundBytes);
-				fos.close();
-
-				File f2 = new File("/tmp/some.key.name.inbound.txt");
-				FileOutputStream fos2 = new FileOutputStream(f2);
-				fos2.write(inboundBytes);
-				fos2.close();
-				System.err.println("done");
-			} finally {
-				is.close();
-			}
-
-		} finally {
-			fr.close();
-		}
-	}
-
 	public boolean exists(String key) throws KeyValueStoreException,
 			IOException {
 		assertReadable();
-		FetchResponse r = client.fetchMeta(bucket, key, RequestMeta
+		FetchResponse r = client.fetchMeta(bucket, getKey(key), RequestMeta
 				.readParams(2));
 		return r.isSuccess();
 	}
@@ -231,7 +188,7 @@ public class RiakKeyValueStore extends BaseManagedKeyValueStore implements
 			throws KeyValueStoreException, IOException {
 		assertReadable();
 		Object result = null;
-		FetchResponse r = client.fetch(bucket, key, readRequestMeta);
+		FetchResponse r = client.fetch(bucket, getKey(key), readRequestMeta);
 		try {
 			if (r.isSuccess()) {
 				byte[] bytes = r.getBody();
@@ -283,7 +240,7 @@ public class RiakKeyValueStore extends BaseManagedKeyValueStore implements
 	public void set(String key, Object value, Transcoder transcoder)
 			throws KeyValueStoreException, IOException {
 		assertWriteable();
-		RiakObject o = new RiakObject(bucket, key);
+		RiakObject o = new RiakObject(bucket, getKey(key));
 		byte[] bytes = transcoder.encode(value);
 		o.setValue(bytes);
 		StoreResponse r = client.store(o, writeRequestMeta);
@@ -296,11 +253,19 @@ public class RiakKeyValueStore extends BaseManagedKeyValueStore implements
 
 	public void delete(String key) throws KeyValueStoreException, IOException {
 		assertWriteable();
-		HttpResponse response = client.delete(bucket, key);
+		HttpResponse response = client.delete(bucket, getKey(key));
 		if (((response.getStatusCode() < 200) || (response.getStatusCode() >= 300))
 				&& (response.getStatusCode() != 404)) {
 			throw new KeyValueStoreException("Got non-okay http response "
 					+ response.getStatusCode());
+		}
+	}
+
+	private String getKey(String rawKey) {
+		try {
+			return URLEncoder.encode(rawKey, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }
