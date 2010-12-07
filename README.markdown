@@ -160,7 +160,7 @@ permanent storage:
 
 ## Benchmarks ##
 
-Using a [totally unscientific benchmark](http://github.com/samtingleff/oo-kv-storage/blob/5c9cea4c672dda6c7863f9b3a12b639e0c149b81/test/com/othersonline/kv/test/BenchmarkTestCase.java) with 10 concurrent threads and 100 repetitions per thread (time is average of five runs):
+Using a [totally unscientific benchmark](http://github.com/samtingleff/oo-kv-storage/blob/5c9cea4c672dda6c7863f9b3a12b639e0c149b81/test/com/othersonline/kv/test/BenchmarkTestCase.java) with 10 concurrent threads, 100 repetitions per thread and one get/set/delete cycle per repetition (time is average of five runs):
 
 <table>
  <thead>
