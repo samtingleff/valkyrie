@@ -37,7 +37,7 @@ public class UrlNodeStore extends AbstractRefreshingNodeStore {
 
 	public void setProperties(Properties props) throws IllegalArgumentException {
 		try {
-			this.url = new URL(props.getProperty("nodestore.url"));
+			this.url = new URL(props.getProperty(URL_PROPERTY));
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException(e);
 		}
