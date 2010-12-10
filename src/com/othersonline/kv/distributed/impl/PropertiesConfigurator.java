@@ -61,6 +61,15 @@ public class PropertiesConfigurator implements Configurator {
 		load(p);
 	}
 
+	public PropertiesConfigurator(String path) throws IOException {
+		InputStream is = getClass().getResourceAsStream(path);
+		try {
+			load(is);
+		} finally {
+			is.close();
+		}
+	}
+
 	public void load(File file) throws IOException {
 		FileInputStream fis = new FileInputStream(file);
 		try {
