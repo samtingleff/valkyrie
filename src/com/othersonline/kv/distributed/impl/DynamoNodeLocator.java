@@ -6,6 +6,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.othersonline.kv.distributed.Node;
 import com.othersonline.kv.distributed.NodeChangeListener;
 import com.othersonline.kv.distributed.NodeLocator;
@@ -23,6 +26,8 @@ import com.othersonline.kv.tuple.Tuple2;
  */
 public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 	public static final int DEFAULT_TOKENS_PER_NODE = 100;
+
+	private Log log = LogFactory.getLog(getClass());
 
 	private int tokensPerNode = DEFAULT_TOKENS_PER_NODE;
 
@@ -43,10 +48,14 @@ public class DynamoNodeLocator implements NodeLocator, NodeChangeListener {
 
 	public List<Node> getPreferenceList(HashAlgorithm hashAlg, String key,
 			int count) {
-		if (count > outerRing.getNodeCount())
-			throw new IllegalArgumentException(String.format(
+		if (count > outerRing.getNodeCount()) {
+			String error = String.format(
 					"Requested count (%1$d) is greater than node count (%2$d)",
-					count, outerRing.getNodeCount()));
+					count, outerRing.getNodeCount());
+			IllegalArgumentException e = new IllegalArgumentException(error);
+			log.error(error, e);
+			throw e;
+		}
 
 		long hashCode = hashAlg.hash(key);
 
