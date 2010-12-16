@@ -8,20 +8,21 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import voldemort.client.ClientConfig;
 import voldemort.client.SocketStoreClientFactory;
 import voldemort.client.StoreClient;
 import voldemort.client.StoreClientFactory;
-import voldemort.serialization.DefaultSerializerFactory;
 import voldemort.serialization.Serializer;
 import voldemort.serialization.SerializerDefinition;
 import voldemort.serialization.SerializerFactory;
+import voldemort.serialization.StringSerializer;
 import voldemort.versioning.Versioned;
 
 import com.othersonline.kv.BaseManagedKeyValueStore;
 import com.othersonline.kv.KeyValueStoreException;
 import com.othersonline.kv.annotations.Configurable;
 import com.othersonline.kv.annotations.Configurable.Type;
-import com.othersonline.kv.transcoder.SerializableTranscoder;
+import com.othersonline.kv.transcoder.SerializingTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 import com.othersonline.kv.util.DaemonThreadFactory;
 import com.othersonline.kv.util.ExecutorUtils;
@@ -29,18 +30,20 @@ import com.othersonline.kv.util.ExecutorUtils;
 public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 	public static final String IDENTIFIER = "voldemort";
 
+	private Transcoder defaultTranscoder = new SerializingTranscoder();
+
 	private int threadPoolSize = 5;
 
-	private int maxConnectionsPerNode = SocketStoreClientFactory.DEFAULT_MAX_CONNECTIONS_PER_NODE;
+	private int maxConnectionsPerNode = 6;
 
-	private int maxTotalConnections = SocketStoreClientFactory.DEFAULT_MAX_CONNECTIONS;
+	private int maxTotalConnections = 500;
 
-	private int socketTimeout = SocketStoreClientFactory.DEFAULT_SOCKET_TIMEOUT_MS;
+	private int socketTimeout = 5000;
 
-	private int routingTimeout = SocketStoreClientFactory.DEFAULT_ROUTING_TIMEOUT_MS;
+	private int routingTimeout = 15000;
 
 	// how long nodes are banned after a socket timeout
-	private int nodeBannage = SocketStoreClientFactory.DEFAULT_NODE_BANNAGE_MS;
+	private int nodeBannage = 30000;
 
 	private String host = null;
 
@@ -130,10 +133,17 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 			iOwnThreadPool = false;
 		String url = (host == null) ? bootstrapUrl : String.format(
 				"tcp://%1$s:%2$d", host, port);
-		StoreClientFactory factory = new SocketStoreClientFactory(executor,
-				maxConnectionsPerNode, maxTotalConnections, socketTimeout,
-				routingTimeout, nodeBannage, new DefaultSerializerFactory(),
-				url);
+
+		ClientConfig config = new ClientConfig();
+		config.setBootstrapUrls(url);
+		config.setConnectionTimeout(socketTimeout, TimeUnit.MILLISECONDS);
+		config.setSocketTimeout(socketTimeout, TimeUnit.MILLISECONDS);
+		config.setRoutingTimeout(routingTimeout, TimeUnit.MILLISECONDS);
+		config.setMaxConnectionsPerNode(maxConnectionsPerNode);
+		config.setMaxTotalConnections(maxTotalConnections);
+		config.setFailureDetectorBannagePeriod(nodeBannage);
+		config.setSerializerFactory(new ValkyrieVoldemortSerializerFactory());
+		StoreClientFactory factory = new SocketStoreClientFactory(config);
 		client = factory.getStoreClient(storeName);
 		super.start();
 	}
@@ -156,8 +166,7 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 
 	public Object get(String key) throws KeyValueStoreException, IOException {
 		assertReadable();
-		Object obj = client.getValue(key);
-		return obj;
+		return get(key, defaultTranscoder);
 	}
 
 	public Object get(String key, Transcoder transcoder)
@@ -178,7 +187,8 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 		for (String key : keys) {
 			Object obj = client.getValue(key);
 			if (obj != null) {
-				results.put(key, obj);
+				Object decoded = defaultTranscoder.decode((byte[]) obj);
+				results.put(key, decoded);
 			}
 		}
 		return results;
@@ -187,14 +197,7 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 	public Map<String, Object> getBulk(List<String> keys)
 			throws KeyValueStoreException, IOException {
 		assertReadable();
-		Map<String, Object> results = new HashMap<String, Object>();
-		for (String key : keys) {
-			Object obj = client.getValue(key);
-			if (obj != null) {
-				results.put(key, obj);
-			}
-		}
-		return results;
+		return getBulk(keys, defaultTranscoder);
 	}
 
 	public Map<String, Object> getBulk(List<String> keys, Transcoder transcoder)
@@ -214,7 +217,7 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 	public void set(String key, Object value) throws KeyValueStoreException,
 			IOException {
 		assertWriteable();
-		client.put(key, value);
+		set(key, value, defaultTranscoder);
 	}
 
 	public void set(String key, Object value, Transcoder transcoder)
@@ -234,71 +237,27 @@ public class VoldemortKeyValueStore extends BaseManagedKeyValueStore {
 		client.delete(key);
 	}
 
-	private static class VoldemortSerializerFactory implements
+	public class ValkyrieVoldemortSerializerFactory implements
 			SerializerFactory {
-		private Serializer<byte[]> byteSerializer = new VoldemortByteArraySerializer();
-
-		private Serializer<String> stringSerializer = new VoldemortStringSerializer();
 
 		public Serializer<?> getSerializer(SerializerDefinition def) {
-			String name = def.getName();
-			if ("bytes".equals(name)) {
-				return byteSerializer;
-			} else if ("string".equals(name)) {
-				return stringSerializer;
-			} else {
-				return new VoldemortSerializerWrapper(
-						new SerializableTranscoder());
-			}
+			return new ValkyrieSerializer();
 		}
 	}
 
-	private static class VoldemortByteArraySerializer implements
-			Serializer<byte[]> {
-		public byte[] toBytes(byte[] bytes) {
+	private static class ValkyrieSerializer implements Serializer {
+		private Serializer<String> keySerializer = new StringSerializer();
+
+		public byte[] toBytes(Object obj) {
+			if (obj instanceof byte[])
+				return (byte[]) obj;
+			else {
+				return keySerializer.toBytes((String) obj);
+			}
+		}
+
+		public Object toObject(byte[] bytes) {
 			return bytes;
-		}
-
-		public byte[] toObject(byte[] bytes) {
-			return bytes;
-		}
-	}
-
-	private static class VoldemortStringSerializer implements
-			Serializer<String> {
-
-		public byte[] toBytes(String s) {
-			return s.getBytes();
-		}
-
-		public String toObject(byte[] bytes) {
-			return new String(bytes);
-		}
-
-	}
-
-	private static class VoldemortSerializerWrapper<T> implements Serializer<T> {
-
-		private Transcoder transcoder;
-
-		public VoldemortSerializerWrapper(Transcoder transcoder) {
-			this.transcoder = transcoder;
-		}
-
-		public byte[] toBytes(T obj) {
-			try {
-				return transcoder.encode(obj);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		public T toObject(byte[] bytes) {
-			try {
-				return (T) transcoder.decode(bytes);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
 		}
 
 	}
