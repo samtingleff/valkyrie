@@ -66,6 +66,7 @@ public class NonPersistentThreadPoolOperationQueue extends
 				Callable<OperationResult<V>> delegate = op.getCallable(store);
 				result = delegate.call();
 			} catch (Exception e) {
+				log.error("Exception fetching node", e);
 				result = new DefaultOperationResult<V>(op, null,
 						OperationStatus.Error, System.currentTimeMillis()
 								- start, e);
@@ -77,6 +78,7 @@ public class NonPersistentThreadPoolOperationQueue extends
 									.toLowerCase(), node.getId(), result
 									.getDuration(), start - enqueueTime));
 				} catch (Exception e) {
+					log.error("Exception writing to operation log", e);
 				}
 				OperationCallback<V> callback = op.getCallback();
 				if (callback != null) {
