@@ -13,6 +13,7 @@ Currently supported backends include:
 - [memcached](http://www.danga.com/memcached/ "memcached") (and cousins [MemcacheQ](http://memcachedb.org/memcacheq/ "MemcacheQ") and [MemcacheDB](http://memcachedb.org/ "MemcacheDB"))
 - [BDB JE](http://www.oracle.com/database/berkeley-db/je/ "BDB Java Edition")
 - [BDB](http://www.oracle.com/database/berkeley-db/ "BDB native using JNI")
+- [HandlerSocket](https://github.com/ahiguti/HandlerSocket-Plugin-for-MySQL "HandlerSocket")
 - [Tokyo Cabinet](http://1978th.net/tokyocabinet/ "Tokyo Tyrant")
 - [Tokyo Tyrant](http://1978th.net/tokyotyrant/ "Tokyo Tyrant")
 - [Cassandra](http://cassandra.apache.org/ "Cassandra")
