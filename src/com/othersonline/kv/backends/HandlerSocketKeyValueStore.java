@@ -32,11 +32,19 @@ public class HandlerSocketKeyValueStore extends BaseManagedKeyValueStore
 
 	private Transcoder defaultTranscoder = new StringTranscoder();
 
+	private HSClient reader;
+
+	private HSClient writer;
+
 	private String host = "localhost";
 
 	private int readPort = 9998;
 
+	private int readPoolSize = 10;
+
 	private int writePort = 9999;
+
+	private int writePoolSize = 10;
 
 	private Serialization serializer;
 
@@ -60,9 +68,19 @@ public class HandlerSocketKeyValueStore extends BaseManagedKeyValueStore
 		this.readPort = port;
 	}
 
+	@Configurable(name = "readPoolSize", accepts = Type.IntType)
+	public void setReadPoolSize(int readPoolSize) {
+		this.readPoolSize = readPoolSize;
+	}
+
 	@Configurable(name = "writePort", accepts = Type.IntType)
 	public void setWritePort(int port) {
 		this.writePort = port;
+	}
+
+	@Configurable(name = "writePoolSize", accepts = Type.IntType)
+	public void setSritePoolSize(int writePoolSize) {
+		this.writePoolSize = writePoolSize;
 	}
 
 	@Configurable(name = "db", accepts = Type.StringType)
@@ -98,11 +116,31 @@ public class HandlerSocketKeyValueStore extends BaseManagedKeyValueStore
 	@Override
 	public void start() throws IOException {
 		serializer = new DefaultSerialization(this.valueColumn);
+		try {
+			this.reader = initReaderConnection();
+			this.writer = initWriterConnection();
+		} catch (InterruptedException e) {
+			log.error("InterruptedException in start()");
+			throw new IOException(e);
+		} catch (TimeoutException e) {
+			log.error("TimeoutException in start()");
+			throw new IOException(e);
+		} catch (HandlerSocketException e) {
+			log.error("HandlerSocketException in start()");
+			throw new IOException(e);
+		} finally {
+		}
 		super.start();
 	}
 
 	@Override
 	public void stop() {
+		try {
+			this.reader.shutdown();
+			this.writer.shutdown();
+		} catch (Exception e) {
+			log.warn("Exception calling shutdown()", e);
+		}
 		super.stop();
 	}
 
@@ -236,26 +274,29 @@ public class HandlerSocketKeyValueStore extends BaseManagedKeyValueStore
 
 	protected HSClient getReaderConnection() throws IOException,
 			InterruptedException, TimeoutException, HandlerSocketException {
-		HSClient client = new HSClientImpl(host, readPort);
-		client.openIndex(0, db, table, index, serializer.valueColumns());
-		return client;
+		return this.reader;
 	}
 
 	protected HSClient getWriterConnection() throws IOException,
 			InterruptedException, TimeoutException, HandlerSocketException {
-		HSClient client = new HSClientImpl(host, writePort);
+		return this.writer;
+	}
+
+	protected HSClient initReaderConnection() throws IOException,
+			InterruptedException, TimeoutException, HandlerSocketException {
+		HSClient client = new HSClientImpl(host, readPort, readPoolSize);
+		client.openIndex(0, db, table, index, serializer.valueColumns());
+		return client;
+	}
+
+	protected HSClient initWriterConnection() throws IOException,
+			InterruptedException, TimeoutException, HandlerSocketException {
+		HSClient client = new HSClientImpl(host, writePort, writePoolSize);
 		client.openIndex(0, db, table, index, serializer.valueColumns());
 		return client;
 	}
 
 	protected void close(HSClient client) {
-		if (client != null) {
-			try {
-				client.shutdown();
-			} catch (Exception e) {
-				log.warn("Exception calling HSClient.shutdown()", e);
-			}
-		}
 	}
 
 	protected void close(ResultSet rs) {
