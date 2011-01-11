@@ -68,7 +68,7 @@ public abstract class KeyValueStoreBackendTestCase extends TestCase {
 		assertEquals(store.get(key, t), "hello dude");
 
 		SampleV v = new SampleV(10, "hello world", 12);
-		store.set(objectKey, v, new SerializableTranscoder());
+		store.set(objectKey, v, serializer);
 		Thread.sleep(100l);
 		assertTrue(store.exists(objectKey));
 		SampleV v2 = (SampleV) store.get(objectKey, serializer);
