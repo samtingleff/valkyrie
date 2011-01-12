@@ -166,7 +166,7 @@ public class HandlerSocketKeyValueStore extends BaseManagedKeyValueStore
 		ResultSet rs = null;
 		try {
 			client = getReaderConnection();
-			rs = client.find(0, new String[] { key });
+			rs = client.find(getIndexId(client, key), new String[] { key });
 			Object result = null;
 			if (rs.next()) {
 				result = serializer.fetch(transcoder, rs);
@@ -201,7 +201,8 @@ public class HandlerSocketKeyValueStore extends BaseManagedKeyValueStore
 			Map<String, Object> results = new HashMap<String, Object>();
 			client = getReaderConnection();
 			for (String key : keys) {
-				ResultSet rs = client.find(0, new String[] { key });
+				ResultSet rs = client.find(getIndexId(client, key),
+						new String[] { key });
 				try {
 					if (rs.next()) {
 						Object o = serializer.fetch(transcoder, rs);
@@ -237,9 +238,9 @@ public class HandlerSocketKeyValueStore extends BaseManagedKeyValueStore
 			int rows = 0;
 			if (updateBeforeInsert) {
 				// try an update
-				rows = client.update(0, new String[] { key },
-						new byte[][] { transcoder.encode(value) },
-						FindOperator.EQ);
+				rows = client.update(getIndexId(client, key),
+						new String[] { key }, new byte[][] { transcoder
+								.encode(value) }, FindOperator.EQ);
 			}
 			if (rows == 0) {
 				byte[][] values = serializer.values(transcoder, key, value);
@@ -247,9 +248,9 @@ public class HandlerSocketKeyValueStore extends BaseManagedKeyValueStore
 				rows = (b) ? 1 : 0;
 				if (rows == 0) {
 					// if updateBeforeInsert == false
-					rows = client.update(0, new String[] { key },
-							new byte[][] { transcoder.encode(value) },
-							FindOperator.EQ);
+					rows = client.update(getIndexId(client, key),
+							new String[] { key }, new byte[][] { transcoder
+									.encode(value) }, FindOperator.EQ);
 				}
 			}
 		} catch (Exception e) {
@@ -264,7 +265,7 @@ public class HandlerSocketKeyValueStore extends BaseManagedKeyValueStore
 		HSClient client = null;
 		try {
 			client = getWriterConnection();
-			client.delete(0, new String[] { key });
+			client.delete(getIndexId(client, key), new String[] { key });
 		} catch (Exception e) {
 			log.error("Exception calling set()", e);
 		} finally {
@@ -285,15 +286,24 @@ public class HandlerSocketKeyValueStore extends BaseManagedKeyValueStore
 	protected HSClient initReaderConnection() throws IOException,
 			InterruptedException, TimeoutException, HandlerSocketException {
 		HSClient client = new HSClientImpl(host, readPort, readPoolSize);
-		client.openIndex(0, db, table, index, serializer.valueColumns());
+		openIndices(client);
 		return client;
 	}
 
 	protected HSClient initWriterConnection() throws IOException,
 			InterruptedException, TimeoutException, HandlerSocketException {
 		HSClient client = new HSClientImpl(host, writePort, writePoolSize);
-		client.openIndex(0, db, table, index, serializer.valueColumns());
+		openIndices(client);
 		return client;
+	}
+
+	protected int getIndexId(HSClient client, String key) {
+		return 0;
+	}
+
+	protected void openIndices(HSClient client) throws InterruptedException,
+			TimeoutException, HandlerSocketException {
+		client.openIndex(0, db, table, index, serializer.valueColumns());
 	}
 
 	protected void close(HSClient client) {
