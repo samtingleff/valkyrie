@@ -80,6 +80,8 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 			store = new ConcurrentHashMapKeyValueStore();
 		else if ("fs".equals(type))
 			store = new FileSystemKeyValueStore();
+		else if ("hs".equals(type))
+			store = new HandlerSocketKeyValueStore();
 		else if ("kfs".equals(type))
 			store = new KosmosfsKeyValueStore();
 		else if ("memcached".equals(type))
