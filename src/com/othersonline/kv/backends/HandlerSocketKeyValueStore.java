@@ -28,35 +28,35 @@ public class HandlerSocketKeyValueStore extends BaseManagedKeyValueStore
 		implements KeyValueStore {
 	public static final String IDENTIFIER = "handlerSocket";
 
-	private Log log = LogFactory.getLog(getClass());
+	protected Log log = LogFactory.getLog(getClass());
 
-	private Transcoder defaultTranscoder = new StringTranscoder();
+	protected Transcoder defaultTranscoder = new StringTranscoder();
 
-	private HSClient reader;
+	protected HSClient reader;
 
-	private HSClient writer;
+	protected HSClient writer;
 
-	private String host = "localhost";
+	protected String host = "localhost";
 
-	private int readPort = 9998;
+	protected int readPort = 9998;
 
-	private int readPoolSize = 10;
+	protected int readPoolSize = 10;
 
-	private int writePort = 9999;
+	protected int writePort = 9999;
 
-	private int writePoolSize = 10;
+	protected int writePoolSize = 10;
 
-	private Serialization serializer;
+	protected Serialization serializer;
 
-	private String db;
+	protected String db;
 
-	private String table;
+	protected String table;
 
-	private String index = "PRIMARY";
+	protected String index = "PRIMARY";
 
-	private String valueColumn = "value";
+	protected String valueColumn = "value";
 
-	private boolean updateBeforeInsert = false;
+	protected boolean updateBeforeInsert = false;
 
 	@Configurable(name = "host", accepts = Type.StringType)
 	public void setHost(String host) {
@@ -235,20 +235,21 @@ public class HandlerSocketKeyValueStore extends BaseManagedKeyValueStore
 		HSClient client = null;
 		try {
 			client = getWriterConnection();
+			int indexId = getIndexId(client, key);
 			int rows = 0;
 			if (updateBeforeInsert) {
 				// try an update
-				rows = client.update(getIndexId(client, key),
+				rows = client.update(indexId,
 						new String[] { key }, new byte[][] { transcoder
 								.encode(value) }, FindOperator.EQ);
 			}
 			if (rows == 0) {
 				byte[][] values = serializer.values(transcoder, key, value);
-				boolean b = client.insert(0, values);
+				boolean b = client.insert(indexId, values);
 				rows = (b) ? 1 : 0;
 				if (rows == 0) {
 					// if updateBeforeInsert == false
-					rows = client.update(getIndexId(client, key),
+					rows = client.update(indexId,
 							new String[] { key }, new byte[][] { transcoder
 									.encode(value) }, FindOperator.EQ);
 				}
