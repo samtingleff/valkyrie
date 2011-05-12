@@ -114,7 +114,10 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 			Object o = cache.getFromCache(key, refreshPeriod);
 			result = (o == null) ? false : true;
 		} catch (NeedsRefreshException nre) {
-			cache.cancelUpdate(key);
+			try {
+				cache.cancelUpdate(key);
+			} catch (Exception e) {
+			}
 		}
 		return result;
 	}
@@ -125,7 +128,10 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 		try {
 			o = cache.getFromCache(key, refreshPeriod);
 		} catch (NeedsRefreshException nre) {
-			cache.cancelUpdate(key);
+			try {
+				cache.cancelUpdate(key);
+			} catch (Exception e) {
+			}
 		}
 		return o;
 	}
@@ -176,8 +182,15 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 			cache.putInCache(key, value);
 			updated = true;
 		} finally {
-			if (!updated)
-				cache.cancelUpdate(key);
+			if (!updated) {
+				try {
+					cache.cancelUpdate(key);
+				} catch (IllegalStateException e) {
+					// this is thrown frequently in multi-threaded environments
+					// java.lang.IllegalStateException: Cannot cancel cache
+					// update - current state (2) is not UPDATE_IN_PROGRESS
+				}
+			}
 		}
 	}
 
@@ -194,8 +207,14 @@ public class OsCacheKeyValueStore extends BaseManagedKeyValueStore {
 			cache.flushEntry(key);
 			updated = true;
 		} finally {
-			if (!updated)
-				cache.cancelUpdate(key);
+			try {
+				if (!updated)
+					cache.cancelUpdate(key);
+			} catch (IllegalStateException e) {
+				// this is thrown frequently in multi-threaded environments
+				// java.lang.IllegalStateException: Cannot cancel cache update -
+				// current state (2) is not UPDATE_IN_PROGRESS
+			}
 		}
 	}
 }
