@@ -71,8 +71,6 @@ public class FileSystemKeyValueStore extends BaseManagedKeyValueStore {
 			root.mkdirs();
 		}
 		assert (root.canRead());
-		File tempFile = File.createTempFile("testfile", ".txt", root);
-		tempFile.delete();
 		super.start();
 	}
 
