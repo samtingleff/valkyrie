@@ -160,6 +160,34 @@ permanent storage:
 		assertFalse(replica2.exists(key));
 		assertFalse(master.exists(key));
 
+## Documentation ##
+
+- [Javadoc API](http://samtingleff.github.com/oo-kv-storage/doc/api/)
+
+## Maven ##
+
+    <dependencies>
+        <dependency>
+            <groupId>com.rubicon.core</groupId>
+            <artifactId>valkyrie</artifactId>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>samtingleff-maven-snapshot-repo</id>
+            <url>https://github.com/samtingleff/maven-repo/raw/master/snapshots</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
 ## Benchmarks ##
 
 Using a [totally unscientific benchmark](http://github.com/samtingleff/oo-kv-storage/blob/5c9cea4c672dda6c7863f9b3a12b639e0c149b81/test/com/othersonline/kv/test/BenchmarkTestCase.java) with 10 concurrent threads, 100 repetitions per thread and one get/set/delete cycle per repetition (time is average of five runs):
@@ -225,8 +253,3 @@ Using a [totally unscientific benchmark](http://github.com/samtingleff/oo-kv-sto
   </tr>
  </tbody>
 </table>
-
-## Documentation ##
-
-- [Javadoc API](http://samtingleff.github.com/oo-kv-storage/doc/api/)
-
