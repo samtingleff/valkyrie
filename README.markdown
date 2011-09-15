@@ -168,7 +168,7 @@ permanent storage:
 
     <dependencies>
         <dependency>
-            <groupId>com.rubicon.core</groupId>
+            <groupId>com.rubicon.oss</groupId>
             <artifactId>valkyrie</artifactId>
         </dependency>
     </dependencies>
