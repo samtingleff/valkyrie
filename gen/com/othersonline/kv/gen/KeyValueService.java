@@ -15,80 +15,104 @@ import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.thrift.*;
-import org.apache.thrift.meta_data.*;
-import org.apache.thrift.protocol.*;
 
 public class KeyValueService {
 
   public interface Iface {
 
-    public boolean exists(String key) throws KeyValueStoreIOException, KeyValueStoreException, TException;
+    public boolean exists(String key) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException;
 
-    public GetResult getValue(String key) throws KeyValueStoreIOException, KeyValueStoreException, TException;
+    public GetResult getValue(String key) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException;
 
-    public Map<String,GetResult> getBulk(List<String> keys) throws KeyValueStoreIOException, KeyValueStoreException, TException;
+    public Map<String,GetResult> getBulk(List<String> keys) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException;
 
-    public void setValue(String key, byte[] data) throws KeyValueStoreIOException, KeyValueStoreException, TException;
+    public void setValue(String key, ByteBuffer data) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException;
 
-    public void deleteValue(String key) throws KeyValueStoreIOException, KeyValueStoreException, TException;
+    public void deleteValue(String key) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException;
 
   }
 
-  public static class Client implements Iface {
-    public Client(TProtocol prot)
+  public interface AsyncIface {
+
+    public void exists(String key, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.exists_call> resultHandler) throws org.apache.thrift.TException;
+
+    public void getValue(String key, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.getValue_call> resultHandler) throws org.apache.thrift.TException;
+
+    public void getBulk(List<String> keys, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.getBulk_call> resultHandler) throws org.apache.thrift.TException;
+
+    public void setValue(String key, ByteBuffer data, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.setValue_call> resultHandler) throws org.apache.thrift.TException;
+
+    public void deleteValue(String key, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.deleteValue_call> resultHandler) throws org.apache.thrift.TException;
+
+  }
+
+  public static class Client implements org.apache.thrift.TServiceClient, Iface {
+    public static class Factory implements org.apache.thrift.TServiceClientFactory<Client> {
+      public Factory() {}
+      public Client getClient(org.apache.thrift.protocol.TProtocol prot) {
+        return new Client(prot);
+      }
+      public Client getClient(org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) {
+        return new Client(iprot, oprot);
+      }
+    }
+
+    public Client(org.apache.thrift.protocol.TProtocol prot)
     {
       this(prot, prot);
     }
 
-    public Client(TProtocol iprot, TProtocol oprot)
+    public Client(org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot)
     {
       iprot_ = iprot;
       oprot_ = oprot;
     }
 
-    protected TProtocol iprot_;
-    protected TProtocol oprot_;
+    protected org.apache.thrift.protocol.TProtocol iprot_;
+    protected org.apache.thrift.protocol.TProtocol oprot_;
 
     protected int seqid_;
 
-    public TProtocol getInputProtocol()
+    public org.apache.thrift.protocol.TProtocol getInputProtocol()
     {
       return this.iprot_;
     }
 
-    public TProtocol getOutputProtocol()
+    public org.apache.thrift.protocol.TProtocol getOutputProtocol()
     {
       return this.oprot_;
     }
 
-    public boolean exists(String key) throws KeyValueStoreIOException, KeyValueStoreException, TException
+    public boolean exists(String key) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
     {
       send_exists(key);
       return recv_exists();
     }
 
-    public void send_exists(String key) throws TException
+    public void send_exists(String key) throws org.apache.thrift.TException
     {
-      oprot_.writeMessageBegin(new TMessage("exists", TMessageType.CALL, seqid_));
+      oprot_.writeMessageBegin(new org.apache.thrift.protocol.TMessage("exists", org.apache.thrift.protocol.TMessageType.CALL, ++seqid_));
       exists_args args = new exists_args();
-      args.key = key;
+      args.setKey(key);
       args.write(oprot_);
       oprot_.writeMessageEnd();
       oprot_.getTransport().flush();
     }
 
-    public boolean recv_exists() throws KeyValueStoreIOException, KeyValueStoreException, TException
+    public boolean recv_exists() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
     {
-      TMessage msg = iprot_.readMessageBegin();
-      if (msg.type == TMessageType.EXCEPTION) {
-        TApplicationException x = TApplicationException.read(iprot_);
+      org.apache.thrift.protocol.TMessage msg = iprot_.readMessageBegin();
+      if (msg.type == org.apache.thrift.protocol.TMessageType.EXCEPTION) {
+        org.apache.thrift.TApplicationException x = org.apache.thrift.TApplicationException.read(iprot_);
         iprot_.readMessageEnd();
         throw x;
+      }
+      if (msg.seqid != seqid_) {
+        throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.BAD_SEQUENCE_ID, "exists failed: out of sequence response");
       }
       exists_result result = new exists_result();
       result.read(iprot_);
@@ -102,32 +126,35 @@ public class KeyValueService {
       if (result.keyValueStoreException != null) {
         throw result.keyValueStoreException;
       }
-      throw new TApplicationException(TApplicationException.MISSING_RESULT, "exists failed: unknown result");
+      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "exists failed: unknown result");
     }
 
-    public GetResult getValue(String key) throws KeyValueStoreIOException, KeyValueStoreException, TException
+    public GetResult getValue(String key) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
     {
       send_getValue(key);
       return recv_getValue();
     }
 
-    public void send_getValue(String key) throws TException
+    public void send_getValue(String key) throws org.apache.thrift.TException
     {
-      oprot_.writeMessageBegin(new TMessage("getValue", TMessageType.CALL, seqid_));
+      oprot_.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getValue", org.apache.thrift.protocol.TMessageType.CALL, ++seqid_));
       getValue_args args = new getValue_args();
-      args.key = key;
+      args.setKey(key);
       args.write(oprot_);
       oprot_.writeMessageEnd();
       oprot_.getTransport().flush();
     }
 
-    public GetResult recv_getValue() throws KeyValueStoreIOException, KeyValueStoreException, TException
+    public GetResult recv_getValue() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
     {
-      TMessage msg = iprot_.readMessageBegin();
-      if (msg.type == TMessageType.EXCEPTION) {
-        TApplicationException x = TApplicationException.read(iprot_);
+      org.apache.thrift.protocol.TMessage msg = iprot_.readMessageBegin();
+      if (msg.type == org.apache.thrift.protocol.TMessageType.EXCEPTION) {
+        org.apache.thrift.TApplicationException x = org.apache.thrift.TApplicationException.read(iprot_);
         iprot_.readMessageEnd();
         throw x;
+      }
+      if (msg.seqid != seqid_) {
+        throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.BAD_SEQUENCE_ID, "getValue failed: out of sequence response");
       }
       getValue_result result = new getValue_result();
       result.read(iprot_);
@@ -141,32 +168,35 @@ public class KeyValueService {
       if (result.keyValueStoreException != null) {
         throw result.keyValueStoreException;
       }
-      throw new TApplicationException(TApplicationException.MISSING_RESULT, "getValue failed: unknown result");
+      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getValue failed: unknown result");
     }
 
-    public Map<String,GetResult> getBulk(List<String> keys) throws KeyValueStoreIOException, KeyValueStoreException, TException
+    public Map<String,GetResult> getBulk(List<String> keys) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
     {
       send_getBulk(keys);
       return recv_getBulk();
     }
 
-    public void send_getBulk(List<String> keys) throws TException
+    public void send_getBulk(List<String> keys) throws org.apache.thrift.TException
     {
-      oprot_.writeMessageBegin(new TMessage("getBulk", TMessageType.CALL, seqid_));
+      oprot_.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getBulk", org.apache.thrift.protocol.TMessageType.CALL, ++seqid_));
       getBulk_args args = new getBulk_args();
-      args.keys = keys;
+      args.setKeys(keys);
       args.write(oprot_);
       oprot_.writeMessageEnd();
       oprot_.getTransport().flush();
     }
 
-    public Map<String,GetResult> recv_getBulk() throws KeyValueStoreIOException, KeyValueStoreException, TException
+    public Map<String,GetResult> recv_getBulk() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
     {
-      TMessage msg = iprot_.readMessageBegin();
-      if (msg.type == TMessageType.EXCEPTION) {
-        TApplicationException x = TApplicationException.read(iprot_);
+      org.apache.thrift.protocol.TMessage msg = iprot_.readMessageBegin();
+      if (msg.type == org.apache.thrift.protocol.TMessageType.EXCEPTION) {
+        org.apache.thrift.TApplicationException x = org.apache.thrift.TApplicationException.read(iprot_);
         iprot_.readMessageEnd();
         throw x;
+      }
+      if (msg.seqid != seqid_) {
+        throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.BAD_SEQUENCE_ID, "getBulk failed: out of sequence response");
       }
       getBulk_result result = new getBulk_result();
       result.read(iprot_);
@@ -180,33 +210,36 @@ public class KeyValueService {
       if (result.keyValueStoreException != null) {
         throw result.keyValueStoreException;
       }
-      throw new TApplicationException(TApplicationException.MISSING_RESULT, "getBulk failed: unknown result");
+      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getBulk failed: unknown result");
     }
 
-    public void setValue(String key, byte[] data) throws KeyValueStoreIOException, KeyValueStoreException, TException
+    public void setValue(String key, ByteBuffer data) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
     {
       send_setValue(key, data);
       recv_setValue();
     }
 
-    public void send_setValue(String key, byte[] data) throws TException
+    public void send_setValue(String key, ByteBuffer data) throws org.apache.thrift.TException
     {
-      oprot_.writeMessageBegin(new TMessage("setValue", TMessageType.CALL, seqid_));
+      oprot_.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setValue", org.apache.thrift.protocol.TMessageType.CALL, ++seqid_));
       setValue_args args = new setValue_args();
-      args.key = key;
-      args.data = data;
+      args.setKey(key);
+      args.setData(data);
       args.write(oprot_);
       oprot_.writeMessageEnd();
       oprot_.getTransport().flush();
     }
 
-    public void recv_setValue() throws KeyValueStoreIOException, KeyValueStoreException, TException
+    public void recv_setValue() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
     {
-      TMessage msg = iprot_.readMessageBegin();
-      if (msg.type == TMessageType.EXCEPTION) {
-        TApplicationException x = TApplicationException.read(iprot_);
+      org.apache.thrift.protocol.TMessage msg = iprot_.readMessageBegin();
+      if (msg.type == org.apache.thrift.protocol.TMessageType.EXCEPTION) {
+        org.apache.thrift.TApplicationException x = org.apache.thrift.TApplicationException.read(iprot_);
         iprot_.readMessageEnd();
         throw x;
+      }
+      if (msg.seqid != seqid_) {
+        throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.BAD_SEQUENCE_ID, "setValue failed: out of sequence response");
       }
       setValue_result result = new setValue_result();
       result.read(iprot_);
@@ -220,29 +253,32 @@ public class KeyValueService {
       return;
     }
 
-    public void deleteValue(String key) throws KeyValueStoreIOException, KeyValueStoreException, TException
+    public void deleteValue(String key) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
     {
       send_deleteValue(key);
       recv_deleteValue();
     }
 
-    public void send_deleteValue(String key) throws TException
+    public void send_deleteValue(String key) throws org.apache.thrift.TException
     {
-      oprot_.writeMessageBegin(new TMessage("deleteValue", TMessageType.CALL, seqid_));
+      oprot_.writeMessageBegin(new org.apache.thrift.protocol.TMessage("deleteValue", org.apache.thrift.protocol.TMessageType.CALL, ++seqid_));
       deleteValue_args args = new deleteValue_args();
-      args.key = key;
+      args.setKey(key);
       args.write(oprot_);
       oprot_.writeMessageEnd();
       oprot_.getTransport().flush();
     }
 
-    public void recv_deleteValue() throws KeyValueStoreIOException, KeyValueStoreException, TException
+    public void recv_deleteValue() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
     {
-      TMessage msg = iprot_.readMessageBegin();
-      if (msg.type == TMessageType.EXCEPTION) {
-        TApplicationException x = TApplicationException.read(iprot_);
+      org.apache.thrift.protocol.TMessage msg = iprot_.readMessageBegin();
+      if (msg.type == org.apache.thrift.protocol.TMessageType.EXCEPTION) {
+        org.apache.thrift.TApplicationException x = org.apache.thrift.TApplicationException.read(iprot_);
         iprot_.readMessageEnd();
         throw x;
+      }
+      if (msg.seqid != seqid_) {
+        throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.BAD_SEQUENCE_ID, "deleteValue failed: out of sequence response");
       }
       deleteValue_result result = new deleteValue_result();
       result.read(iprot_);
@@ -257,7 +293,189 @@ public class KeyValueService {
     }
 
   }
-  public static class Processor implements TProcessor {
+  public static class AsyncClient extends org.apache.thrift.async.TAsyncClient implements AsyncIface {
+    public static class Factory implements org.apache.thrift.async.TAsyncClientFactory<AsyncClient> {
+      private org.apache.thrift.async.TAsyncClientManager clientManager;
+      private org.apache.thrift.protocol.TProtocolFactory protocolFactory;
+      public Factory(org.apache.thrift.async.TAsyncClientManager clientManager, org.apache.thrift.protocol.TProtocolFactory protocolFactory) {
+        this.clientManager = clientManager;
+        this.protocolFactory = protocolFactory;
+      }
+      public AsyncClient getAsyncClient(org.apache.thrift.transport.TNonblockingTransport transport) {
+        return new AsyncClient(protocolFactory, clientManager, transport);
+      }
+    }
+
+    public AsyncClient(org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.async.TAsyncClientManager clientManager, org.apache.thrift.transport.TNonblockingTransport transport) {
+      super(protocolFactory, clientManager, transport);
+    }
+
+    public void exists(String key, org.apache.thrift.async.AsyncMethodCallback<exists_call> resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      exists_call method_call = new exists_call(key, resultHandler, this, protocolFactory, transport);
+      this.currentMethod = method_call;
+      manager.call(method_call);
+    }
+
+    public static class exists_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private String key;
+      public exists_call(String key, org.apache.thrift.async.AsyncMethodCallback<exists_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.key = key;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("exists", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        exists_args args = new exists_args();
+        args.setKey(key);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public boolean getResult() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        return (new Client(prot)).recv_exists();
+      }
+    }
+
+    public void getValue(String key, org.apache.thrift.async.AsyncMethodCallback<getValue_call> resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      getValue_call method_call = new getValue_call(key, resultHandler, this, protocolFactory, transport);
+      this.currentMethod = method_call;
+      manager.call(method_call);
+    }
+
+    public static class getValue_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private String key;
+      public getValue_call(String key, org.apache.thrift.async.AsyncMethodCallback<getValue_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.key = key;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getValue", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        getValue_args args = new getValue_args();
+        args.setKey(key);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public GetResult getResult() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        return (new Client(prot)).recv_getValue();
+      }
+    }
+
+    public void getBulk(List<String> keys, org.apache.thrift.async.AsyncMethodCallback<getBulk_call> resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      getBulk_call method_call = new getBulk_call(keys, resultHandler, this, protocolFactory, transport);
+      this.currentMethod = method_call;
+      manager.call(method_call);
+    }
+
+    public static class getBulk_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private List<String> keys;
+      public getBulk_call(List<String> keys, org.apache.thrift.async.AsyncMethodCallback<getBulk_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.keys = keys;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getBulk", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        getBulk_args args = new getBulk_args();
+        args.setKeys(keys);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public Map<String,GetResult> getResult() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        return (new Client(prot)).recv_getBulk();
+      }
+    }
+
+    public void setValue(String key, ByteBuffer data, org.apache.thrift.async.AsyncMethodCallback<setValue_call> resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      setValue_call method_call = new setValue_call(key, data, resultHandler, this, protocolFactory, transport);
+      this.currentMethod = method_call;
+      manager.call(method_call);
+    }
+
+    public static class setValue_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private String key;
+      private ByteBuffer data;
+      public setValue_call(String key, ByteBuffer data, org.apache.thrift.async.AsyncMethodCallback<setValue_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.key = key;
+        this.data = data;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setValue", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        setValue_args args = new setValue_args();
+        args.setKey(key);
+        args.setData(data);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public void getResult() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        (new Client(prot)).recv_setValue();
+      }
+    }
+
+    public void deleteValue(String key, org.apache.thrift.async.AsyncMethodCallback<deleteValue_call> resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      deleteValue_call method_call = new deleteValue_call(key, resultHandler, this, protocolFactory, transport);
+      this.currentMethod = method_call;
+      manager.call(method_call);
+    }
+
+    public static class deleteValue_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private String key;
+      public deleteValue_call(String key, org.apache.thrift.async.AsyncMethodCallback<deleteValue_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.key = key;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("deleteValue", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        deleteValue_args args = new deleteValue_args();
+        args.setKey(key);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public void getResult() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        (new Client(prot)).recv_deleteValue();
+      }
+    }
+
+  }
+
+  public static class Processor implements org.apache.thrift.TProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class.getName());
     public Processor(Iface iface)
     {
@@ -270,21 +488,21 @@ public class KeyValueService {
     }
 
     protected static interface ProcessFunction {
-      public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException;
+      public void process(int seqid, org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException;
     }
 
     private Iface iface_;
     protected final HashMap<String,ProcessFunction> processMap_ = new HashMap<String,ProcessFunction>();
 
-    public boolean process(TProtocol iprot, TProtocol oprot) throws TException
+    public boolean process(org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException
     {
-      TMessage msg = iprot.readMessageBegin();
+      org.apache.thrift.protocol.TMessage msg = iprot.readMessageBegin();
       ProcessFunction fn = processMap_.get(msg.name);
       if (fn == null) {
-        TProtocolUtil.skip(iprot, TType.STRUCT);
+        org.apache.thrift.protocol.TProtocolUtil.skip(iprot, org.apache.thrift.protocol.TType.STRUCT);
         iprot.readMessageEnd();
-        TApplicationException x = new TApplicationException(TApplicationException.UNKNOWN_METHOD, "Invalid method name: '"+msg.name+"'");
-        oprot.writeMessageBegin(new TMessage(msg.name, TMessageType.EXCEPTION, msg.seqid));
+        org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.UNKNOWN_METHOD, "Invalid method name: '"+msg.name+"'");
+        oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage(msg.name, org.apache.thrift.protocol.TMessageType.EXCEPTION, msg.seqid));
         x.write(oprot);
         oprot.writeMessageEnd();
         oprot.getTransport().flush();
@@ -295,15 +513,15 @@ public class KeyValueService {
     }
 
     private class exists implements ProcessFunction {
-      public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
+      public void process(int seqid, org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException
       {
         exists_args args = new exists_args();
         try {
           args.read(iprot);
-        } catch (TProtocolException e) {
+        } catch (org.apache.thrift.protocol.TProtocolException e) {
           iprot.readMessageEnd();
-          TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
-          oprot.writeMessageBegin(new TMessage("exists", TMessageType.EXCEPTION, seqid));
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("exists", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
           x.write(oprot);
           oprot.writeMessageEnd();
           oprot.getTransport().flush();
@@ -320,14 +538,14 @@ public class KeyValueService {
           result.keyValueStoreException = keyValueStoreException;
         } catch (Throwable th) {
           LOGGER.error("Internal error processing exists", th);
-          TApplicationException x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing exists");
-          oprot.writeMessageBegin(new TMessage("exists", TMessageType.EXCEPTION, seqid));
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, "Internal error processing exists");
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("exists", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
           x.write(oprot);
           oprot.writeMessageEnd();
           oprot.getTransport().flush();
           return;
         }
-        oprot.writeMessageBegin(new TMessage("exists", TMessageType.REPLY, seqid));
+        oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("exists", org.apache.thrift.protocol.TMessageType.REPLY, seqid));
         result.write(oprot);
         oprot.writeMessageEnd();
         oprot.getTransport().flush();
@@ -336,15 +554,15 @@ public class KeyValueService {
     }
 
     private class getValue implements ProcessFunction {
-      public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
+      public void process(int seqid, org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException
       {
         getValue_args args = new getValue_args();
         try {
           args.read(iprot);
-        } catch (TProtocolException e) {
+        } catch (org.apache.thrift.protocol.TProtocolException e) {
           iprot.readMessageEnd();
-          TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
-          oprot.writeMessageBegin(new TMessage("getValue", TMessageType.EXCEPTION, seqid));
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getValue", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
           x.write(oprot);
           oprot.writeMessageEnd();
           oprot.getTransport().flush();
@@ -360,14 +578,14 @@ public class KeyValueService {
           result.keyValueStoreException = keyValueStoreException;
         } catch (Throwable th) {
           LOGGER.error("Internal error processing getValue", th);
-          TApplicationException x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing getValue");
-          oprot.writeMessageBegin(new TMessage("getValue", TMessageType.EXCEPTION, seqid));
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, "Internal error processing getValue");
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getValue", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
           x.write(oprot);
           oprot.writeMessageEnd();
           oprot.getTransport().flush();
           return;
         }
-        oprot.writeMessageBegin(new TMessage("getValue", TMessageType.REPLY, seqid));
+        oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getValue", org.apache.thrift.protocol.TMessageType.REPLY, seqid));
         result.write(oprot);
         oprot.writeMessageEnd();
         oprot.getTransport().flush();
@@ -376,15 +594,15 @@ public class KeyValueService {
     }
 
     private class getBulk implements ProcessFunction {
-      public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
+      public void process(int seqid, org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException
       {
         getBulk_args args = new getBulk_args();
         try {
           args.read(iprot);
-        } catch (TProtocolException e) {
+        } catch (org.apache.thrift.protocol.TProtocolException e) {
           iprot.readMessageEnd();
-          TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
-          oprot.writeMessageBegin(new TMessage("getBulk", TMessageType.EXCEPTION, seqid));
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getBulk", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
           x.write(oprot);
           oprot.writeMessageEnd();
           oprot.getTransport().flush();
@@ -400,14 +618,14 @@ public class KeyValueService {
           result.keyValueStoreException = keyValueStoreException;
         } catch (Throwable th) {
           LOGGER.error("Internal error processing getBulk", th);
-          TApplicationException x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing getBulk");
-          oprot.writeMessageBegin(new TMessage("getBulk", TMessageType.EXCEPTION, seqid));
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, "Internal error processing getBulk");
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getBulk", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
           x.write(oprot);
           oprot.writeMessageEnd();
           oprot.getTransport().flush();
           return;
         }
-        oprot.writeMessageBegin(new TMessage("getBulk", TMessageType.REPLY, seqid));
+        oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getBulk", org.apache.thrift.protocol.TMessageType.REPLY, seqid));
         result.write(oprot);
         oprot.writeMessageEnd();
         oprot.getTransport().flush();
@@ -416,15 +634,15 @@ public class KeyValueService {
     }
 
     private class setValue implements ProcessFunction {
-      public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
+      public void process(int seqid, org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException
       {
         setValue_args args = new setValue_args();
         try {
           args.read(iprot);
-        } catch (TProtocolException e) {
+        } catch (org.apache.thrift.protocol.TProtocolException e) {
           iprot.readMessageEnd();
-          TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
-          oprot.writeMessageBegin(new TMessage("setValue", TMessageType.EXCEPTION, seqid));
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setValue", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
           x.write(oprot);
           oprot.writeMessageEnd();
           oprot.getTransport().flush();
@@ -440,14 +658,14 @@ public class KeyValueService {
           result.keyValueStoreException = keyValueStoreException;
         } catch (Throwable th) {
           LOGGER.error("Internal error processing setValue", th);
-          TApplicationException x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing setValue");
-          oprot.writeMessageBegin(new TMessage("setValue", TMessageType.EXCEPTION, seqid));
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, "Internal error processing setValue");
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setValue", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
           x.write(oprot);
           oprot.writeMessageEnd();
           oprot.getTransport().flush();
           return;
         }
-        oprot.writeMessageBegin(new TMessage("setValue", TMessageType.REPLY, seqid));
+        oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setValue", org.apache.thrift.protocol.TMessageType.REPLY, seqid));
         result.write(oprot);
         oprot.writeMessageEnd();
         oprot.getTransport().flush();
@@ -456,15 +674,15 @@ public class KeyValueService {
     }
 
     private class deleteValue implements ProcessFunction {
-      public void process(int seqid, TProtocol iprot, TProtocol oprot) throws TException
+      public void process(int seqid, org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException
       {
         deleteValue_args args = new deleteValue_args();
         try {
           args.read(iprot);
-        } catch (TProtocolException e) {
+        } catch (org.apache.thrift.protocol.TProtocolException e) {
           iprot.readMessageEnd();
-          TApplicationException x = new TApplicationException(TApplicationException.PROTOCOL_ERROR, e.getMessage());
-          oprot.writeMessageBegin(new TMessage("deleteValue", TMessageType.EXCEPTION, seqid));
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("deleteValue", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
           x.write(oprot);
           oprot.writeMessageEnd();
           oprot.getTransport().flush();
@@ -480,14 +698,14 @@ public class KeyValueService {
           result.keyValueStoreException = keyValueStoreException;
         } catch (Throwable th) {
           LOGGER.error("Internal error processing deleteValue", th);
-          TApplicationException x = new TApplicationException(TApplicationException.INTERNAL_ERROR, "Internal error processing deleteValue");
-          oprot.writeMessageBegin(new TMessage("deleteValue", TMessageType.EXCEPTION, seqid));
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, "Internal error processing deleteValue");
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("deleteValue", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
           x.write(oprot);
           oprot.writeMessageEnd();
           oprot.getTransport().flush();
           return;
         }
-        oprot.writeMessageBegin(new TMessage("deleteValue", TMessageType.REPLY, seqid));
+        oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("deleteValue", org.apache.thrift.protocol.TMessageType.REPLY, seqid));
         result.write(oprot);
         oprot.writeMessageEnd();
         oprot.getTransport().flush();
@@ -497,23 +715,21 @@ public class KeyValueService {
 
   }
 
-  public static class exists_args implements TBase<exists_args._Fields>, java.io.Serializable, Cloneable, Comparable<exists_args>   {
-    private static final TStruct STRUCT_DESC = new TStruct("exists_args");
+  public static class exists_args implements org.apache.thrift.TBase<exists_args, exists_args._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("exists_args");
 
-    private static final TField KEY_FIELD_DESC = new TField("key", TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("key", org.apache.thrift.protocol.TType.STRING, (short)1);
 
     private String key;
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements TFieldIdEnum {
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       KEY((short)1, "key");
 
-      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
-          byId.put((int)field._thriftId, field);
           byName.put(field.getFieldName(), field);
         }
       }
@@ -522,7 +738,12 @@ public class KeyValueService {
        * Find the _Fields constant that matches fieldId, or null if its not found.
        */
       public static _Fields findByThriftId(int fieldId) {
-        return byId.get(fieldId);
+        switch(fieldId) {
+          case 1: // KEY
+            return KEY;
+          default:
+            return null;
+        }
       }
 
       /**
@@ -561,13 +782,13 @@ public class KeyValueService {
 
     // isset id assignments
 
-    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
-      put(_Fields.KEY, new FieldMetaData("key", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRING)));
-    }});
-
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      FieldMetaData.addStructMetaDataMap(exists_args.class, metaDataMap);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.KEY, new org.apache.thrift.meta_data.FieldMetaData("key", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(exists_args.class, metaDataMap);
     }
 
     public exists_args() {
@@ -593,25 +814,24 @@ public class KeyValueService {
       return new exists_args(this);
     }
 
-    @Deprecated
-    public exists_args clone() {
-      return new exists_args(this);
+    @Override
+    public void clear() {
+      this.key = null;
     }
 
     public String getKey() {
       return this.key;
     }
 
-    public exists_args setKey(String key) {
+    public void setKey(String key) {
       this.key = key;
-      return this;
     }
 
     public void unsetKey() {
       this.key = null;
     }
 
-    /** Returns true if field key is set (has been asigned a value) and false otherwise */
+    /** Returns true if field key is set (has been assigned a value) and false otherwise */
     public boolean isSetKey() {
       return this.key != null;
     }
@@ -635,10 +855,6 @@ public class KeyValueService {
       }
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
-    }
-
     public Object getFieldValue(_Fields field) {
       switch (field) {
       case KEY:
@@ -648,21 +864,17 @@ public class KeyValueService {
       throw new IllegalStateException();
     }
 
-    public Object getFieldValue(int fieldId) {
-      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
-    }
-
-    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
     public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
       switch (field) {
       case KEY:
         return isSetKey();
       }
       throw new IllegalStateException();
-    }
-
-    public boolean isSet(int fieldID) {
-      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -707,7 +919,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetKey()) {        lastComparison = TBaseHelper.compareTo(key, typedOther.key);
+      if (isSetKey()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.key, typedOther.key);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -715,25 +928,29 @@ public class KeyValueService {
       return 0;
     }
 
-    public void read(TProtocol iprot) throws TException {
-      TField field;
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
       iprot.readStructBegin();
       while (true)
       {
         field = iprot.readFieldBegin();
-        if (field.type == TType.STOP) { 
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
           break;
         }
         switch (field.id) {
           case 1: // KEY
-            if (field.type == TType.STRING) {
+            if (field.type == org.apache.thrift.protocol.TType.STRING) {
               this.key = iprot.readString();
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           default:
-            TProtocolUtil.skip(iprot, field.type);
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
         }
         iprot.readFieldEnd();
       }
@@ -741,7 +958,7 @@ public class KeyValueService {
       validate();
     }
 
-    public void write(TProtocol oprot) throws TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -770,35 +987,49 @@ public class KeyValueService {
       return sb.toString();
     }
 
-    public void validate() throws TException {
+    public void validate() throws org.apache.thrift.TException {
       // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
     }
 
   }
 
-  public static class exists_result implements TBase<exists_result._Fields>, java.io.Serializable, Cloneable, Comparable<exists_result>   {
-    private static final TStruct STRUCT_DESC = new TStruct("exists_result");
+  public static class exists_result implements org.apache.thrift.TBase<exists_result, exists_result._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("exists_result");
 
-    private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.BOOL, (short)0);
-    private static final TField IO_EXCEPTION_FIELD_DESC = new TField("ioException", TType.STRUCT, (short)1);
-    private static final TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new TField("keyValueStoreException", TType.STRUCT, (short)2);
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.BOOL, (short)0);
+    private static final org.apache.thrift.protocol.TField IO_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ioException", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+    private static final org.apache.thrift.protocol.TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("keyValueStoreException", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private boolean success;
     private KeyValueStoreIOException ioException;
     private KeyValueStoreException keyValueStoreException;
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements TFieldIdEnum {
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success"),
       IO_EXCEPTION((short)1, "ioException"),
       KEY_VALUE_STORE_EXCEPTION((short)2, "keyValueStoreException");
 
-      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
-          byId.put((int)field._thriftId, field);
           byName.put(field.getFieldName(), field);
         }
       }
@@ -807,7 +1038,16 @@ public class KeyValueService {
        * Find the _Fields constant that matches fieldId, or null if its not found.
        */
       public static _Fields findByThriftId(int fieldId) {
-        return byId.get(fieldId);
+        switch(fieldId) {
+          case 0: // SUCCESS
+            return SUCCESS;
+          case 1: // IO_EXCEPTION
+            return IO_EXCEPTION;
+          case 2: // KEY_VALUE_STORE_EXCEPTION
+            return KEY_VALUE_STORE_EXCEPTION;
+          default:
+            return null;
+        }
       }
 
       /**
@@ -848,17 +1088,17 @@ public class KeyValueService {
     private static final int __SUCCESS_ISSET_ID = 0;
     private BitSet __isset_bit_vector = new BitSet(1);
 
-    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
-      put(_Fields.SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.BOOL)));
-      put(_Fields.IO_EXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRUCT)));
-      put(_Fields.KEY_VALUE_STORE_EXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRUCT)));
-    }});
-
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      FieldMetaData.addStructMetaDataMap(exists_result.class, metaDataMap);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
+      tmpMap.put(_Fields.IO_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("ioException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      tmpMap.put(_Fields.KEY_VALUE_STORE_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("keyValueStoreException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(exists_result.class, metaDataMap);
     }
 
     public exists_result() {
@@ -895,26 +1135,28 @@ public class KeyValueService {
       return new exists_result(this);
     }
 
-    @Deprecated
-    public exists_result clone() {
-      return new exists_result(this);
+    @Override
+    public void clear() {
+      setSuccessIsSet(false);
+      this.success = false;
+      this.ioException = null;
+      this.keyValueStoreException = null;
     }
 
     public boolean isSuccess() {
       return this.success;
     }
 
-    public exists_result setSuccess(boolean success) {
+    public void setSuccess(boolean success) {
       this.success = success;
       setSuccessIsSet(true);
-      return this;
     }
 
     public void unsetSuccess() {
       __isset_bit_vector.clear(__SUCCESS_ISSET_ID);
     }
 
-    /** Returns true if field success is set (has been asigned a value) and false otherwise */
+    /** Returns true if field success is set (has been assigned a value) and false otherwise */
     public boolean isSetSuccess() {
       return __isset_bit_vector.get(__SUCCESS_ISSET_ID);
     }
@@ -927,16 +1169,15 @@ public class KeyValueService {
       return this.ioException;
     }
 
-    public exists_result setIoException(KeyValueStoreIOException ioException) {
+    public void setIoException(KeyValueStoreIOException ioException) {
       this.ioException = ioException;
-      return this;
     }
 
     public void unsetIoException() {
       this.ioException = null;
     }
 
-    /** Returns true if field ioException is set (has been asigned a value) and false otherwise */
+    /** Returns true if field ioException is set (has been assigned a value) and false otherwise */
     public boolean isSetIoException() {
       return this.ioException != null;
     }
@@ -951,16 +1192,15 @@ public class KeyValueService {
       return this.keyValueStoreException;
     }
 
-    public exists_result setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
+    public void setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
       this.keyValueStoreException = keyValueStoreException;
-      return this;
     }
 
     public void unsetKeyValueStoreException() {
       this.keyValueStoreException = null;
     }
 
-    /** Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise */
+    /** Returns true if field keyValueStoreException is set (has been assigned a value) and false otherwise */
     public boolean isSetKeyValueStoreException() {
       return this.keyValueStoreException != null;
     }
@@ -1000,10 +1240,6 @@ public class KeyValueService {
       }
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
-    }
-
     public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
@@ -1019,12 +1255,12 @@ public class KeyValueService {
       throw new IllegalStateException();
     }
 
-    public Object getFieldValue(int fieldId) {
-      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
-    }
-
-    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
     public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
       switch (field) {
       case SUCCESS:
         return isSetSuccess();
@@ -1034,10 +1270,6 @@ public class KeyValueService {
         return isSetKeyValueStoreException();
       }
       throw new IllegalStateException();
-    }
-
-    public boolean isSet(int fieldID) {
-      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -1100,7 +1332,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetSuccess()) {        lastComparison = TBaseHelper.compareTo(success, typedOther.success);
+      if (isSetSuccess()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, typedOther.success);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -1109,7 +1342,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetIoException()) {        lastComparison = TBaseHelper.compareTo(ioException, typedOther.ioException);
+      if (isSetIoException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ioException, typedOther.ioException);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -1118,7 +1352,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetKeyValueStoreException()) {        lastComparison = TBaseHelper.compareTo(keyValueStoreException, typedOther.keyValueStoreException);
+      if (isSetKeyValueStoreException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.keyValueStoreException, typedOther.keyValueStoreException);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -1126,42 +1361,46 @@ public class KeyValueService {
       return 0;
     }
 
-    public void read(TProtocol iprot) throws TException {
-      TField field;
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
       iprot.readStructBegin();
       while (true)
       {
         field = iprot.readFieldBegin();
-        if (field.type == TType.STOP) { 
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
           break;
         }
         switch (field.id) {
           case 0: // SUCCESS
-            if (field.type == TType.BOOL) {
+            if (field.type == org.apache.thrift.protocol.TType.BOOL) {
               this.success = iprot.readBool();
               setSuccessIsSet(true);
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           case 1: // IO_EXCEPTION
-            if (field.type == TType.STRUCT) {
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
               this.ioException = new KeyValueStoreIOException();
               this.ioException.read(iprot);
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           case 2: // KEY_VALUE_STORE_EXCEPTION
-            if (field.type == TType.STRUCT) {
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
               this.keyValueStoreException = new KeyValueStoreException();
               this.keyValueStoreException.read(iprot);
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           default:
-            TProtocolUtil.skip(iprot, field.type);
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
         }
         iprot.readFieldEnd();
       }
@@ -1169,7 +1408,7 @@ public class KeyValueService {
       validate();
     }
 
-    public void write(TProtocol oprot) throws TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       oprot.writeStructBegin(STRUCT_DESC);
 
       if (this.isSetSuccess()) {
@@ -1217,29 +1456,43 @@ public class KeyValueService {
       return sb.toString();
     }
 
-    public void validate() throws TException {
+    public void validate() throws org.apache.thrift.TException {
       // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
     }
 
   }
 
-  public static class getValue_args implements TBase<getValue_args._Fields>, java.io.Serializable, Cloneable, Comparable<getValue_args>   {
-    private static final TStruct STRUCT_DESC = new TStruct("getValue_args");
+  public static class getValue_args implements org.apache.thrift.TBase<getValue_args, getValue_args._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getValue_args");
 
-    private static final TField KEY_FIELD_DESC = new TField("key", TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("key", org.apache.thrift.protocol.TType.STRING, (short)1);
 
     private String key;
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements TFieldIdEnum {
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       KEY((short)1, "key");
 
-      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
-          byId.put((int)field._thriftId, field);
           byName.put(field.getFieldName(), field);
         }
       }
@@ -1248,7 +1501,12 @@ public class KeyValueService {
        * Find the _Fields constant that matches fieldId, or null if its not found.
        */
       public static _Fields findByThriftId(int fieldId) {
-        return byId.get(fieldId);
+        switch(fieldId) {
+          case 1: // KEY
+            return KEY;
+          default:
+            return null;
+        }
       }
 
       /**
@@ -1287,13 +1545,13 @@ public class KeyValueService {
 
     // isset id assignments
 
-    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
-      put(_Fields.KEY, new FieldMetaData("key", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRING)));
-    }});
-
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      FieldMetaData.addStructMetaDataMap(getValue_args.class, metaDataMap);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.KEY, new org.apache.thrift.meta_data.FieldMetaData("key", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getValue_args.class, metaDataMap);
     }
 
     public getValue_args() {
@@ -1319,25 +1577,24 @@ public class KeyValueService {
       return new getValue_args(this);
     }
 
-    @Deprecated
-    public getValue_args clone() {
-      return new getValue_args(this);
+    @Override
+    public void clear() {
+      this.key = null;
     }
 
     public String getKey() {
       return this.key;
     }
 
-    public getValue_args setKey(String key) {
+    public void setKey(String key) {
       this.key = key;
-      return this;
     }
 
     public void unsetKey() {
       this.key = null;
     }
 
-    /** Returns true if field key is set (has been asigned a value) and false otherwise */
+    /** Returns true if field key is set (has been assigned a value) and false otherwise */
     public boolean isSetKey() {
       return this.key != null;
     }
@@ -1361,10 +1618,6 @@ public class KeyValueService {
       }
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
-    }
-
     public Object getFieldValue(_Fields field) {
       switch (field) {
       case KEY:
@@ -1374,21 +1627,17 @@ public class KeyValueService {
       throw new IllegalStateException();
     }
 
-    public Object getFieldValue(int fieldId) {
-      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
-    }
-
-    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
     public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
       switch (field) {
       case KEY:
         return isSetKey();
       }
       throw new IllegalStateException();
-    }
-
-    public boolean isSet(int fieldID) {
-      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -1433,7 +1682,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetKey()) {        lastComparison = TBaseHelper.compareTo(key, typedOther.key);
+      if (isSetKey()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.key, typedOther.key);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -1441,25 +1691,29 @@ public class KeyValueService {
       return 0;
     }
 
-    public void read(TProtocol iprot) throws TException {
-      TField field;
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
       iprot.readStructBegin();
       while (true)
       {
         field = iprot.readFieldBegin();
-        if (field.type == TType.STOP) { 
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
           break;
         }
         switch (field.id) {
           case 1: // KEY
-            if (field.type == TType.STRING) {
+            if (field.type == org.apache.thrift.protocol.TType.STRING) {
               this.key = iprot.readString();
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           default:
-            TProtocolUtil.skip(iprot, field.type);
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
         }
         iprot.readFieldEnd();
       }
@@ -1467,7 +1721,7 @@ public class KeyValueService {
       validate();
     }
 
-    public void write(TProtocol oprot) throws TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -1496,35 +1750,49 @@ public class KeyValueService {
       return sb.toString();
     }
 
-    public void validate() throws TException {
+    public void validate() throws org.apache.thrift.TException {
       // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
     }
 
   }
 
-  public static class getValue_result implements TBase<getValue_result._Fields>, java.io.Serializable, Cloneable, Comparable<getValue_result>   {
-    private static final TStruct STRUCT_DESC = new TStruct("getValue_result");
+  public static class getValue_result implements org.apache.thrift.TBase<getValue_result, getValue_result._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getValue_result");
 
-    private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.STRUCT, (short)0);
-    private static final TField IO_EXCEPTION_FIELD_DESC = new TField("ioException", TType.STRUCT, (short)1);
-    private static final TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new TField("keyValueStoreException", TType.STRUCT, (short)2);
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRUCT, (short)0);
+    private static final org.apache.thrift.protocol.TField IO_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ioException", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+    private static final org.apache.thrift.protocol.TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("keyValueStoreException", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private GetResult success;
     private KeyValueStoreIOException ioException;
     private KeyValueStoreException keyValueStoreException;
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements TFieldIdEnum {
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success"),
       IO_EXCEPTION((short)1, "ioException"),
       KEY_VALUE_STORE_EXCEPTION((short)2, "keyValueStoreException");
 
-      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
-          byId.put((int)field._thriftId, field);
           byName.put(field.getFieldName(), field);
         }
       }
@@ -1533,7 +1801,16 @@ public class KeyValueService {
        * Find the _Fields constant that matches fieldId, or null if its not found.
        */
       public static _Fields findByThriftId(int fieldId) {
-        return byId.get(fieldId);
+        switch(fieldId) {
+          case 0: // SUCCESS
+            return SUCCESS;
+          case 1: // IO_EXCEPTION
+            return IO_EXCEPTION;
+          case 2: // KEY_VALUE_STORE_EXCEPTION
+            return KEY_VALUE_STORE_EXCEPTION;
+          default:
+            return null;
+        }
       }
 
       /**
@@ -1572,17 +1849,17 @@ public class KeyValueService {
 
     // isset id assignments
 
-    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
-      put(_Fields.SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT, 
-          new StructMetaData(TType.STRUCT, GetResult.class)));
-      put(_Fields.IO_EXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRUCT)));
-      put(_Fields.KEY_VALUE_STORE_EXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRUCT)));
-    }});
-
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      FieldMetaData.addStructMetaDataMap(getValue_result.class, metaDataMap);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, GetResult.class)));
+      tmpMap.put(_Fields.IO_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("ioException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      tmpMap.put(_Fields.KEY_VALUE_STORE_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("keyValueStoreException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getValue_result.class, metaDataMap);
     }
 
     public getValue_result() {
@@ -1618,25 +1895,26 @@ public class KeyValueService {
       return new getValue_result(this);
     }
 
-    @Deprecated
-    public getValue_result clone() {
-      return new getValue_result(this);
+    @Override
+    public void clear() {
+      this.success = null;
+      this.ioException = null;
+      this.keyValueStoreException = null;
     }
 
     public GetResult getSuccess() {
       return this.success;
     }
 
-    public getValue_result setSuccess(GetResult success) {
+    public void setSuccess(GetResult success) {
       this.success = success;
-      return this;
     }
 
     public void unsetSuccess() {
       this.success = null;
     }
 
-    /** Returns true if field success is set (has been asigned a value) and false otherwise */
+    /** Returns true if field success is set (has been assigned a value) and false otherwise */
     public boolean isSetSuccess() {
       return this.success != null;
     }
@@ -1651,16 +1929,15 @@ public class KeyValueService {
       return this.ioException;
     }
 
-    public getValue_result setIoException(KeyValueStoreIOException ioException) {
+    public void setIoException(KeyValueStoreIOException ioException) {
       this.ioException = ioException;
-      return this;
     }
 
     public void unsetIoException() {
       this.ioException = null;
     }
 
-    /** Returns true if field ioException is set (has been asigned a value) and false otherwise */
+    /** Returns true if field ioException is set (has been assigned a value) and false otherwise */
     public boolean isSetIoException() {
       return this.ioException != null;
     }
@@ -1675,16 +1952,15 @@ public class KeyValueService {
       return this.keyValueStoreException;
     }
 
-    public getValue_result setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
+    public void setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
       this.keyValueStoreException = keyValueStoreException;
-      return this;
     }
 
     public void unsetKeyValueStoreException() {
       this.keyValueStoreException = null;
     }
 
-    /** Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise */
+    /** Returns true if field keyValueStoreException is set (has been assigned a value) and false otherwise */
     public boolean isSetKeyValueStoreException() {
       return this.keyValueStoreException != null;
     }
@@ -1724,10 +2000,6 @@ public class KeyValueService {
       }
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
-    }
-
     public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
@@ -1743,12 +2015,12 @@ public class KeyValueService {
       throw new IllegalStateException();
     }
 
-    public Object getFieldValue(int fieldId) {
-      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
-    }
-
-    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
     public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
       switch (field) {
       case SUCCESS:
         return isSetSuccess();
@@ -1758,10 +2030,6 @@ public class KeyValueService {
         return isSetKeyValueStoreException();
       }
       throw new IllegalStateException();
-    }
-
-    public boolean isSet(int fieldID) {
-      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -1824,7 +2092,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetSuccess()) {        lastComparison = TBaseHelper.compareTo(success, typedOther.success);
+      if (isSetSuccess()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, typedOther.success);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -1833,7 +2102,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetIoException()) {        lastComparison = TBaseHelper.compareTo(ioException, typedOther.ioException);
+      if (isSetIoException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ioException, typedOther.ioException);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -1842,7 +2112,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetKeyValueStoreException()) {        lastComparison = TBaseHelper.compareTo(keyValueStoreException, typedOther.keyValueStoreException);
+      if (isSetKeyValueStoreException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.keyValueStoreException, typedOther.keyValueStoreException);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -1850,42 +2121,46 @@ public class KeyValueService {
       return 0;
     }
 
-    public void read(TProtocol iprot) throws TException {
-      TField field;
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
       iprot.readStructBegin();
       while (true)
       {
         field = iprot.readFieldBegin();
-        if (field.type == TType.STOP) { 
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
           break;
         }
         switch (field.id) {
           case 0: // SUCCESS
-            if (field.type == TType.STRUCT) {
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
               this.success = new GetResult();
               this.success.read(iprot);
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           case 1: // IO_EXCEPTION
-            if (field.type == TType.STRUCT) {
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
               this.ioException = new KeyValueStoreIOException();
               this.ioException.read(iprot);
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           case 2: // KEY_VALUE_STORE_EXCEPTION
-            if (field.type == TType.STRUCT) {
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
               this.keyValueStoreException = new KeyValueStoreException();
               this.keyValueStoreException.read(iprot);
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           default:
-            TProtocolUtil.skip(iprot, field.type);
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
         }
         iprot.readFieldEnd();
       }
@@ -1893,7 +2168,7 @@ public class KeyValueService {
       validate();
     }
 
-    public void write(TProtocol oprot) throws TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       oprot.writeStructBegin(STRUCT_DESC);
 
       if (this.isSetSuccess()) {
@@ -1945,29 +2220,43 @@ public class KeyValueService {
       return sb.toString();
     }
 
-    public void validate() throws TException {
+    public void validate() throws org.apache.thrift.TException {
       // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
     }
 
   }
 
-  public static class getBulk_args implements TBase<getBulk_args._Fields>, java.io.Serializable, Cloneable, Comparable<getBulk_args>   {
-    private static final TStruct STRUCT_DESC = new TStruct("getBulk_args");
+  public static class getBulk_args implements org.apache.thrift.TBase<getBulk_args, getBulk_args._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getBulk_args");
 
-    private static final TField KEYS_FIELD_DESC = new TField("keys", TType.LIST, (short)1);
+    private static final org.apache.thrift.protocol.TField KEYS_FIELD_DESC = new org.apache.thrift.protocol.TField("keys", org.apache.thrift.protocol.TType.LIST, (short)1);
 
     private List<String> keys;
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements TFieldIdEnum {
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       KEYS((short)1, "keys");
 
-      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
-          byId.put((int)field._thriftId, field);
           byName.put(field.getFieldName(), field);
         }
       }
@@ -1976,7 +2265,12 @@ public class KeyValueService {
        * Find the _Fields constant that matches fieldId, or null if its not found.
        */
       public static _Fields findByThriftId(int fieldId) {
-        return byId.get(fieldId);
+        switch(fieldId) {
+          case 1: // KEYS
+            return KEYS;
+          default:
+            return null;
+        }
       }
 
       /**
@@ -2015,14 +2309,14 @@ public class KeyValueService {
 
     // isset id assignments
 
-    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
-      put(_Fields.KEYS, new FieldMetaData("keys", TFieldRequirementType.DEFAULT, 
-          new ListMetaData(TType.LIST, 
-              new FieldValueMetaData(TType.STRING))));
-    }});
-
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      FieldMetaData.addStructMetaDataMap(getBulk_args.class, metaDataMap);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.KEYS, new org.apache.thrift.meta_data.FieldMetaData("keys", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getBulk_args.class, metaDataMap);
     }
 
     public getBulk_args() {
@@ -2052,9 +2346,9 @@ public class KeyValueService {
       return new getBulk_args(this);
     }
 
-    @Deprecated
-    public getBulk_args clone() {
-      return new getBulk_args(this);
+    @Override
+    public void clear() {
+      this.keys = null;
     }
 
     public int getKeysSize() {
@@ -2076,16 +2370,15 @@ public class KeyValueService {
       return this.keys;
     }
 
-    public getBulk_args setKeys(List<String> keys) {
+    public void setKeys(List<String> keys) {
       this.keys = keys;
-      return this;
     }
 
     public void unsetKeys() {
       this.keys = null;
     }
 
-    /** Returns true if field keys is set (has been asigned a value) and false otherwise */
+    /** Returns true if field keys is set (has been assigned a value) and false otherwise */
     public boolean isSetKeys() {
       return this.keys != null;
     }
@@ -2109,10 +2402,6 @@ public class KeyValueService {
       }
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
-    }
-
     public Object getFieldValue(_Fields field) {
       switch (field) {
       case KEYS:
@@ -2122,21 +2411,17 @@ public class KeyValueService {
       throw new IllegalStateException();
     }
 
-    public Object getFieldValue(int fieldId) {
-      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
-    }
-
-    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
     public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
       switch (field) {
       case KEYS:
         return isSetKeys();
       }
       throw new IllegalStateException();
-    }
-
-    public boolean isSet(int fieldID) {
-      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -2181,7 +2466,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetKeys()) {        lastComparison = TBaseHelper.compareTo(keys, typedOther.keys);
+      if (isSetKeys()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.keys, typedOther.keys);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -2189,20 +2475,24 @@ public class KeyValueService {
       return 0;
     }
 
-    public void read(TProtocol iprot) throws TException {
-      TField field;
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
       iprot.readStructBegin();
       while (true)
       {
         field = iprot.readFieldBegin();
-        if (field.type == TType.STOP) { 
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
           break;
         }
         switch (field.id) {
           case 1: // KEYS
-            if (field.type == TType.LIST) {
+            if (field.type == org.apache.thrift.protocol.TType.LIST) {
               {
-                TList _list0 = iprot.readListBegin();
+                org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
                 this.keys = new ArrayList<String>(_list0.size);
                 for (int _i1 = 0; _i1 < _list0.size; ++_i1)
                 {
@@ -2213,11 +2503,11 @@ public class KeyValueService {
                 iprot.readListEnd();
               }
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           default:
-            TProtocolUtil.skip(iprot, field.type);
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
         }
         iprot.readFieldEnd();
       }
@@ -2225,14 +2515,14 @@ public class KeyValueService {
       validate();
     }
 
-    public void write(TProtocol oprot) throws TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
       if (this.keys != null) {
         oprot.writeFieldBegin(KEYS_FIELD_DESC);
         {
-          oprot.writeListBegin(new TList(TType.STRING, this.keys.size()));
+          oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, this.keys.size()));
           for (String _iter3 : this.keys)
           {
             oprot.writeString(_iter3);
@@ -2261,35 +2551,49 @@ public class KeyValueService {
       return sb.toString();
     }
 
-    public void validate() throws TException {
+    public void validate() throws org.apache.thrift.TException {
       // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
     }
 
   }
 
-  public static class getBulk_result implements TBase<getBulk_result._Fields>, java.io.Serializable, Cloneable   {
-    private static final TStruct STRUCT_DESC = new TStruct("getBulk_result");
+  public static class getBulk_result implements org.apache.thrift.TBase<getBulk_result, getBulk_result._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getBulk_result");
 
-    private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.MAP, (short)0);
-    private static final TField IO_EXCEPTION_FIELD_DESC = new TField("ioException", TType.STRUCT, (short)1);
-    private static final TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new TField("keyValueStoreException", TType.STRUCT, (short)2);
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.MAP, (short)0);
+    private static final org.apache.thrift.protocol.TField IO_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ioException", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+    private static final org.apache.thrift.protocol.TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("keyValueStoreException", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private Map<String,GetResult> success;
     private KeyValueStoreIOException ioException;
     private KeyValueStoreException keyValueStoreException;
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements TFieldIdEnum {
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       SUCCESS((short)0, "success"),
       IO_EXCEPTION((short)1, "ioException"),
       KEY_VALUE_STORE_EXCEPTION((short)2, "keyValueStoreException");
 
-      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
-          byId.put((int)field._thriftId, field);
           byName.put(field.getFieldName(), field);
         }
       }
@@ -2298,7 +2602,16 @@ public class KeyValueService {
        * Find the _Fields constant that matches fieldId, or null if its not found.
        */
       public static _Fields findByThriftId(int fieldId) {
-        return byId.get(fieldId);
+        switch(fieldId) {
+          case 0: // SUCCESS
+            return SUCCESS;
+          case 1: // IO_EXCEPTION
+            return IO_EXCEPTION;
+          case 2: // KEY_VALUE_STORE_EXCEPTION
+            return KEY_VALUE_STORE_EXCEPTION;
+          default:
+            return null;
+        }
       }
 
       /**
@@ -2337,19 +2650,19 @@ public class KeyValueService {
 
     // isset id assignments
 
-    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
-      put(_Fields.SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT, 
-          new MapMetaData(TType.MAP, 
-              new FieldValueMetaData(TType.STRING), 
-              new StructMetaData(TType.STRUCT, GetResult.class))));
-      put(_Fields.IO_EXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRUCT)));
-      put(_Fields.KEY_VALUE_STORE_EXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRUCT)));
-    }});
-
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      FieldMetaData.addStructMetaDataMap(getBulk_result.class, metaDataMap);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.MapMetaData(org.apache.thrift.protocol.TType.MAP, 
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING), 
+              new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, GetResult.class))));
+      tmpMap.put(_Fields.IO_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("ioException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      tmpMap.put(_Fields.KEY_VALUE_STORE_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("keyValueStoreException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getBulk_result.class, metaDataMap);
     }
 
     public getBulk_result() {
@@ -2397,9 +2710,11 @@ public class KeyValueService {
       return new getBulk_result(this);
     }
 
-    @Deprecated
-    public getBulk_result clone() {
-      return new getBulk_result(this);
+    @Override
+    public void clear() {
+      this.success = null;
+      this.ioException = null;
+      this.keyValueStoreException = null;
     }
 
     public int getSuccessSize() {
@@ -2417,16 +2732,15 @@ public class KeyValueService {
       return this.success;
     }
 
-    public getBulk_result setSuccess(Map<String,GetResult> success) {
+    public void setSuccess(Map<String,GetResult> success) {
       this.success = success;
-      return this;
     }
 
     public void unsetSuccess() {
       this.success = null;
     }
 
-    /** Returns true if field success is set (has been asigned a value) and false otherwise */
+    /** Returns true if field success is set (has been assigned a value) and false otherwise */
     public boolean isSetSuccess() {
       return this.success != null;
     }
@@ -2441,16 +2755,15 @@ public class KeyValueService {
       return this.ioException;
     }
 
-    public getBulk_result setIoException(KeyValueStoreIOException ioException) {
+    public void setIoException(KeyValueStoreIOException ioException) {
       this.ioException = ioException;
-      return this;
     }
 
     public void unsetIoException() {
       this.ioException = null;
     }
 
-    /** Returns true if field ioException is set (has been asigned a value) and false otherwise */
+    /** Returns true if field ioException is set (has been assigned a value) and false otherwise */
     public boolean isSetIoException() {
       return this.ioException != null;
     }
@@ -2465,16 +2778,15 @@ public class KeyValueService {
       return this.keyValueStoreException;
     }
 
-    public getBulk_result setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
+    public void setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
       this.keyValueStoreException = keyValueStoreException;
-      return this;
     }
 
     public void unsetKeyValueStoreException() {
       this.keyValueStoreException = null;
     }
 
-    /** Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise */
+    /** Returns true if field keyValueStoreException is set (has been assigned a value) and false otherwise */
     public boolean isSetKeyValueStoreException() {
       return this.keyValueStoreException != null;
     }
@@ -2514,10 +2826,6 @@ public class KeyValueService {
       }
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
-    }
-
     public Object getFieldValue(_Fields field) {
       switch (field) {
       case SUCCESS:
@@ -2533,12 +2841,12 @@ public class KeyValueService {
       throw new IllegalStateException();
     }
 
-    public Object getFieldValue(int fieldId) {
-      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
-    }
-
-    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
     public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
       switch (field) {
       case SUCCESS:
         return isSetSuccess();
@@ -2548,10 +2856,6 @@ public class KeyValueService {
         return isSetKeyValueStoreException();
       }
       throw new IllegalStateException();
-    }
-
-    public boolean isSet(int fieldID) {
-      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -2602,20 +2906,65 @@ public class KeyValueService {
       return 0;
     }
 
-    public void read(TProtocol iprot) throws TException {
-      TField field;
+    public int compareTo(getBulk_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      getBulk_result typedOther = (getBulk_result)other;
+
+      lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(typedOther.isSetSuccess());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSuccess()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, typedOther.success);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetIoException()).compareTo(typedOther.isSetIoException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetIoException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ioException, typedOther.ioException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetKeyValueStoreException()).compareTo(typedOther.isSetKeyValueStoreException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKeyValueStoreException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.keyValueStoreException, typedOther.keyValueStoreException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
       iprot.readStructBegin();
       while (true)
       {
         field = iprot.readFieldBegin();
-        if (field.type == TType.STOP) { 
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
           break;
         }
         switch (field.id) {
           case 0: // SUCCESS
-            if (field.type == TType.MAP) {
+            if (field.type == org.apache.thrift.protocol.TType.MAP) {
               {
-                TMap _map4 = iprot.readMapBegin();
+                org.apache.thrift.protocol.TMap _map4 = iprot.readMapBegin();
                 this.success = new HashMap<String,GetResult>(2*_map4.size);
                 for (int _i5 = 0; _i5 < _map4.size; ++_i5)
                 {
@@ -2629,27 +2978,27 @@ public class KeyValueService {
                 iprot.readMapEnd();
               }
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           case 1: // IO_EXCEPTION
-            if (field.type == TType.STRUCT) {
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
               this.ioException = new KeyValueStoreIOException();
               this.ioException.read(iprot);
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           case 2: // KEY_VALUE_STORE_EXCEPTION
-            if (field.type == TType.STRUCT) {
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
               this.keyValueStoreException = new KeyValueStoreException();
               this.keyValueStoreException.read(iprot);
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           default:
-            TProtocolUtil.skip(iprot, field.type);
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
         }
         iprot.readFieldEnd();
       }
@@ -2657,13 +3006,13 @@ public class KeyValueService {
       validate();
     }
 
-    public void write(TProtocol oprot) throws TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       oprot.writeStructBegin(STRUCT_DESC);
 
       if (this.isSetSuccess()) {
         oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
         {
-          oprot.writeMapBegin(new TMap(TType.STRING, TType.STRUCT, this.success.size()));
+          oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRUCT, this.success.size()));
           for (Map.Entry<String, GetResult> _iter8 : this.success.entrySet())
           {
             oprot.writeString(_iter8.getKey());
@@ -2717,32 +3066,46 @@ public class KeyValueService {
       return sb.toString();
     }
 
-    public void validate() throws TException {
+    public void validate() throws org.apache.thrift.TException {
       // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
     }
 
   }
 
-  public static class setValue_args implements TBase<setValue_args._Fields>, java.io.Serializable, Cloneable, Comparable<setValue_args>   {
-    private static final TStruct STRUCT_DESC = new TStruct("setValue_args");
+  public static class setValue_args implements org.apache.thrift.TBase<setValue_args, setValue_args._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("setValue_args");
 
-    private static final TField KEY_FIELD_DESC = new TField("key", TType.STRING, (short)1);
-    private static final TField DATA_FIELD_DESC = new TField("data", TType.STRING, (short)2);
+    private static final org.apache.thrift.protocol.TField KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("key", org.apache.thrift.protocol.TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField DATA_FIELD_DESC = new org.apache.thrift.protocol.TField("data", org.apache.thrift.protocol.TType.STRING, (short)2);
 
     private String key;
-    private byte[] data;
+    private ByteBuffer data;
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements TFieldIdEnum {
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       KEY((short)1, "key"),
       DATA((short)2, "data");
 
-      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
-          byId.put((int)field._thriftId, field);
           byName.put(field.getFieldName(), field);
         }
       }
@@ -2751,7 +3114,14 @@ public class KeyValueService {
        * Find the _Fields constant that matches fieldId, or null if its not found.
        */
       public static _Fields findByThriftId(int fieldId) {
-        return byId.get(fieldId);
+        switch(fieldId) {
+          case 1: // KEY
+            return KEY;
+          case 2: // DATA
+            return DATA;
+          default:
+            return null;
+        }
       }
 
       /**
@@ -2790,15 +3160,15 @@ public class KeyValueService {
 
     // isset id assignments
 
-    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
-      put(_Fields.KEY, new FieldMetaData("key", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRING)));
-      put(_Fields.DATA, new FieldMetaData("data", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRING)));
-    }});
-
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      FieldMetaData.addStructMetaDataMap(setValue_args.class, metaDataMap);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.KEY, new org.apache.thrift.meta_data.FieldMetaData("key", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.DATA, new org.apache.thrift.meta_data.FieldMetaData("data", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING          , true)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(setValue_args.class, metaDataMap);
     }
 
     public setValue_args() {
@@ -2806,7 +3176,7 @@ public class KeyValueService {
 
     public setValue_args(
       String key,
-      byte[] data)
+      ByteBuffer data)
     {
       this();
       this.key = key;
@@ -2821,8 +3191,8 @@ public class KeyValueService {
         this.key = other.key;
       }
       if (other.isSetData()) {
-        this.data = new byte[other.data.length];
-        System.arraycopy(other.data, 0, data, 0, other.data.length);
+        this.data = org.apache.thrift.TBaseHelper.copyBinary(other.data);
+;
       }
     }
 
@@ -2830,25 +3200,25 @@ public class KeyValueService {
       return new setValue_args(this);
     }
 
-    @Deprecated
-    public setValue_args clone() {
-      return new setValue_args(this);
+    @Override
+    public void clear() {
+      this.key = null;
+      this.data = null;
     }
 
     public String getKey() {
       return this.key;
     }
 
-    public setValue_args setKey(String key) {
+    public void setKey(String key) {
       this.key = key;
-      return this;
     }
 
     public void unsetKey() {
       this.key = null;
     }
 
-    /** Returns true if field key is set (has been asigned a value) and false otherwise */
+    /** Returns true if field key is set (has been assigned a value) and false otherwise */
     public boolean isSetKey() {
       return this.key != null;
     }
@@ -2860,19 +3230,27 @@ public class KeyValueService {
     }
 
     public byte[] getData() {
-      return this.data;
+      setData(org.apache.thrift.TBaseHelper.rightSize(data));
+      return data == null ? null : data.array();
     }
 
-    public setValue_args setData(byte[] data) {
+    public ByteBuffer bufferForData() {
+      return data;
+    }
+
+    public void setData(byte[] data) {
+      setData(data == null ? (ByteBuffer)null : ByteBuffer.wrap(data));
+    }
+
+    public void setData(ByteBuffer data) {
       this.data = data;
-      return this;
     }
 
     public void unsetData() {
       this.data = null;
     }
 
-    /** Returns true if field data is set (has been asigned a value) and false otherwise */
+    /** Returns true if field data is set (has been assigned a value) and false otherwise */
     public boolean isSetData() {
       return this.data != null;
     }
@@ -2897,15 +3275,11 @@ public class KeyValueService {
         if (value == null) {
           unsetData();
         } else {
-          setData((byte[])value);
+          setData((ByteBuffer)value);
         }
         break;
 
       }
-    }
-
-    public void setFieldValue(int fieldID, Object value) {
-      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
     }
 
     public Object getFieldValue(_Fields field) {
@@ -2920,12 +3294,12 @@ public class KeyValueService {
       throw new IllegalStateException();
     }
 
-    public Object getFieldValue(int fieldId) {
-      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
-    }
-
-    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
     public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
       switch (field) {
       case KEY:
         return isSetKey();
@@ -2933,10 +3307,6 @@ public class KeyValueService {
         return isSetData();
       }
       throw new IllegalStateException();
-    }
-
-    public boolean isSet(int fieldID) {
-      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -2966,7 +3336,7 @@ public class KeyValueService {
       if (this_present_data || that_present_data) {
         if (!(this_present_data && that_present_data))
           return false;
-        if (!java.util.Arrays.equals(this.data, that.data))
+        if (!this.data.equals(that.data))
           return false;
       }
 
@@ -2990,7 +3360,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetKey()) {        lastComparison = TBaseHelper.compareTo(key, typedOther.key);
+      if (isSetKey()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.key, typedOther.key);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -2999,7 +3370,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetData()) {        lastComparison = TBaseHelper.compareTo(data, typedOther.data);
+      if (isSetData()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.data, typedOther.data);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -3007,32 +3379,36 @@ public class KeyValueService {
       return 0;
     }
 
-    public void read(TProtocol iprot) throws TException {
-      TField field;
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
       iprot.readStructBegin();
       while (true)
       {
         field = iprot.readFieldBegin();
-        if (field.type == TType.STOP) { 
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
           break;
         }
         switch (field.id) {
           case 1: // KEY
-            if (field.type == TType.STRING) {
+            if (field.type == org.apache.thrift.protocol.TType.STRING) {
               this.key = iprot.readString();
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           case 2: // DATA
-            if (field.type == TType.STRING) {
+            if (field.type == org.apache.thrift.protocol.TType.STRING) {
               this.data = iprot.readBinary();
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           default:
-            TProtocolUtil.skip(iprot, field.type);
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
         }
         iprot.readFieldEnd();
       }
@@ -3040,7 +3416,7 @@ public class KeyValueService {
       validate();
     }
 
-    public void write(TProtocol oprot) throws TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -3075,44 +3451,53 @@ public class KeyValueService {
       if (this.data == null) {
         sb.append("null");
       } else {
-          int __data_size = Math.min(this.data.length, 128);
-          for (int i = 0; i < __data_size; i++) {
-            if (i != 0) sb.append(" ");
-            sb.append(Integer.toHexString(this.data[i]).length() > 1 ? Integer.toHexString(this.data[i]).substring(Integer.toHexString(this.data[i]).length() - 2).toUpperCase() : "0" + Integer.toHexString(this.data[i]).toUpperCase());
-          }
-          if (this.data.length > 128) sb.append(" ...");
+        org.apache.thrift.TBaseHelper.toString(this.data, sb);
       }
       first = false;
       sb.append(")");
       return sb.toString();
     }
 
-    public void validate() throws TException {
+    public void validate() throws org.apache.thrift.TException {
       // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
     }
 
   }
 
-  public static class setValue_result implements TBase<setValue_result._Fields>, java.io.Serializable, Cloneable, Comparable<setValue_result>   {
-    private static final TStruct STRUCT_DESC = new TStruct("setValue_result");
+  public static class setValue_result implements org.apache.thrift.TBase<setValue_result, setValue_result._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("setValue_result");
 
-    private static final TField IO_EXCEPTION_FIELD_DESC = new TField("ioException", TType.STRUCT, (short)1);
-    private static final TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new TField("keyValueStoreException", TType.STRUCT, (short)2);
+    private static final org.apache.thrift.protocol.TField IO_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ioException", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+    private static final org.apache.thrift.protocol.TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("keyValueStoreException", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private KeyValueStoreIOException ioException;
     private KeyValueStoreException keyValueStoreException;
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements TFieldIdEnum {
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       IO_EXCEPTION((short)1, "ioException"),
       KEY_VALUE_STORE_EXCEPTION((short)2, "keyValueStoreException");
 
-      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
-          byId.put((int)field._thriftId, field);
           byName.put(field.getFieldName(), field);
         }
       }
@@ -3121,7 +3506,14 @@ public class KeyValueService {
        * Find the _Fields constant that matches fieldId, or null if its not found.
        */
       public static _Fields findByThriftId(int fieldId) {
-        return byId.get(fieldId);
+        switch(fieldId) {
+          case 1: // IO_EXCEPTION
+            return IO_EXCEPTION;
+          case 2: // KEY_VALUE_STORE_EXCEPTION
+            return KEY_VALUE_STORE_EXCEPTION;
+          default:
+            return null;
+        }
       }
 
       /**
@@ -3160,15 +3552,15 @@ public class KeyValueService {
 
     // isset id assignments
 
-    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
-      put(_Fields.IO_EXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRUCT)));
-      put(_Fields.KEY_VALUE_STORE_EXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRUCT)));
-    }});
-
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      FieldMetaData.addStructMetaDataMap(setValue_result.class, metaDataMap);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.IO_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("ioException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      tmpMap.put(_Fields.KEY_VALUE_STORE_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("keyValueStoreException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(setValue_result.class, metaDataMap);
     }
 
     public setValue_result() {
@@ -3199,25 +3591,25 @@ public class KeyValueService {
       return new setValue_result(this);
     }
 
-    @Deprecated
-    public setValue_result clone() {
-      return new setValue_result(this);
+    @Override
+    public void clear() {
+      this.ioException = null;
+      this.keyValueStoreException = null;
     }
 
     public KeyValueStoreIOException getIoException() {
       return this.ioException;
     }
 
-    public setValue_result setIoException(KeyValueStoreIOException ioException) {
+    public void setIoException(KeyValueStoreIOException ioException) {
       this.ioException = ioException;
-      return this;
     }
 
     public void unsetIoException() {
       this.ioException = null;
     }
 
-    /** Returns true if field ioException is set (has been asigned a value) and false otherwise */
+    /** Returns true if field ioException is set (has been assigned a value) and false otherwise */
     public boolean isSetIoException() {
       return this.ioException != null;
     }
@@ -3232,16 +3624,15 @@ public class KeyValueService {
       return this.keyValueStoreException;
     }
 
-    public setValue_result setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
+    public void setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
       this.keyValueStoreException = keyValueStoreException;
-      return this;
     }
 
     public void unsetKeyValueStoreException() {
       this.keyValueStoreException = null;
     }
 
-    /** Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise */
+    /** Returns true if field keyValueStoreException is set (has been assigned a value) and false otherwise */
     public boolean isSetKeyValueStoreException() {
       return this.keyValueStoreException != null;
     }
@@ -3273,10 +3664,6 @@ public class KeyValueService {
       }
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
-    }
-
     public Object getFieldValue(_Fields field) {
       switch (field) {
       case IO_EXCEPTION:
@@ -3289,12 +3676,12 @@ public class KeyValueService {
       throw new IllegalStateException();
     }
 
-    public Object getFieldValue(int fieldId) {
-      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
-    }
-
-    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
     public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
       switch (field) {
       case IO_EXCEPTION:
         return isSetIoException();
@@ -3302,10 +3689,6 @@ public class KeyValueService {
         return isSetKeyValueStoreException();
       }
       throw new IllegalStateException();
-    }
-
-    public boolean isSet(int fieldID) {
-      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -3359,7 +3742,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetIoException()) {        lastComparison = TBaseHelper.compareTo(ioException, typedOther.ioException);
+      if (isSetIoException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ioException, typedOther.ioException);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -3368,7 +3752,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetKeyValueStoreException()) {        lastComparison = TBaseHelper.compareTo(keyValueStoreException, typedOther.keyValueStoreException);
+      if (isSetKeyValueStoreException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.keyValueStoreException, typedOther.keyValueStoreException);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -3376,34 +3761,38 @@ public class KeyValueService {
       return 0;
     }
 
-    public void read(TProtocol iprot) throws TException {
-      TField field;
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
       iprot.readStructBegin();
       while (true)
       {
         field = iprot.readFieldBegin();
-        if (field.type == TType.STOP) { 
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
           break;
         }
         switch (field.id) {
           case 1: // IO_EXCEPTION
-            if (field.type == TType.STRUCT) {
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
               this.ioException = new KeyValueStoreIOException();
               this.ioException.read(iprot);
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           case 2: // KEY_VALUE_STORE_EXCEPTION
-            if (field.type == TType.STRUCT) {
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
               this.keyValueStoreException = new KeyValueStoreException();
               this.keyValueStoreException.read(iprot);
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           default:
-            TProtocolUtil.skip(iprot, field.type);
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
         }
         iprot.readFieldEnd();
       }
@@ -3411,7 +3800,7 @@ public class KeyValueService {
       validate();
     }
 
-    public void write(TProtocol oprot) throws TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       oprot.writeStructBegin(STRUCT_DESC);
 
       if (this.isSetIoException()) {
@@ -3451,29 +3840,43 @@ public class KeyValueService {
       return sb.toString();
     }
 
-    public void validate() throws TException {
+    public void validate() throws org.apache.thrift.TException {
       // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
     }
 
   }
 
-  public static class deleteValue_args implements TBase<deleteValue_args._Fields>, java.io.Serializable, Cloneable, Comparable<deleteValue_args>   {
-    private static final TStruct STRUCT_DESC = new TStruct("deleteValue_args");
+  public static class deleteValue_args implements org.apache.thrift.TBase<deleteValue_args, deleteValue_args._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("deleteValue_args");
 
-    private static final TField KEY_FIELD_DESC = new TField("key", TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("key", org.apache.thrift.protocol.TType.STRING, (short)1);
 
     private String key;
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements TFieldIdEnum {
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       KEY((short)1, "key");
 
-      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
-          byId.put((int)field._thriftId, field);
           byName.put(field.getFieldName(), field);
         }
       }
@@ -3482,7 +3885,12 @@ public class KeyValueService {
        * Find the _Fields constant that matches fieldId, or null if its not found.
        */
       public static _Fields findByThriftId(int fieldId) {
-        return byId.get(fieldId);
+        switch(fieldId) {
+          case 1: // KEY
+            return KEY;
+          default:
+            return null;
+        }
       }
 
       /**
@@ -3521,13 +3929,13 @@ public class KeyValueService {
 
     // isset id assignments
 
-    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
-      put(_Fields.KEY, new FieldMetaData("key", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRING)));
-    }});
-
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      FieldMetaData.addStructMetaDataMap(deleteValue_args.class, metaDataMap);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.KEY, new org.apache.thrift.meta_data.FieldMetaData("key", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(deleteValue_args.class, metaDataMap);
     }
 
     public deleteValue_args() {
@@ -3553,25 +3961,24 @@ public class KeyValueService {
       return new deleteValue_args(this);
     }
 
-    @Deprecated
-    public deleteValue_args clone() {
-      return new deleteValue_args(this);
+    @Override
+    public void clear() {
+      this.key = null;
     }
 
     public String getKey() {
       return this.key;
     }
 
-    public deleteValue_args setKey(String key) {
+    public void setKey(String key) {
       this.key = key;
-      return this;
     }
 
     public void unsetKey() {
       this.key = null;
     }
 
-    /** Returns true if field key is set (has been asigned a value) and false otherwise */
+    /** Returns true if field key is set (has been assigned a value) and false otherwise */
     public boolean isSetKey() {
       return this.key != null;
     }
@@ -3595,10 +4002,6 @@ public class KeyValueService {
       }
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
-    }
-
     public Object getFieldValue(_Fields field) {
       switch (field) {
       case KEY:
@@ -3608,21 +4011,17 @@ public class KeyValueService {
       throw new IllegalStateException();
     }
 
-    public Object getFieldValue(int fieldId) {
-      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
-    }
-
-    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
     public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
       switch (field) {
       case KEY:
         return isSetKey();
       }
       throw new IllegalStateException();
-    }
-
-    public boolean isSet(int fieldID) {
-      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -3667,7 +4066,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetKey()) {        lastComparison = TBaseHelper.compareTo(key, typedOther.key);
+      if (isSetKey()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.key, typedOther.key);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -3675,25 +4075,29 @@ public class KeyValueService {
       return 0;
     }
 
-    public void read(TProtocol iprot) throws TException {
-      TField field;
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
       iprot.readStructBegin();
       while (true)
       {
         field = iprot.readFieldBegin();
-        if (field.type == TType.STOP) { 
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
           break;
         }
         switch (field.id) {
           case 1: // KEY
-            if (field.type == TType.STRING) {
+            if (field.type == org.apache.thrift.protocol.TType.STRING) {
               this.key = iprot.readString();
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           default:
-            TProtocolUtil.skip(iprot, field.type);
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
         }
         iprot.readFieldEnd();
       }
@@ -3701,7 +4105,7 @@ public class KeyValueService {
       validate();
     }
 
-    public void write(TProtocol oprot) throws TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
@@ -3730,32 +4134,46 @@ public class KeyValueService {
       return sb.toString();
     }
 
-    public void validate() throws TException {
+    public void validate() throws org.apache.thrift.TException {
       // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
     }
 
   }
 
-  public static class deleteValue_result implements TBase<deleteValue_result._Fields>, java.io.Serializable, Cloneable, Comparable<deleteValue_result>   {
-    private static final TStruct STRUCT_DESC = new TStruct("deleteValue_result");
+  public static class deleteValue_result implements org.apache.thrift.TBase<deleteValue_result, deleteValue_result._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("deleteValue_result");
 
-    private static final TField IO_EXCEPTION_FIELD_DESC = new TField("ioException", TType.STRUCT, (short)1);
-    private static final TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new TField("keyValueStoreException", TType.STRUCT, (short)2);
+    private static final org.apache.thrift.protocol.TField IO_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ioException", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+    private static final org.apache.thrift.protocol.TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("keyValueStoreException", org.apache.thrift.protocol.TType.STRUCT, (short)2);
 
     private KeyValueStoreIOException ioException;
     private KeyValueStoreException keyValueStoreException;
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-    public enum _Fields implements TFieldIdEnum {
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       IO_EXCEPTION((short)1, "ioException"),
       KEY_VALUE_STORE_EXCEPTION((short)2, "keyValueStoreException");
 
-      private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
-          byId.put((int)field._thriftId, field);
           byName.put(field.getFieldName(), field);
         }
       }
@@ -3764,7 +4182,14 @@ public class KeyValueService {
        * Find the _Fields constant that matches fieldId, or null if its not found.
        */
       public static _Fields findByThriftId(int fieldId) {
-        return byId.get(fieldId);
+        switch(fieldId) {
+          case 1: // IO_EXCEPTION
+            return IO_EXCEPTION;
+          case 2: // KEY_VALUE_STORE_EXCEPTION
+            return KEY_VALUE_STORE_EXCEPTION;
+          default:
+            return null;
+        }
       }
 
       /**
@@ -3803,15 +4228,15 @@ public class KeyValueService {
 
     // isset id assignments
 
-    public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
-      put(_Fields.IO_EXCEPTION, new FieldMetaData("ioException", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRUCT)));
-      put(_Fields.KEY_VALUE_STORE_EXCEPTION, new FieldMetaData("keyValueStoreException", TFieldRequirementType.DEFAULT, 
-          new FieldValueMetaData(TType.STRUCT)));
-    }});
-
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      FieldMetaData.addStructMetaDataMap(deleteValue_result.class, metaDataMap);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.IO_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("ioException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      tmpMap.put(_Fields.KEY_VALUE_STORE_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("keyValueStoreException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(deleteValue_result.class, metaDataMap);
     }
 
     public deleteValue_result() {
@@ -3842,25 +4267,25 @@ public class KeyValueService {
       return new deleteValue_result(this);
     }
 
-    @Deprecated
-    public deleteValue_result clone() {
-      return new deleteValue_result(this);
+    @Override
+    public void clear() {
+      this.ioException = null;
+      this.keyValueStoreException = null;
     }
 
     public KeyValueStoreIOException getIoException() {
       return this.ioException;
     }
 
-    public deleteValue_result setIoException(KeyValueStoreIOException ioException) {
+    public void setIoException(KeyValueStoreIOException ioException) {
       this.ioException = ioException;
-      return this;
     }
 
     public void unsetIoException() {
       this.ioException = null;
     }
 
-    /** Returns true if field ioException is set (has been asigned a value) and false otherwise */
+    /** Returns true if field ioException is set (has been assigned a value) and false otherwise */
     public boolean isSetIoException() {
       return this.ioException != null;
     }
@@ -3875,16 +4300,15 @@ public class KeyValueService {
       return this.keyValueStoreException;
     }
 
-    public deleteValue_result setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
+    public void setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
       this.keyValueStoreException = keyValueStoreException;
-      return this;
     }
 
     public void unsetKeyValueStoreException() {
       this.keyValueStoreException = null;
     }
 
-    /** Returns true if field keyValueStoreException is set (has been asigned a value) and false otherwise */
+    /** Returns true if field keyValueStoreException is set (has been assigned a value) and false otherwise */
     public boolean isSetKeyValueStoreException() {
       return this.keyValueStoreException != null;
     }
@@ -3916,10 +4340,6 @@ public class KeyValueService {
       }
     }
 
-    public void setFieldValue(int fieldID, Object value) {
-      setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
-    }
-
     public Object getFieldValue(_Fields field) {
       switch (field) {
       case IO_EXCEPTION:
@@ -3932,12 +4352,12 @@ public class KeyValueService {
       throw new IllegalStateException();
     }
 
-    public Object getFieldValue(int fieldId) {
-      return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
-    }
-
-    /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
     public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
       switch (field) {
       case IO_EXCEPTION:
         return isSetIoException();
@@ -3945,10 +4365,6 @@ public class KeyValueService {
         return isSetKeyValueStoreException();
       }
       throw new IllegalStateException();
-    }
-
-    public boolean isSet(int fieldID) {
-      return isSet(_Fields.findByThriftIdOrThrow(fieldID));
     }
 
     @Override
@@ -4002,7 +4418,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetIoException()) {        lastComparison = TBaseHelper.compareTo(ioException, typedOther.ioException);
+      if (isSetIoException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ioException, typedOther.ioException);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -4011,7 +4428,8 @@ public class KeyValueService {
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetKeyValueStoreException()) {        lastComparison = TBaseHelper.compareTo(keyValueStoreException, typedOther.keyValueStoreException);
+      if (isSetKeyValueStoreException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.keyValueStoreException, typedOther.keyValueStoreException);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -4019,34 +4437,38 @@ public class KeyValueService {
       return 0;
     }
 
-    public void read(TProtocol iprot) throws TException {
-      TField field;
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
       iprot.readStructBegin();
       while (true)
       {
         field = iprot.readFieldBegin();
-        if (field.type == TType.STOP) { 
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
           break;
         }
         switch (field.id) {
           case 1: // IO_EXCEPTION
-            if (field.type == TType.STRUCT) {
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
               this.ioException = new KeyValueStoreIOException();
               this.ioException.read(iprot);
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           case 2: // KEY_VALUE_STORE_EXCEPTION
-            if (field.type == TType.STRUCT) {
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
               this.keyValueStoreException = new KeyValueStoreException();
               this.keyValueStoreException.read(iprot);
             } else { 
-              TProtocolUtil.skip(iprot, field.type);
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
             }
             break;
           default:
-            TProtocolUtil.skip(iprot, field.type);
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
         }
         iprot.readFieldEnd();
       }
@@ -4054,7 +4476,7 @@ public class KeyValueService {
       validate();
     }
 
-    public void write(TProtocol oprot) throws TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
       oprot.writeStructBegin(STRUCT_DESC);
 
       if (this.isSetIoException()) {
@@ -4094,8 +4516,24 @@ public class KeyValueService {
       return sb.toString();
     }
 
-    public void validate() throws TException {
+    public void validate() throws org.apache.thrift.TException {
       // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
     }
 
   }

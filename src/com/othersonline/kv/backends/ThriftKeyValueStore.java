@@ -1,6 +1,7 @@
 package com.othersonline.kv.backends;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -250,7 +251,8 @@ public class ThriftKeyValueStore extends BaseManagedKeyValueStore implements
 		try {
 			tconn = getTConnection();
 			byte[] data = transcoder.encode(value);
-			tconn.kv.setValue(key, data);
+			ByteBuffer buff = ByteBuffer.wrap(data);
+			tconn.kv.setValue(key, buff);
 		} catch (TTransportException e) {
 			log.error("TTransportException inside set()", e);
 			throw new IOException(e);

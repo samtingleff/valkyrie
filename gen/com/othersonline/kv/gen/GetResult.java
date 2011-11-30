@@ -15,34 +15,29 @@ import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.thrift.*;
-import org.apache.thrift.meta_data.*;
-import org.apache.thrift.protocol.*;
+public class GetResult implements org.apache.thrift.TBase<GetResult, GetResult._Fields>, java.io.Serializable, Cloneable {
+  private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("GetResult");
 
-public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable, Cloneable, Comparable<GetResult> {
-  private static final TStruct STRUCT_DESC = new TStruct("GetResult");
-
-  private static final TField EXISTS_FIELD_DESC = new TField("exists", TType.BOOL, (short)1);
-  private static final TField DATA_FIELD_DESC = new TField("data", TType.STRING, (short)2);
+  private static final org.apache.thrift.protocol.TField EXISTS_FIELD_DESC = new org.apache.thrift.protocol.TField("exists", org.apache.thrift.protocol.TType.BOOL, (short)1);
+  private static final org.apache.thrift.protocol.TField DATA_FIELD_DESC = new org.apache.thrift.protocol.TField("data", org.apache.thrift.protocol.TType.STRING, (short)2);
 
   private boolean exists;
-  private byte[] data;
+  private ByteBuffer data;
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-  public enum _Fields implements TFieldIdEnum {
+  public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     EXISTS((short)1, "exists"),
     DATA((short)2, "data");
 
-    private static final Map<Integer, _Fields> byId = new HashMap<Integer, _Fields>();
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
     static {
       for (_Fields field : EnumSet.allOf(_Fields.class)) {
-        byId.put((int)field._thriftId, field);
         byName.put(field.getFieldName(), field);
       }
     }
@@ -51,7 +46,14 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
      * Find the _Fields constant that matches fieldId, or null if its not found.
      */
     public static _Fields findByThriftId(int fieldId) {
-      return byId.get(fieldId);
+      switch(fieldId) {
+        case 1: // EXISTS
+          return EXISTS;
+        case 2: // DATA
+          return DATA;
+        default:
+          return null;
+      }
     }
 
     /**
@@ -92,15 +94,15 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
   private static final int __EXISTS_ISSET_ID = 0;
   private BitSet __isset_bit_vector = new BitSet(1);
 
-  public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
-    put(_Fields.EXISTS, new FieldMetaData("exists", TFieldRequirementType.DEFAULT, 
-        new FieldValueMetaData(TType.BOOL)));
-    put(_Fields.DATA, new FieldMetaData("data", TFieldRequirementType.DEFAULT, 
-        new FieldValueMetaData(TType.STRING)));
-  }});
-
+  public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
-    FieldMetaData.addStructMetaDataMap(GetResult.class, metaDataMap);
+    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    tmpMap.put(_Fields.EXISTS, new org.apache.thrift.meta_data.FieldMetaData("exists", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
+    tmpMap.put(_Fields.DATA, new org.apache.thrift.meta_data.FieldMetaData("data", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
+    metaDataMap = Collections.unmodifiableMap(tmpMap);
+    org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(GetResult.class, metaDataMap);
   }
 
   public GetResult() {
@@ -108,7 +110,7 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
 
   public GetResult(
     boolean exists,
-    byte[] data)
+    ByteBuffer data)
   {
     this();
     this.exists = exists;
@@ -124,8 +126,8 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
     __isset_bit_vector.or(other.__isset_bit_vector);
     this.exists = other.exists;
     if (other.isSetData()) {
-      this.data = new byte[other.data.length];
-      System.arraycopy(other.data, 0, data, 0, other.data.length);
+      this.data = org.apache.thrift.TBaseHelper.copyBinary(other.data);
+;
     }
   }
 
@@ -133,26 +135,27 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
     return new GetResult(this);
   }
 
-  @Deprecated
-  public GetResult clone() {
-    return new GetResult(this);
+  @Override
+  public void clear() {
+    setExistsIsSet(false);
+    this.exists = false;
+    this.data = null;
   }
 
   public boolean isExists() {
     return this.exists;
   }
 
-  public GetResult setExists(boolean exists) {
+  public void setExists(boolean exists) {
     this.exists = exists;
     setExistsIsSet(true);
-    return this;
   }
 
   public void unsetExists() {
     __isset_bit_vector.clear(__EXISTS_ISSET_ID);
   }
 
-  /** Returns true if field exists is set (has been asigned a value) and false otherwise */
+  /** Returns true if field exists is set (has been assigned a value) and false otherwise */
   public boolean isSetExists() {
     return __isset_bit_vector.get(__EXISTS_ISSET_ID);
   }
@@ -162,19 +165,27 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
   }
 
   public byte[] getData() {
-    return this.data;
+    setData(org.apache.thrift.TBaseHelper.rightSize(data));
+    return data == null ? null : data.array();
   }
 
-  public GetResult setData(byte[] data) {
+  public ByteBuffer bufferForData() {
+    return data;
+  }
+
+  public void setData(byte[] data) {
+    setData(data == null ? (ByteBuffer)null : ByteBuffer.wrap(data));
+  }
+
+  public void setData(ByteBuffer data) {
     this.data = data;
-    return this;
   }
 
   public void unsetData() {
     this.data = null;
   }
 
-  /** Returns true if field data is set (has been asigned a value) and false otherwise */
+  /** Returns true if field data is set (has been assigned a value) and false otherwise */
   public boolean isSetData() {
     return this.data != null;
   }
@@ -199,15 +210,11 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
       if (value == null) {
         unsetData();
       } else {
-        setData((byte[])value);
+        setData((ByteBuffer)value);
       }
       break;
 
     }
-  }
-
-  public void setFieldValue(int fieldID, Object value) {
-    setFieldValue(_Fields.findByThriftIdOrThrow(fieldID), value);
   }
 
   public Object getFieldValue(_Fields field) {
@@ -222,12 +229,12 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
     throw new IllegalStateException();
   }
 
-  public Object getFieldValue(int fieldId) {
-    return getFieldValue(_Fields.findByThriftIdOrThrow(fieldId));
-  }
-
-  /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
+  /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
   public boolean isSet(_Fields field) {
+    if (field == null) {
+      throw new IllegalArgumentException();
+    }
+
     switch (field) {
     case EXISTS:
       return isSetExists();
@@ -235,10 +242,6 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
       return isSetData();
     }
     throw new IllegalStateException();
-  }
-
-  public boolean isSet(int fieldID) {
-    return isSet(_Fields.findByThriftIdOrThrow(fieldID));
   }
 
   @Override
@@ -268,7 +271,7 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
     if (this_present_data || that_present_data) {
       if (!(this_present_data && that_present_data))
         return false;
-      if (!java.util.Arrays.equals(this.data, that.data))
+      if (!this.data.equals(that.data))
         return false;
     }
 
@@ -292,7 +295,8 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetExists()) {      lastComparison = TBaseHelper.compareTo(exists, typedOther.exists);
+    if (isSetExists()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.exists, typedOther.exists);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -301,7 +305,8 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetData()) {      lastComparison = TBaseHelper.compareTo(data, typedOther.data);
+    if (isSetData()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.data, typedOther.data);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -309,33 +314,37 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
     return 0;
   }
 
-  public void read(TProtocol iprot) throws TException {
-    TField field;
+  public _Fields fieldForId(int fieldId) {
+    return _Fields.findByThriftId(fieldId);
+  }
+
+  public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    org.apache.thrift.protocol.TField field;
     iprot.readStructBegin();
     while (true)
     {
       field = iprot.readFieldBegin();
-      if (field.type == TType.STOP) { 
+      if (field.type == org.apache.thrift.protocol.TType.STOP) { 
         break;
       }
       switch (field.id) {
         case 1: // EXISTS
-          if (field.type == TType.BOOL) {
+          if (field.type == org.apache.thrift.protocol.TType.BOOL) {
             this.exists = iprot.readBool();
             setExistsIsSet(true);
           } else { 
-            TProtocolUtil.skip(iprot, field.type);
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
           }
           break;
         case 2: // DATA
-          if (field.type == TType.STRING) {
+          if (field.type == org.apache.thrift.protocol.TType.STRING) {
             this.data = iprot.readBinary();
           } else { 
-            TProtocolUtil.skip(iprot, field.type);
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
           }
           break;
         default:
-          TProtocolUtil.skip(iprot, field.type);
+          org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
       }
       iprot.readFieldEnd();
     }
@@ -343,7 +352,7 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
     validate();
   }
 
-  public void write(TProtocol oprot) throws TException {
+  public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
     validate();
 
     oprot.writeStructBegin(STRUCT_DESC);
@@ -372,20 +381,33 @@ public class GetResult implements TBase<GetResult._Fields>, java.io.Serializable
     if (this.data == null) {
       sb.append("null");
     } else {
-        int __data_size = Math.min(this.data.length, 128);
-        for (int i = 0; i < __data_size; i++) {
-          if (i != 0) sb.append(" ");
-          sb.append(Integer.toHexString(this.data[i]).length() > 1 ? Integer.toHexString(this.data[i]).substring(Integer.toHexString(this.data[i]).length() - 2).toUpperCase() : "0" + Integer.toHexString(this.data[i]).toUpperCase());
-        }
-        if (this.data.length > 128) sb.append(" ...");
+      org.apache.thrift.TBaseHelper.toString(this.data, sb);
     }
     first = false;
     sb.append(")");
     return sb.toString();
   }
 
-  public void validate() throws TException {
+  public void validate() throws org.apache.thrift.TException {
     // check for required fields
+  }
+
+  private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+    try {
+      write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+    } catch (org.apache.thrift.TException te) {
+      throw new java.io.IOException(te);
+    }
+  }
+
+  private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+    try {
+      // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
+      __isset_bit_vector = new BitSet(1);
+      read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+    } catch (org.apache.thrift.TException te) {
+      throw new java.io.IOException(te);
+    }
   }
 
 }

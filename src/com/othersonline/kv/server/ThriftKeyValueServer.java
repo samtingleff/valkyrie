@@ -1,6 +1,7 @@
 package com.othersonline.kv.server;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,9 @@ import com.othersonline.kv.transcoder.ByteArrayTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 
 public class ThriftKeyValueServer {
+
+	private static final ByteBuffer EMPTY_BYTE_BUFFER = ByteBuffer.wrap(new byte[0]);
+
 	private Log log = LogFactory.getLog(getClass());
 
 	private TServer server;
@@ -72,7 +76,8 @@ public class ThriftKeyValueServer {
 			// this.server = new TThreadPoolServer(processor, serverTransport,
 			// tfactory, pfactory);
 			TTransportFactory ttfactory = new TFramedTransport.Factory();
-			TThreadPoolServer.Options options = new TThreadPoolServer.Options();
+			
+			/*TThreadPoolServer.Options options = new TThreadPoolServer.Options();
 			options.minWorkerThreads = minWorkerThreads;
 			options.maxWorkerThreads = maxWorkerThreads;
 
@@ -85,7 +90,7 @@ public class ThriftKeyValueServer {
 				}
 			}, "KeyValueService");
 			t.setDaemon(true);
-			t.start();
+			t.start();*/
 		} catch (TTransportException e) {
 			log.error("TTransportException inside start()", e);
 			throw new IOException(e);
@@ -140,12 +145,12 @@ public class ThriftKeyValueServer {
 			try {
 				Object obj = backend.get(key, transcoder);
 				GetResult result = null;
-				if (obj == null)
-					result = new GetResult(false, new byte[] {});
-				else {
+				if (obj == null) {
+					result = new GetResult(false, EMPTY_BYTE_BUFFER);
+				} else {
 					byte[] bytes = (byte[]) obj;
 					byteCount = bytes.length;
-					result = new GetResult(true, bytes);
+					result = new GetResult(true, ByteBuffer.wrap(bytes));
 				}
 				success = true;
 				return result;
@@ -177,8 +182,8 @@ public class ThriftKeyValueServer {
 				Map<String, GetResult> results = new HashMap<String, GetResult>(
 						backendResult.size());
 				for (Map.Entry<String, Object> entry : backendResult.entrySet()) {
-					GetResult result = new GetResult(true, (byte[]) entry
-							.getValue());
+					GetResult result = new GetResult(true, ByteBuffer.wrap((byte[]) entry
+							.getValue()));
 					results.put(entry.getKey(), result);
 				}
 				success = true;
@@ -198,7 +203,7 @@ public class ThriftKeyValueServer {
 			}
 		}
 
-		public void setValue(String key, byte[] data)
+		public void setValue(String key, ByteBuffer data)
 				throws KeyValueStoreIOException, KeyValueStoreException,
 				TException {
 			log.trace("setValue()");
@@ -206,8 +211,9 @@ public class ThriftKeyValueServer {
 			long byteCount = 0;
 			boolean success = false;
 			try {
-				backend.set(key, data, transcoder);
-				byteCount = data.length;
+				byte[] bytes = data.array();
+				backend.set(key, bytes, transcoder);
+				byteCount = bytes.length;
 				success = true;
 			} catch (com.othersonline.kv.KeyValueStoreException e) {
 				log.error("KeyValueStoreException inside setValue()", e);

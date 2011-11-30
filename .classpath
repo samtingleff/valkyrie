@@ -30,11 +30,11 @@
 	<classpathentry kind="lib" path="lib/xmemcached-1.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/yanf4j-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/apache-cassandra-0.5.1.jar"/>
-	<classpathentry kind="lib" path="lib/libthrift-r920994.jar"/>
 	<classpathentry kind="lib" path="lib/spy-memcached-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/riak-client-0.10.0-custom-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/voldemort-0.81.jar"/>
 	<classpathentry kind="lib" path="lib/voldemort-test-0.81.jar"/>
 	<classpathentry kind="lib" path="lib/ehcache-core-2.4.2.jar"/>
+	<classpathentry kind="lib" path="lib/libthrift-0.6.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
