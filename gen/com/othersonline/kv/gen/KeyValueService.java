@@ -28,11 +28,17 @@ public class KeyValueService {
 
     public GetResult getValue(String key) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException;
 
+    public GetResult getS2S(GetRequest request) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException;
+
     public Map<String,GetResult> getBulk(List<String> keys) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException;
 
     public void setValue(String key, ByteBuffer data) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException;
 
+    public void setS2S(SetRequest request) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException;
+
     public void deleteValue(String key) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException;
+
+    public void deleteS2S(DeleteRequest request) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException;
 
   }
 
@@ -42,11 +48,17 @@ public class KeyValueService {
 
     public void getValue(String key, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.getValue_call> resultHandler) throws org.apache.thrift.TException;
 
+    public void getS2S(GetRequest request, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.getS2S_call> resultHandler) throws org.apache.thrift.TException;
+
     public void getBulk(List<String> keys, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.getBulk_call> resultHandler) throws org.apache.thrift.TException;
 
     public void setValue(String key, ByteBuffer data, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.setValue_call> resultHandler) throws org.apache.thrift.TException;
 
+    public void setS2S(SetRequest request, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.setS2S_call> resultHandler) throws org.apache.thrift.TException;
+
     public void deleteValue(String key, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.deleteValue_call> resultHandler) throws org.apache.thrift.TException;
+
+    public void deleteS2S(DeleteRequest request, org.apache.thrift.async.AsyncMethodCallback<AsyncClient.deleteS2S_call> resultHandler) throws org.apache.thrift.TException;
 
   }
 
@@ -171,6 +183,48 @@ public class KeyValueService {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getValue failed: unknown result");
     }
 
+    public GetResult getS2S(GetRequest request) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
+    {
+      send_getS2S(request);
+      return recv_getS2S();
+    }
+
+    public void send_getS2S(GetRequest request) throws org.apache.thrift.TException
+    {
+      oprot_.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getS2S", org.apache.thrift.protocol.TMessageType.CALL, ++seqid_));
+      getS2S_args args = new getS2S_args();
+      args.setRequest(request);
+      args.write(oprot_);
+      oprot_.writeMessageEnd();
+      oprot_.getTransport().flush();
+    }
+
+    public GetResult recv_getS2S() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
+    {
+      org.apache.thrift.protocol.TMessage msg = iprot_.readMessageBegin();
+      if (msg.type == org.apache.thrift.protocol.TMessageType.EXCEPTION) {
+        org.apache.thrift.TApplicationException x = org.apache.thrift.TApplicationException.read(iprot_);
+        iprot_.readMessageEnd();
+        throw x;
+      }
+      if (msg.seqid != seqid_) {
+        throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.BAD_SEQUENCE_ID, "getS2S failed: out of sequence response");
+      }
+      getS2S_result result = new getS2S_result();
+      result.read(iprot_);
+      iprot_.readMessageEnd();
+      if (result.isSetSuccess()) {
+        return result.success;
+      }
+      if (result.ioException != null) {
+        throw result.ioException;
+      }
+      if (result.keyValueStoreException != null) {
+        throw result.keyValueStoreException;
+      }
+      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getS2S failed: unknown result");
+    }
+
     public Map<String,GetResult> getBulk(List<String> keys) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
     {
       send_getBulk(keys);
@@ -253,6 +307,45 @@ public class KeyValueService {
       return;
     }
 
+    public void setS2S(SetRequest request) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
+    {
+      send_setS2S(request);
+      recv_setS2S();
+    }
+
+    public void send_setS2S(SetRequest request) throws org.apache.thrift.TException
+    {
+      oprot_.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setS2S", org.apache.thrift.protocol.TMessageType.CALL, ++seqid_));
+      setS2S_args args = new setS2S_args();
+      args.setRequest(request);
+      args.write(oprot_);
+      oprot_.writeMessageEnd();
+      oprot_.getTransport().flush();
+    }
+
+    public void recv_setS2S() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
+    {
+      org.apache.thrift.protocol.TMessage msg = iprot_.readMessageBegin();
+      if (msg.type == org.apache.thrift.protocol.TMessageType.EXCEPTION) {
+        org.apache.thrift.TApplicationException x = org.apache.thrift.TApplicationException.read(iprot_);
+        iprot_.readMessageEnd();
+        throw x;
+      }
+      if (msg.seqid != seqid_) {
+        throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.BAD_SEQUENCE_ID, "setS2S failed: out of sequence response");
+      }
+      setS2S_result result = new setS2S_result();
+      result.read(iprot_);
+      iprot_.readMessageEnd();
+      if (result.ioException != null) {
+        throw result.ioException;
+      }
+      if (result.keyValueStoreException != null) {
+        throw result.keyValueStoreException;
+      }
+      return;
+    }
+
     public void deleteValue(String key) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
     {
       send_deleteValue(key);
@@ -281,6 +374,45 @@ public class KeyValueService {
         throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.BAD_SEQUENCE_ID, "deleteValue failed: out of sequence response");
       }
       deleteValue_result result = new deleteValue_result();
+      result.read(iprot_);
+      iprot_.readMessageEnd();
+      if (result.ioException != null) {
+        throw result.ioException;
+      }
+      if (result.keyValueStoreException != null) {
+        throw result.keyValueStoreException;
+      }
+      return;
+    }
+
+    public void deleteS2S(DeleteRequest request) throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
+    {
+      send_deleteS2S(request);
+      recv_deleteS2S();
+    }
+
+    public void send_deleteS2S(DeleteRequest request) throws org.apache.thrift.TException
+    {
+      oprot_.writeMessageBegin(new org.apache.thrift.protocol.TMessage("deleteS2S", org.apache.thrift.protocol.TMessageType.CALL, ++seqid_));
+      deleteS2S_args args = new deleteS2S_args();
+      args.setRequest(request);
+      args.write(oprot_);
+      oprot_.writeMessageEnd();
+      oprot_.getTransport().flush();
+    }
+
+    public void recv_deleteS2S() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException
+    {
+      org.apache.thrift.protocol.TMessage msg = iprot_.readMessageBegin();
+      if (msg.type == org.apache.thrift.protocol.TMessageType.EXCEPTION) {
+        org.apache.thrift.TApplicationException x = org.apache.thrift.TApplicationException.read(iprot_);
+        iprot_.readMessageEnd();
+        throw x;
+      }
+      if (msg.seqid != seqid_) {
+        throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.BAD_SEQUENCE_ID, "deleteS2S failed: out of sequence response");
+      }
+      deleteS2S_result result = new deleteS2S_result();
       result.read(iprot_);
       iprot_.readMessageEnd();
       if (result.ioException != null) {
@@ -374,6 +506,38 @@ public class KeyValueService {
       }
     }
 
+    public void getS2S(GetRequest request, org.apache.thrift.async.AsyncMethodCallback<getS2S_call> resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      getS2S_call method_call = new getS2S_call(request, resultHandler, this, protocolFactory, transport);
+      this.currentMethod = method_call;
+      manager.call(method_call);
+    }
+
+    public static class getS2S_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private GetRequest request;
+      public getS2S_call(GetRequest request, org.apache.thrift.async.AsyncMethodCallback<getS2S_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.request = request;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getS2S", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        getS2S_args args = new getS2S_args();
+        args.setRequest(request);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public GetResult getResult() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        return (new Client(prot)).recv_getS2S();
+      }
+    }
+
     public void getBulk(List<String> keys, org.apache.thrift.async.AsyncMethodCallback<getBulk_call> resultHandler) throws org.apache.thrift.TException {
       checkReady();
       getBulk_call method_call = new getBulk_call(keys, resultHandler, this, protocolFactory, transport);
@@ -441,6 +605,38 @@ public class KeyValueService {
       }
     }
 
+    public void setS2S(SetRequest request, org.apache.thrift.async.AsyncMethodCallback<setS2S_call> resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      setS2S_call method_call = new setS2S_call(request, resultHandler, this, protocolFactory, transport);
+      this.currentMethod = method_call;
+      manager.call(method_call);
+    }
+
+    public static class setS2S_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private SetRequest request;
+      public setS2S_call(SetRequest request, org.apache.thrift.async.AsyncMethodCallback<setS2S_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.request = request;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setS2S", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        setS2S_args args = new setS2S_args();
+        args.setRequest(request);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public void getResult() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        (new Client(prot)).recv_setS2S();
+      }
+    }
+
     public void deleteValue(String key, org.apache.thrift.async.AsyncMethodCallback<deleteValue_call> resultHandler) throws org.apache.thrift.TException {
       checkReady();
       deleteValue_call method_call = new deleteValue_call(key, resultHandler, this, protocolFactory, transport);
@@ -473,6 +669,38 @@ public class KeyValueService {
       }
     }
 
+    public void deleteS2S(DeleteRequest request, org.apache.thrift.async.AsyncMethodCallback<deleteS2S_call> resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      deleteS2S_call method_call = new deleteS2S_call(request, resultHandler, this, protocolFactory, transport);
+      this.currentMethod = method_call;
+      manager.call(method_call);
+    }
+
+    public static class deleteS2S_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private DeleteRequest request;
+      public deleteS2S_call(DeleteRequest request, org.apache.thrift.async.AsyncMethodCallback<deleteS2S_call> resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.request = request;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("deleteS2S", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        deleteS2S_args args = new deleteS2S_args();
+        args.setRequest(request);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public void getResult() throws KeyValueStoreIOException, KeyValueStoreException, org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        (new Client(prot)).recv_deleteS2S();
+      }
+    }
+
   }
 
   public static class Processor implements org.apache.thrift.TProcessor {
@@ -482,9 +710,12 @@ public class KeyValueService {
       iface_ = iface;
       processMap_.put("exists", new exists());
       processMap_.put("getValue", new getValue());
+      processMap_.put("getS2S", new getS2S());
       processMap_.put("getBulk", new getBulk());
       processMap_.put("setValue", new setValue());
+      processMap_.put("setS2S", new setS2S());
       processMap_.put("deleteValue", new deleteValue());
+      processMap_.put("deleteS2S", new deleteS2S());
     }
 
     protected static interface ProcessFunction {
@@ -593,6 +824,46 @@ public class KeyValueService {
 
     }
 
+    private class getS2S implements ProcessFunction {
+      public void process(int seqid, org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException
+      {
+        getS2S_args args = new getS2S_args();
+        try {
+          args.read(iprot);
+        } catch (org.apache.thrift.protocol.TProtocolException e) {
+          iprot.readMessageEnd();
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getS2S", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
+        }
+        iprot.readMessageEnd();
+        getS2S_result result = new getS2S_result();
+        try {
+          result.success = iface_.getS2S(args.request);
+        } catch (KeyValueStoreIOException ioException) {
+          result.ioException = ioException;
+        } catch (KeyValueStoreException keyValueStoreException) {
+          result.keyValueStoreException = keyValueStoreException;
+        } catch (Throwable th) {
+          LOGGER.error("Internal error processing getS2S", th);
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, "Internal error processing getS2S");
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getS2S", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
+        }
+        oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getS2S", org.apache.thrift.protocol.TMessageType.REPLY, seqid));
+        result.write(oprot);
+        oprot.writeMessageEnd();
+        oprot.getTransport().flush();
+      }
+
+    }
+
     private class getBulk implements ProcessFunction {
       public void process(int seqid, org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException
       {
@@ -673,6 +944,46 @@ public class KeyValueService {
 
     }
 
+    private class setS2S implements ProcessFunction {
+      public void process(int seqid, org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException
+      {
+        setS2S_args args = new setS2S_args();
+        try {
+          args.read(iprot);
+        } catch (org.apache.thrift.protocol.TProtocolException e) {
+          iprot.readMessageEnd();
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setS2S", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
+        }
+        iprot.readMessageEnd();
+        setS2S_result result = new setS2S_result();
+        try {
+          iface_.setS2S(args.request);
+        } catch (KeyValueStoreIOException ioException) {
+          result.ioException = ioException;
+        } catch (KeyValueStoreException keyValueStoreException) {
+          result.keyValueStoreException = keyValueStoreException;
+        } catch (Throwable th) {
+          LOGGER.error("Internal error processing setS2S", th);
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, "Internal error processing setS2S");
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setS2S", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
+        }
+        oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("setS2S", org.apache.thrift.protocol.TMessageType.REPLY, seqid));
+        result.write(oprot);
+        oprot.writeMessageEnd();
+        oprot.getTransport().flush();
+      }
+
+    }
+
     private class deleteValue implements ProcessFunction {
       public void process(int seqid, org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException
       {
@@ -706,6 +1017,46 @@ public class KeyValueService {
           return;
         }
         oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("deleteValue", org.apache.thrift.protocol.TMessageType.REPLY, seqid));
+        result.write(oprot);
+        oprot.writeMessageEnd();
+        oprot.getTransport().flush();
+      }
+
+    }
+
+    private class deleteS2S implements ProcessFunction {
+      public void process(int seqid, org.apache.thrift.protocol.TProtocol iprot, org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException
+      {
+        deleteS2S_args args = new deleteS2S_args();
+        try {
+          args.read(iprot);
+        } catch (org.apache.thrift.protocol.TProtocolException e) {
+          iprot.readMessageEnd();
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.PROTOCOL_ERROR, e.getMessage());
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("deleteS2S", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
+        }
+        iprot.readMessageEnd();
+        deleteS2S_result result = new deleteS2S_result();
+        try {
+          iface_.deleteS2S(args.request);
+        } catch (KeyValueStoreIOException ioException) {
+          result.ioException = ioException;
+        } catch (KeyValueStoreException keyValueStoreException) {
+          result.keyValueStoreException = keyValueStoreException;
+        } catch (Throwable th) {
+          LOGGER.error("Internal error processing deleteS2S", th);
+          org.apache.thrift.TApplicationException x = new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, "Internal error processing deleteS2S");
+          oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("deleteS2S", org.apache.thrift.protocol.TMessageType.EXCEPTION, seqid));
+          x.write(oprot);
+          oprot.writeMessageEnd();
+          oprot.getTransport().flush();
+          return;
+        }
+        oprot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("deleteS2S", org.apache.thrift.protocol.TMessageType.REPLY, seqid));
         result.write(oprot);
         oprot.writeMessageEnd();
         oprot.getTransport().flush();
@@ -2191,6 +2542,771 @@ public class KeyValueService {
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder("getValue_result(");
+      boolean first = true;
+
+      sb.append("success:");
+      if (this.success == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.success);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("ioException:");
+      if (this.ioException == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.ioException);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("keyValueStoreException:");
+      if (this.keyValueStoreException == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.keyValueStoreException);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+  }
+
+  public static class getS2S_args implements org.apache.thrift.TBase<getS2S_args, getS2S_args._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getS2S_args");
+
+    private static final org.apache.thrift.protocol.TField REQUEST_FIELD_DESC = new org.apache.thrift.protocol.TField("request", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+
+    private GetRequest request;
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      REQUEST((short)1, "request");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // REQUEST
+            return REQUEST;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.REQUEST, new org.apache.thrift.meta_data.FieldMetaData("request", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, GetRequest.class)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getS2S_args.class, metaDataMap);
+    }
+
+    public getS2S_args() {
+    }
+
+    public getS2S_args(
+      GetRequest request)
+    {
+      this();
+      this.request = request;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public getS2S_args(getS2S_args other) {
+      if (other.isSetRequest()) {
+        this.request = new GetRequest(other.request);
+      }
+    }
+
+    public getS2S_args deepCopy() {
+      return new getS2S_args(this);
+    }
+
+    @Override
+    public void clear() {
+      this.request = null;
+    }
+
+    public GetRequest getRequest() {
+      return this.request;
+    }
+
+    public void setRequest(GetRequest request) {
+      this.request = request;
+    }
+
+    public void unsetRequest() {
+      this.request = null;
+    }
+
+    /** Returns true if field request is set (has been assigned a value) and false otherwise */
+    public boolean isSetRequest() {
+      return this.request != null;
+    }
+
+    public void setRequestIsSet(boolean value) {
+      if (!value) {
+        this.request = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case REQUEST:
+        if (value == null) {
+          unsetRequest();
+        } else {
+          setRequest((GetRequest)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case REQUEST:
+        return getRequest();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case REQUEST:
+        return isSetRequest();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof getS2S_args)
+        return this.equals((getS2S_args)that);
+      return false;
+    }
+
+    public boolean equals(getS2S_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_request = true && this.isSetRequest();
+      boolean that_present_request = true && that.isSetRequest();
+      if (this_present_request || that_present_request) {
+        if (!(this_present_request && that_present_request))
+          return false;
+        if (!this.request.equals(that.request))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    public int compareTo(getS2S_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      getS2S_args typedOther = (getS2S_args)other;
+
+      lastComparison = Boolean.valueOf(isSetRequest()).compareTo(typedOther.isSetRequest());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetRequest()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.request, typedOther.request);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
+      iprot.readStructBegin();
+      while (true)
+      {
+        field = iprot.readFieldBegin();
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
+          break;
+        }
+        switch (field.id) {
+          case 1: // REQUEST
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
+              this.request = new GetRequest();
+              this.request.read(iprot);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            }
+            break;
+          default:
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+        }
+        iprot.readFieldEnd();
+      }
+      iprot.readStructEnd();
+      validate();
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      validate();
+
+      oprot.writeStructBegin(STRUCT_DESC);
+      if (this.request != null) {
+        oprot.writeFieldBegin(REQUEST_FIELD_DESC);
+        this.request.write(oprot);
+        oprot.writeFieldEnd();
+      }
+      oprot.writeFieldStop();
+      oprot.writeStructEnd();
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("getS2S_args(");
+      boolean first = true;
+
+      sb.append("request:");
+      if (this.request == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.request);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+  }
+
+  public static class getS2S_result implements org.apache.thrift.TBase<getS2S_result, getS2S_result._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getS2S_result");
+
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRUCT, (short)0);
+    private static final org.apache.thrift.protocol.TField IO_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ioException", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+    private static final org.apache.thrift.protocol.TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("keyValueStoreException", org.apache.thrift.protocol.TType.STRUCT, (short)2);
+
+    private GetResult success;
+    private KeyValueStoreIOException ioException;
+    private KeyValueStoreException keyValueStoreException;
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      SUCCESS((short)0, "success"),
+      IO_EXCEPTION((short)1, "ioException"),
+      KEY_VALUE_STORE_EXCEPTION((short)2, "keyValueStoreException");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 0: // SUCCESS
+            return SUCCESS;
+          case 1: // IO_EXCEPTION
+            return IO_EXCEPTION;
+          case 2: // KEY_VALUE_STORE_EXCEPTION
+            return KEY_VALUE_STORE_EXCEPTION;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, GetResult.class)));
+      tmpMap.put(_Fields.IO_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("ioException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      tmpMap.put(_Fields.KEY_VALUE_STORE_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("keyValueStoreException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getS2S_result.class, metaDataMap);
+    }
+
+    public getS2S_result() {
+    }
+
+    public getS2S_result(
+      GetResult success,
+      KeyValueStoreIOException ioException,
+      KeyValueStoreException keyValueStoreException)
+    {
+      this();
+      this.success = success;
+      this.ioException = ioException;
+      this.keyValueStoreException = keyValueStoreException;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public getS2S_result(getS2S_result other) {
+      if (other.isSetSuccess()) {
+        this.success = new GetResult(other.success);
+      }
+      if (other.isSetIoException()) {
+        this.ioException = new KeyValueStoreIOException(other.ioException);
+      }
+      if (other.isSetKeyValueStoreException()) {
+        this.keyValueStoreException = new KeyValueStoreException(other.keyValueStoreException);
+      }
+    }
+
+    public getS2S_result deepCopy() {
+      return new getS2S_result(this);
+    }
+
+    @Override
+    public void clear() {
+      this.success = null;
+      this.ioException = null;
+      this.keyValueStoreException = null;
+    }
+
+    public GetResult getSuccess() {
+      return this.success;
+    }
+
+    public void setSuccess(GetResult success) {
+      this.success = success;
+    }
+
+    public void unsetSuccess() {
+      this.success = null;
+    }
+
+    /** Returns true if field success is set (has been assigned a value) and false otherwise */
+    public boolean isSetSuccess() {
+      return this.success != null;
+    }
+
+    public void setSuccessIsSet(boolean value) {
+      if (!value) {
+        this.success = null;
+      }
+    }
+
+    public KeyValueStoreIOException getIoException() {
+      return this.ioException;
+    }
+
+    public void setIoException(KeyValueStoreIOException ioException) {
+      this.ioException = ioException;
+    }
+
+    public void unsetIoException() {
+      this.ioException = null;
+    }
+
+    /** Returns true if field ioException is set (has been assigned a value) and false otherwise */
+    public boolean isSetIoException() {
+      return this.ioException != null;
+    }
+
+    public void setIoExceptionIsSet(boolean value) {
+      if (!value) {
+        this.ioException = null;
+      }
+    }
+
+    public KeyValueStoreException getKeyValueStoreException() {
+      return this.keyValueStoreException;
+    }
+
+    public void setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
+      this.keyValueStoreException = keyValueStoreException;
+    }
+
+    public void unsetKeyValueStoreException() {
+      this.keyValueStoreException = null;
+    }
+
+    /** Returns true if field keyValueStoreException is set (has been assigned a value) and false otherwise */
+    public boolean isSetKeyValueStoreException() {
+      return this.keyValueStoreException != null;
+    }
+
+    public void setKeyValueStoreExceptionIsSet(boolean value) {
+      if (!value) {
+        this.keyValueStoreException = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case SUCCESS:
+        if (value == null) {
+          unsetSuccess();
+        } else {
+          setSuccess((GetResult)value);
+        }
+        break;
+
+      case IO_EXCEPTION:
+        if (value == null) {
+          unsetIoException();
+        } else {
+          setIoException((KeyValueStoreIOException)value);
+        }
+        break;
+
+      case KEY_VALUE_STORE_EXCEPTION:
+        if (value == null) {
+          unsetKeyValueStoreException();
+        } else {
+          setKeyValueStoreException((KeyValueStoreException)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case SUCCESS:
+        return getSuccess();
+
+      case IO_EXCEPTION:
+        return getIoException();
+
+      case KEY_VALUE_STORE_EXCEPTION:
+        return getKeyValueStoreException();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case SUCCESS:
+        return isSetSuccess();
+      case IO_EXCEPTION:
+        return isSetIoException();
+      case KEY_VALUE_STORE_EXCEPTION:
+        return isSetKeyValueStoreException();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof getS2S_result)
+        return this.equals((getS2S_result)that);
+      return false;
+    }
+
+    public boolean equals(getS2S_result that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_success = true && this.isSetSuccess();
+      boolean that_present_success = true && that.isSetSuccess();
+      if (this_present_success || that_present_success) {
+        if (!(this_present_success && that_present_success))
+          return false;
+        if (!this.success.equals(that.success))
+          return false;
+      }
+
+      boolean this_present_ioException = true && this.isSetIoException();
+      boolean that_present_ioException = true && that.isSetIoException();
+      if (this_present_ioException || that_present_ioException) {
+        if (!(this_present_ioException && that_present_ioException))
+          return false;
+        if (!this.ioException.equals(that.ioException))
+          return false;
+      }
+
+      boolean this_present_keyValueStoreException = true && this.isSetKeyValueStoreException();
+      boolean that_present_keyValueStoreException = true && that.isSetKeyValueStoreException();
+      if (this_present_keyValueStoreException || that_present_keyValueStoreException) {
+        if (!(this_present_keyValueStoreException && that_present_keyValueStoreException))
+          return false;
+        if (!this.keyValueStoreException.equals(that.keyValueStoreException))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    public int compareTo(getS2S_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      getS2S_result typedOther = (getS2S_result)other;
+
+      lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(typedOther.isSetSuccess());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSuccess()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, typedOther.success);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetIoException()).compareTo(typedOther.isSetIoException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetIoException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ioException, typedOther.ioException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetKeyValueStoreException()).compareTo(typedOther.isSetKeyValueStoreException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKeyValueStoreException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.keyValueStoreException, typedOther.keyValueStoreException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
+      iprot.readStructBegin();
+      while (true)
+      {
+        field = iprot.readFieldBegin();
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
+          break;
+        }
+        switch (field.id) {
+          case 0: // SUCCESS
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
+              this.success = new GetResult();
+              this.success.read(iprot);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            }
+            break;
+          case 1: // IO_EXCEPTION
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
+              this.ioException = new KeyValueStoreIOException();
+              this.ioException.read(iprot);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            }
+            break;
+          case 2: // KEY_VALUE_STORE_EXCEPTION
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
+              this.keyValueStoreException = new KeyValueStoreException();
+              this.keyValueStoreException.read(iprot);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            }
+            break;
+          default:
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+        }
+        iprot.readFieldEnd();
+      }
+      iprot.readStructEnd();
+      validate();
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      oprot.writeStructBegin(STRUCT_DESC);
+
+      if (this.isSetSuccess()) {
+        oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
+        this.success.write(oprot);
+        oprot.writeFieldEnd();
+      } else if (this.isSetIoException()) {
+        oprot.writeFieldBegin(IO_EXCEPTION_FIELD_DESC);
+        this.ioException.write(oprot);
+        oprot.writeFieldEnd();
+      } else if (this.isSetKeyValueStoreException()) {
+        oprot.writeFieldBegin(KEY_VALUE_STORE_EXCEPTION_FIELD_DESC);
+        this.keyValueStoreException.write(oprot);
+        oprot.writeFieldEnd();
+      }
+      oprot.writeFieldStop();
+      oprot.writeStructEnd();
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("getS2S_result(");
       boolean first = true;
 
       sb.append("success:");
@@ -3862,6 +4978,683 @@ public class KeyValueService {
 
   }
 
+  public static class setS2S_args implements org.apache.thrift.TBase<setS2S_args, setS2S_args._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("setS2S_args");
+
+    private static final org.apache.thrift.protocol.TField REQUEST_FIELD_DESC = new org.apache.thrift.protocol.TField("request", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+
+    private SetRequest request;
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      REQUEST((short)1, "request");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // REQUEST
+            return REQUEST;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.REQUEST, new org.apache.thrift.meta_data.FieldMetaData("request", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, SetRequest.class)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(setS2S_args.class, metaDataMap);
+    }
+
+    public setS2S_args() {
+    }
+
+    public setS2S_args(
+      SetRequest request)
+    {
+      this();
+      this.request = request;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public setS2S_args(setS2S_args other) {
+      if (other.isSetRequest()) {
+        this.request = new SetRequest(other.request);
+      }
+    }
+
+    public setS2S_args deepCopy() {
+      return new setS2S_args(this);
+    }
+
+    @Override
+    public void clear() {
+      this.request = null;
+    }
+
+    public SetRequest getRequest() {
+      return this.request;
+    }
+
+    public void setRequest(SetRequest request) {
+      this.request = request;
+    }
+
+    public void unsetRequest() {
+      this.request = null;
+    }
+
+    /** Returns true if field request is set (has been assigned a value) and false otherwise */
+    public boolean isSetRequest() {
+      return this.request != null;
+    }
+
+    public void setRequestIsSet(boolean value) {
+      if (!value) {
+        this.request = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case REQUEST:
+        if (value == null) {
+          unsetRequest();
+        } else {
+          setRequest((SetRequest)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case REQUEST:
+        return getRequest();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case REQUEST:
+        return isSetRequest();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof setS2S_args)
+        return this.equals((setS2S_args)that);
+      return false;
+    }
+
+    public boolean equals(setS2S_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_request = true && this.isSetRequest();
+      boolean that_present_request = true && that.isSetRequest();
+      if (this_present_request || that_present_request) {
+        if (!(this_present_request && that_present_request))
+          return false;
+        if (!this.request.equals(that.request))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    public int compareTo(setS2S_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      setS2S_args typedOther = (setS2S_args)other;
+
+      lastComparison = Boolean.valueOf(isSetRequest()).compareTo(typedOther.isSetRequest());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetRequest()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.request, typedOther.request);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
+      iprot.readStructBegin();
+      while (true)
+      {
+        field = iprot.readFieldBegin();
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
+          break;
+        }
+        switch (field.id) {
+          case 1: // REQUEST
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
+              this.request = new SetRequest();
+              this.request.read(iprot);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            }
+            break;
+          default:
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+        }
+        iprot.readFieldEnd();
+      }
+      iprot.readStructEnd();
+      validate();
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      validate();
+
+      oprot.writeStructBegin(STRUCT_DESC);
+      if (this.request != null) {
+        oprot.writeFieldBegin(REQUEST_FIELD_DESC);
+        this.request.write(oprot);
+        oprot.writeFieldEnd();
+      }
+      oprot.writeFieldStop();
+      oprot.writeStructEnd();
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("setS2S_args(");
+      boolean first = true;
+
+      sb.append("request:");
+      if (this.request == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.request);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+  }
+
+  public static class setS2S_result implements org.apache.thrift.TBase<setS2S_result, setS2S_result._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("setS2S_result");
+
+    private static final org.apache.thrift.protocol.TField IO_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ioException", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+    private static final org.apache.thrift.protocol.TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("keyValueStoreException", org.apache.thrift.protocol.TType.STRUCT, (short)2);
+
+    private KeyValueStoreIOException ioException;
+    private KeyValueStoreException keyValueStoreException;
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      IO_EXCEPTION((short)1, "ioException"),
+      KEY_VALUE_STORE_EXCEPTION((short)2, "keyValueStoreException");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // IO_EXCEPTION
+            return IO_EXCEPTION;
+          case 2: // KEY_VALUE_STORE_EXCEPTION
+            return KEY_VALUE_STORE_EXCEPTION;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.IO_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("ioException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      tmpMap.put(_Fields.KEY_VALUE_STORE_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("keyValueStoreException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(setS2S_result.class, metaDataMap);
+    }
+
+    public setS2S_result() {
+    }
+
+    public setS2S_result(
+      KeyValueStoreIOException ioException,
+      KeyValueStoreException keyValueStoreException)
+    {
+      this();
+      this.ioException = ioException;
+      this.keyValueStoreException = keyValueStoreException;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public setS2S_result(setS2S_result other) {
+      if (other.isSetIoException()) {
+        this.ioException = new KeyValueStoreIOException(other.ioException);
+      }
+      if (other.isSetKeyValueStoreException()) {
+        this.keyValueStoreException = new KeyValueStoreException(other.keyValueStoreException);
+      }
+    }
+
+    public setS2S_result deepCopy() {
+      return new setS2S_result(this);
+    }
+
+    @Override
+    public void clear() {
+      this.ioException = null;
+      this.keyValueStoreException = null;
+    }
+
+    public KeyValueStoreIOException getIoException() {
+      return this.ioException;
+    }
+
+    public void setIoException(KeyValueStoreIOException ioException) {
+      this.ioException = ioException;
+    }
+
+    public void unsetIoException() {
+      this.ioException = null;
+    }
+
+    /** Returns true if field ioException is set (has been assigned a value) and false otherwise */
+    public boolean isSetIoException() {
+      return this.ioException != null;
+    }
+
+    public void setIoExceptionIsSet(boolean value) {
+      if (!value) {
+        this.ioException = null;
+      }
+    }
+
+    public KeyValueStoreException getKeyValueStoreException() {
+      return this.keyValueStoreException;
+    }
+
+    public void setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
+      this.keyValueStoreException = keyValueStoreException;
+    }
+
+    public void unsetKeyValueStoreException() {
+      this.keyValueStoreException = null;
+    }
+
+    /** Returns true if field keyValueStoreException is set (has been assigned a value) and false otherwise */
+    public boolean isSetKeyValueStoreException() {
+      return this.keyValueStoreException != null;
+    }
+
+    public void setKeyValueStoreExceptionIsSet(boolean value) {
+      if (!value) {
+        this.keyValueStoreException = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case IO_EXCEPTION:
+        if (value == null) {
+          unsetIoException();
+        } else {
+          setIoException((KeyValueStoreIOException)value);
+        }
+        break;
+
+      case KEY_VALUE_STORE_EXCEPTION:
+        if (value == null) {
+          unsetKeyValueStoreException();
+        } else {
+          setKeyValueStoreException((KeyValueStoreException)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case IO_EXCEPTION:
+        return getIoException();
+
+      case KEY_VALUE_STORE_EXCEPTION:
+        return getKeyValueStoreException();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case IO_EXCEPTION:
+        return isSetIoException();
+      case KEY_VALUE_STORE_EXCEPTION:
+        return isSetKeyValueStoreException();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof setS2S_result)
+        return this.equals((setS2S_result)that);
+      return false;
+    }
+
+    public boolean equals(setS2S_result that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_ioException = true && this.isSetIoException();
+      boolean that_present_ioException = true && that.isSetIoException();
+      if (this_present_ioException || that_present_ioException) {
+        if (!(this_present_ioException && that_present_ioException))
+          return false;
+        if (!this.ioException.equals(that.ioException))
+          return false;
+      }
+
+      boolean this_present_keyValueStoreException = true && this.isSetKeyValueStoreException();
+      boolean that_present_keyValueStoreException = true && that.isSetKeyValueStoreException();
+      if (this_present_keyValueStoreException || that_present_keyValueStoreException) {
+        if (!(this_present_keyValueStoreException && that_present_keyValueStoreException))
+          return false;
+        if (!this.keyValueStoreException.equals(that.keyValueStoreException))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    public int compareTo(setS2S_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      setS2S_result typedOther = (setS2S_result)other;
+
+      lastComparison = Boolean.valueOf(isSetIoException()).compareTo(typedOther.isSetIoException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetIoException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ioException, typedOther.ioException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetKeyValueStoreException()).compareTo(typedOther.isSetKeyValueStoreException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKeyValueStoreException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.keyValueStoreException, typedOther.keyValueStoreException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
+      iprot.readStructBegin();
+      while (true)
+      {
+        field = iprot.readFieldBegin();
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
+          break;
+        }
+        switch (field.id) {
+          case 1: // IO_EXCEPTION
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
+              this.ioException = new KeyValueStoreIOException();
+              this.ioException.read(iprot);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            }
+            break;
+          case 2: // KEY_VALUE_STORE_EXCEPTION
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
+              this.keyValueStoreException = new KeyValueStoreException();
+              this.keyValueStoreException.read(iprot);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            }
+            break;
+          default:
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+        }
+        iprot.readFieldEnd();
+      }
+      iprot.readStructEnd();
+      validate();
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      oprot.writeStructBegin(STRUCT_DESC);
+
+      if (this.isSetIoException()) {
+        oprot.writeFieldBegin(IO_EXCEPTION_FIELD_DESC);
+        this.ioException.write(oprot);
+        oprot.writeFieldEnd();
+      } else if (this.isSetKeyValueStoreException()) {
+        oprot.writeFieldBegin(KEY_VALUE_STORE_EXCEPTION_FIELD_DESC);
+        this.keyValueStoreException.write(oprot);
+        oprot.writeFieldEnd();
+      }
+      oprot.writeFieldStop();
+      oprot.writeStructEnd();
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("setS2S_result(");
+      boolean first = true;
+
+      sb.append("ioException:");
+      if (this.ioException == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.ioException);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("keyValueStoreException:");
+      if (this.keyValueStoreException == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.keyValueStoreException);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+  }
+
   public static class deleteValue_args implements org.apache.thrift.TBase<deleteValue_args, deleteValue_args._Fields>, java.io.Serializable, Cloneable   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("deleteValue_args");
 
@@ -4495,6 +6288,683 @@ public class KeyValueService {
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder("deleteValue_result(");
+      boolean first = true;
+
+      sb.append("ioException:");
+      if (this.ioException == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.ioException);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("keyValueStoreException:");
+      if (this.keyValueStoreException == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.keyValueStoreException);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+  }
+
+  public static class deleteS2S_args implements org.apache.thrift.TBase<deleteS2S_args, deleteS2S_args._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("deleteS2S_args");
+
+    private static final org.apache.thrift.protocol.TField REQUEST_FIELD_DESC = new org.apache.thrift.protocol.TField("request", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+
+    private DeleteRequest request;
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      REQUEST((short)1, "request");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // REQUEST
+            return REQUEST;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.REQUEST, new org.apache.thrift.meta_data.FieldMetaData("request", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, DeleteRequest.class)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(deleteS2S_args.class, metaDataMap);
+    }
+
+    public deleteS2S_args() {
+    }
+
+    public deleteS2S_args(
+      DeleteRequest request)
+    {
+      this();
+      this.request = request;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public deleteS2S_args(deleteS2S_args other) {
+      if (other.isSetRequest()) {
+        this.request = new DeleteRequest(other.request);
+      }
+    }
+
+    public deleteS2S_args deepCopy() {
+      return new deleteS2S_args(this);
+    }
+
+    @Override
+    public void clear() {
+      this.request = null;
+    }
+
+    public DeleteRequest getRequest() {
+      return this.request;
+    }
+
+    public void setRequest(DeleteRequest request) {
+      this.request = request;
+    }
+
+    public void unsetRequest() {
+      this.request = null;
+    }
+
+    /** Returns true if field request is set (has been assigned a value) and false otherwise */
+    public boolean isSetRequest() {
+      return this.request != null;
+    }
+
+    public void setRequestIsSet(boolean value) {
+      if (!value) {
+        this.request = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case REQUEST:
+        if (value == null) {
+          unsetRequest();
+        } else {
+          setRequest((DeleteRequest)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case REQUEST:
+        return getRequest();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case REQUEST:
+        return isSetRequest();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof deleteS2S_args)
+        return this.equals((deleteS2S_args)that);
+      return false;
+    }
+
+    public boolean equals(deleteS2S_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_request = true && this.isSetRequest();
+      boolean that_present_request = true && that.isSetRequest();
+      if (this_present_request || that_present_request) {
+        if (!(this_present_request && that_present_request))
+          return false;
+        if (!this.request.equals(that.request))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    public int compareTo(deleteS2S_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      deleteS2S_args typedOther = (deleteS2S_args)other;
+
+      lastComparison = Boolean.valueOf(isSetRequest()).compareTo(typedOther.isSetRequest());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetRequest()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.request, typedOther.request);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
+      iprot.readStructBegin();
+      while (true)
+      {
+        field = iprot.readFieldBegin();
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
+          break;
+        }
+        switch (field.id) {
+          case 1: // REQUEST
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
+              this.request = new DeleteRequest();
+              this.request.read(iprot);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            }
+            break;
+          default:
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+        }
+        iprot.readFieldEnd();
+      }
+      iprot.readStructEnd();
+      validate();
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      validate();
+
+      oprot.writeStructBegin(STRUCT_DESC);
+      if (this.request != null) {
+        oprot.writeFieldBegin(REQUEST_FIELD_DESC);
+        this.request.write(oprot);
+        oprot.writeFieldEnd();
+      }
+      oprot.writeFieldStop();
+      oprot.writeStructEnd();
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("deleteS2S_args(");
+      boolean first = true;
+
+      sb.append("request:");
+      if (this.request == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.request);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+  }
+
+  public static class deleteS2S_result implements org.apache.thrift.TBase<deleteS2S_result, deleteS2S_result._Fields>, java.io.Serializable, Cloneable   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("deleteS2S_result");
+
+    private static final org.apache.thrift.protocol.TField IO_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("ioException", org.apache.thrift.protocol.TType.STRUCT, (short)1);
+    private static final org.apache.thrift.protocol.TField KEY_VALUE_STORE_EXCEPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("keyValueStoreException", org.apache.thrift.protocol.TType.STRUCT, (short)2);
+
+    private KeyValueStoreIOException ioException;
+    private KeyValueStoreException keyValueStoreException;
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      IO_EXCEPTION((short)1, "ioException"),
+      KEY_VALUE_STORE_EXCEPTION((short)2, "keyValueStoreException");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // IO_EXCEPTION
+            return IO_EXCEPTION;
+          case 2: // KEY_VALUE_STORE_EXCEPTION
+            return KEY_VALUE_STORE_EXCEPTION;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.IO_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("ioException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      tmpMap.put(_Fields.KEY_VALUE_STORE_EXCEPTION, new org.apache.thrift.meta_data.FieldMetaData("keyValueStoreException", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRUCT)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(deleteS2S_result.class, metaDataMap);
+    }
+
+    public deleteS2S_result() {
+    }
+
+    public deleteS2S_result(
+      KeyValueStoreIOException ioException,
+      KeyValueStoreException keyValueStoreException)
+    {
+      this();
+      this.ioException = ioException;
+      this.keyValueStoreException = keyValueStoreException;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public deleteS2S_result(deleteS2S_result other) {
+      if (other.isSetIoException()) {
+        this.ioException = new KeyValueStoreIOException(other.ioException);
+      }
+      if (other.isSetKeyValueStoreException()) {
+        this.keyValueStoreException = new KeyValueStoreException(other.keyValueStoreException);
+      }
+    }
+
+    public deleteS2S_result deepCopy() {
+      return new deleteS2S_result(this);
+    }
+
+    @Override
+    public void clear() {
+      this.ioException = null;
+      this.keyValueStoreException = null;
+    }
+
+    public KeyValueStoreIOException getIoException() {
+      return this.ioException;
+    }
+
+    public void setIoException(KeyValueStoreIOException ioException) {
+      this.ioException = ioException;
+    }
+
+    public void unsetIoException() {
+      this.ioException = null;
+    }
+
+    /** Returns true if field ioException is set (has been assigned a value) and false otherwise */
+    public boolean isSetIoException() {
+      return this.ioException != null;
+    }
+
+    public void setIoExceptionIsSet(boolean value) {
+      if (!value) {
+        this.ioException = null;
+      }
+    }
+
+    public KeyValueStoreException getKeyValueStoreException() {
+      return this.keyValueStoreException;
+    }
+
+    public void setKeyValueStoreException(KeyValueStoreException keyValueStoreException) {
+      this.keyValueStoreException = keyValueStoreException;
+    }
+
+    public void unsetKeyValueStoreException() {
+      this.keyValueStoreException = null;
+    }
+
+    /** Returns true if field keyValueStoreException is set (has been assigned a value) and false otherwise */
+    public boolean isSetKeyValueStoreException() {
+      return this.keyValueStoreException != null;
+    }
+
+    public void setKeyValueStoreExceptionIsSet(boolean value) {
+      if (!value) {
+        this.keyValueStoreException = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case IO_EXCEPTION:
+        if (value == null) {
+          unsetIoException();
+        } else {
+          setIoException((KeyValueStoreIOException)value);
+        }
+        break;
+
+      case KEY_VALUE_STORE_EXCEPTION:
+        if (value == null) {
+          unsetKeyValueStoreException();
+        } else {
+          setKeyValueStoreException((KeyValueStoreException)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case IO_EXCEPTION:
+        return getIoException();
+
+      case KEY_VALUE_STORE_EXCEPTION:
+        return getKeyValueStoreException();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case IO_EXCEPTION:
+        return isSetIoException();
+      case KEY_VALUE_STORE_EXCEPTION:
+        return isSetKeyValueStoreException();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof deleteS2S_result)
+        return this.equals((deleteS2S_result)that);
+      return false;
+    }
+
+    public boolean equals(deleteS2S_result that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_ioException = true && this.isSetIoException();
+      boolean that_present_ioException = true && that.isSetIoException();
+      if (this_present_ioException || that_present_ioException) {
+        if (!(this_present_ioException && that_present_ioException))
+          return false;
+        if (!this.ioException.equals(that.ioException))
+          return false;
+      }
+
+      boolean this_present_keyValueStoreException = true && this.isSetKeyValueStoreException();
+      boolean that_present_keyValueStoreException = true && that.isSetKeyValueStoreException();
+      if (this_present_keyValueStoreException || that_present_keyValueStoreException) {
+        if (!(this_present_keyValueStoreException && that_present_keyValueStoreException))
+          return false;
+        if (!this.keyValueStoreException.equals(that.keyValueStoreException))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    public int compareTo(deleteS2S_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+      deleteS2S_result typedOther = (deleteS2S_result)other;
+
+      lastComparison = Boolean.valueOf(isSetIoException()).compareTo(typedOther.isSetIoException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetIoException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ioException, typedOther.ioException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetKeyValueStoreException()).compareTo(typedOther.isSetKeyValueStoreException());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKeyValueStoreException()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.keyValueStoreException, typedOther.keyValueStoreException);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      org.apache.thrift.protocol.TField field;
+      iprot.readStructBegin();
+      while (true)
+      {
+        field = iprot.readFieldBegin();
+        if (field.type == org.apache.thrift.protocol.TType.STOP) { 
+          break;
+        }
+        switch (field.id) {
+          case 1: // IO_EXCEPTION
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
+              this.ioException = new KeyValueStoreIOException();
+              this.ioException.read(iprot);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            }
+            break;
+          case 2: // KEY_VALUE_STORE_EXCEPTION
+            if (field.type == org.apache.thrift.protocol.TType.STRUCT) {
+              this.keyValueStoreException = new KeyValueStoreException();
+              this.keyValueStoreException.read(iprot);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+            }
+            break;
+          default:
+            org.apache.thrift.protocol.TProtocolUtil.skip(iprot, field.type);
+        }
+        iprot.readFieldEnd();
+      }
+      iprot.readStructEnd();
+      validate();
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      oprot.writeStructBegin(STRUCT_DESC);
+
+      if (this.isSetIoException()) {
+        oprot.writeFieldBegin(IO_EXCEPTION_FIELD_DESC);
+        this.ioException.write(oprot);
+        oprot.writeFieldEnd();
+      } else if (this.isSetKeyValueStoreException()) {
+        oprot.writeFieldBegin(KEY_VALUE_STORE_EXCEPTION_FIELD_DESC);
+        this.keyValueStoreException.write(oprot);
+        oprot.writeFieldEnd();
+      }
+      oprot.writeFieldStop();
+      oprot.writeStructEnd();
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("deleteS2S_result(");
       boolean first = true;
 
       sb.append("ioException:");
