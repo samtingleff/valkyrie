@@ -20,13 +20,10 @@ import org.apache.thrift.transport.TTransportFactory;
 
 import com.othersonline.kv.KeyValueStore;
 import com.othersonline.kv.gen.Constants;
-import com.othersonline.kv.gen.DeleteRequest;
-import com.othersonline.kv.gen.GetRequest;
 import com.othersonline.kv.gen.GetResult;
 import com.othersonline.kv.gen.KeyValueService;
 import com.othersonline.kv.gen.KeyValueStoreException;
 import com.othersonline.kv.gen.KeyValueStoreIOException;
-import com.othersonline.kv.gen.SetRequest;
 import com.othersonline.kv.transcoder.ByteArrayTranscoder;
 import com.othersonline.kv.transcoder.Transcoder;
 
@@ -255,26 +252,5 @@ public class ThriftKeyValueServer {
 				}
 			}
 		}
-
-		@Override
-		public void deleteS2S(DeleteRequest request)
-				throws KeyValueStoreIOException, KeyValueStoreException,
-				TException {
-			this.deleteValue(request.getKey());
-		}
-
-		@Override
-		public GetResult getS2S(GetRequest request)
-				throws KeyValueStoreIOException, KeyValueStoreException,
-				TException {
-			return this.getValue(request.getKey());
-		}
-
-		@Override
-		public void setS2S(SetRequest request) throws KeyValueStoreIOException,
-				KeyValueStoreException, TException {
-			this.setValue(request.getKey(), request.bufferForData());
-		}
-
 	}
 }
