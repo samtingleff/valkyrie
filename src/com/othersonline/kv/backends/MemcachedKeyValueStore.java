@@ -621,8 +621,10 @@ public class MemcachedKeyValueStore extends BaseManagedKeyValueStore implements
 
 		public MemcachedNode createMemcachedNode(SocketAddress sa,
 				SocketChannel c, int bufSize) {
+			// I do not know what that last parameter means
+			// http://docs.couchbase.org/spymemcached/2.6/net/spy/memcached/protocol/binary/BinaryMemcachedNodeImpl.html
 			return new BinaryMemcachedNodeImpl(sa, c, bufSize, createReadOperationQueue(),
-					createWriteOperationQueue(), createOperationQueue(), 1000l, false);
+					createWriteOperationQueue(), createOperationQueue(), 1000l, false, 1000l);
 		}
 
 		public OperationFactory getOperationFactory() {
