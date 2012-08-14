@@ -10,7 +10,6 @@ Currently supported backends include:
 
 - java.util.concurrent.ConcurrentHashMap
 - [Ehcache](http://ehcache.org/ "Ehcache")
-- [OsCache](http://www.opensymphony.com/oscache/ "OsCache")
 - [memcached](http://www.danga.com/memcached/ "memcached") (and cousins [MemcacheQ](http://memcachedb.org/memcacheq/ "MemcacheQ") and [MemcacheDB](http://memcachedb.org/ "MemcacheDB"))
 - [HandlerSocket](https://github.com/ahiguti/HandlerSocket-Plugin-for-MySQL "HandlerSocket")
 - [Project Voldemort](http://project-voldemort.com/ "Project Voldemort")
