@@ -1,8 +1,8 @@
-# oo-kv-storage #
+# Valkyrie #
 
 ## Introduction ##
 
-oo-kv-storage is a project to provide a consistent API and value-add for a variety of key-value storage backends.
+Valkyrie is a project to provide a consistent API and value-add for a variety of key-value storage backends.
 
 It is meant to be easy to use and easily embedded into a Spring or other IoC containers.
 
@@ -11,8 +11,6 @@ Currently supported backends include:
 - java.util.concurrent.ConcurrentHashMap
 - [Ehcache](http://ehcache.org/ "Ehcache")
 - [memcached](http://www.danga.com/memcached/ "memcached") (and cousins [MemcacheQ](http://memcachedb.org/memcacheq/ "MemcacheQ") and [MemcacheDB](http://memcachedb.org/ "MemcacheDB"))
-- [HandlerSocket](https://github.com/ahiguti/HandlerSocket-Plugin-for-MySQL "HandlerSocket")
-- [Project Voldemort](http://project-voldemort.com/ "Project Voldemort")
 - a simple file-system backed store
 - WebDAV (tested against Apache mod_dav, nginx and lighttpd)
 - A custom [thrift](http://incubator.apache.org/thrift/ "Apache Thrift")-based proxy server that uses any of the above as backend
@@ -180,54 +178,3 @@ permanent storage:
             </snapshots>
         </repository>
     </repositories>
-
-## Benchmarks ##
-
-Using a [totally unscientific benchmark](http://github.com/samtingleff/oo-kv-storage/blob/5c9cea4c672dda6c7863f9b3a12b639e0c149b81/test/com/othersonline/kv/test/BenchmarkTestCase.java) with 10 concurrent threads, 100 repetitions per thread and one get/set/delete cycle per repetition (time is average of five runs):
-
-<table>
- <thead>
-  <tr>
-   <td>backend</td>
-   <td>time</td>
-   <td>ops/sec</td>
-  </tr>
- </thead>
- <tbody>
-  <tr>
-   <td>ConcurrentHashMap</td>
-   <td>147ms</td>
-   <td>20,408</td>
-  </tr>
-  <tr>
-   <td>OsCache</td>
-   <td>167ms</td>
-   <td>17,964</td>
-  </tr>
-  <tr>
-   <td>File system</td>
-   <td>965ms</td>
-   <td>3,109</td>
-  </tr>
-  <tr>
-   <td>MemcacheDB</td>
-   <td>9,226ms</td>
-   <td>325</td>
-  </tr>
-  <tr>
-   <td>Memcached</td>
-   <td>10,287ms</td>
-   <td>292</td>
-  </tr>
-  <tr>
-   <td>WebDAV (Apache 2.2)</td>
-   <td>11,342ms</td>
-   <td>265</td>
-  </tr>
-  <tr>
-   <td>Thrift + FS</td>
-   <td>12387ms</td>
-   <td>242</td>
-  </tr>
- </tbody>
-</table>
