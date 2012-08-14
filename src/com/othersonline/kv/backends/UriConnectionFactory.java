@@ -70,13 +70,7 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 
 	private KeyValueStore openConnection(String type) {
 		KeyValueStore store = null;
-		if ("bdb".equals(type))
-			store = new BDBKeyValueStore();
-		else if ("bdbje".equals(type))
-			store = new BDBJEKeyValueStore();
-		else if ("cassandra".equals(type))
-			store = new CassandraKeyValueStore();
-		else if ("hash".equals(type))
+		if ("hash".equals(type))
 			store = new ConcurrentHashMapKeyValueStore();
 		else if ("fs".equals(type))
 			store = new FileSystemKeyValueStore();
@@ -84,16 +78,10 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 			store = new HandlerSocketKeyValueStore();
 		else if ("hsp".equals(type))
 			store = new HandlerSocketPartitionedKeyValueStore();
-		else if ("kfs".equals(type))
-			store = new KosmosfsKeyValueStore();
 		else if ("memcached".equals(type))
 			store = new MemcachedKeyValueStore();
 		else if ("thrift".equals(type))
 			store = new ThriftKeyValueStore();
-		else if ("tyrant".equals(type))
-			store = new TokyoTyrantKeyValueStore();
-		else if ("cabinet".equals(type))
-			store = new TokyoCabinetKeyValueStore();
 		else if ("voldemort".equals(type))
 			store = new VoldemortKeyValueStore();
 		else if ("dav".equals(type))

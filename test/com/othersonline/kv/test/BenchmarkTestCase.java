@@ -20,7 +20,6 @@ import com.othersonline.kv.backends.ConcurrentHashMapKeyValueStore;
 import com.othersonline.kv.backends.MemcachedKeyValueStore;
 import com.othersonline.kv.backends.OsCacheKeyValueStore;
 import com.othersonline.kv.backends.ThriftKeyValueStore;
-import com.othersonline.kv.backends.TokyoTyrantKeyValueStore;
 import com.othersonline.kv.backends.WebDAVKeyValueStore;
 import com.othersonline.kv.server.ThriftKeyValueServer;
 import com.othersonline.kv.transcoder.GzippingTranscoder;
@@ -52,7 +51,6 @@ public class BenchmarkTestCase extends TestCase {
 				new MemcachedKeyValueStore("stanley:21201"),
 				new FileSystemKeyValueStore("tmp/fs"),
 				new ThriftKeyValueStore("stanley", 9010),
-				new TokyoTyrantKeyValueStore("stanley", 1978),
 				new WebDAVKeyValueStore("http://stanley/dav/testing") };
 		for (KeyValueStore kv : backends) {
 			kv.start();

@@ -8,7 +8,6 @@ import com.othersonline.kv.backends.MemcachedKeyValueStore;
 import com.othersonline.kv.backends.OsCacheKeyValueStore;
 import com.othersonline.kv.backends.ReplicatingKeyValueStore;
 import com.othersonline.kv.backends.ThriftKeyValueStore;
-import com.othersonline.kv.backends.TokyoTyrantKeyValueStore;
 import com.othersonline.kv.backends.VoldemortKeyValueStore;
 import com.othersonline.kv.gen.Constants;
 import com.othersonline.kv.server.ThriftKeyValueServer;
@@ -21,9 +20,7 @@ import junit.framework.TestCase;
 public class ExamplesTestCase extends TestCase {
 
 	public void testSimpleCaching() throws Exception {
-		TokyoTyrantKeyValueStore master = new TokyoTyrantKeyValueStore();
-		master.setHost("localhost");
-		master.setPort(1978);
+		ConcurrentHashMapKeyValueStore master = new ConcurrentHashMapKeyValueStore();
 		master.start();
 
 		MemcachedKeyValueStore cache = new MemcachedKeyValueStore();
@@ -46,9 +43,7 @@ public class ExamplesTestCase extends TestCase {
 	}
 
 	public void testThreeLevelCaching() throws Exception {
-		TokyoTyrantKeyValueStore master = new TokyoTyrantKeyValueStore();
-		master.setHost("localhost");
-		master.setPort(1978);
+		ConcurrentHashMapKeyValueStore master = new ConcurrentHashMapKeyValueStore();
 		master.start();
 
 		MemcachedKeyValueStore memcached = new MemcachedKeyValueStore();

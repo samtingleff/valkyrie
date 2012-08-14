@@ -13,12 +13,16 @@ public class ThriftBackendTestCase extends KeyValueStoreBackendTestCase {
 		backend.start();
 
 		// start server
-		ThriftKeyValueServer server = new ThriftKeyValueServer();
+		/*ThriftKeyValueServer server = new ThriftKeyValueServer();
 		server.setBackend(backend);
-		server.start();
+		server.start();*/
 
 		ThriftKeyValueStore store = new ThriftKeyValueStore();
-		doTestBackend(store);
+		store.start();
+		store.delete("foo");
+//		boolean b = store.exists("foo");
+//		System.out.println("b: " + b);
+		//doTestBackend(store);
 	}
 
 }

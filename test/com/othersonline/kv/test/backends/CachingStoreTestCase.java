@@ -2,16 +2,14 @@ package com.othersonline.kv.test.backends;
 
 import com.othersonline.kv.KeyValueStoreStatus;
 import com.othersonline.kv.backends.CachingKeyValueStore;
+import com.othersonline.kv.backends.ConcurrentHashMapKeyValueStore;
 import com.othersonline.kv.backends.MemcachedKeyValueStore;
-import com.othersonline.kv.backends.TokyoTyrantKeyValueStore;
 import com.othersonline.kv.test.KeyValueStoreBackendTestCase;
 
 public class CachingStoreTestCase extends KeyValueStoreBackendTestCase {
 
 	public void testBackend() throws Exception {
-		TokyoTyrantKeyValueStore master = new TokyoTyrantKeyValueStore();
-		master.setHost("dev-db");
-		master.setPort(1978);
+		ConcurrentHashMapKeyValueStore master = new ConcurrentHashMapKeyValueStore();
 		master.start();
 
 		MemcachedKeyValueStore cache = new MemcachedKeyValueStore();
