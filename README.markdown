@@ -12,16 +12,10 @@ Currently supported backends include:
 - [Ehcache](http://ehcache.org/ "Ehcache")
 - [OsCache](http://www.opensymphony.com/oscache/ "OsCache")
 - [memcached](http://www.danga.com/memcached/ "memcached") (and cousins [MemcacheQ](http://memcachedb.org/memcacheq/ "MemcacheQ") and [MemcacheDB](http://memcachedb.org/ "MemcacheDB"))
-- [BDB JE](http://www.oracle.com/database/berkeley-db/je/ "BDB Java Edition")
-- [BDB](http://www.oracle.com/database/berkeley-db/ "BDB native using JNI")
 - [HandlerSocket](https://github.com/ahiguti/HandlerSocket-Plugin-for-MySQL "HandlerSocket")
-- [Tokyo Cabinet](http://1978th.net/tokyocabinet/ "Tokyo Tyrant")
-- [Tokyo Tyrant](http://1978th.net/tokyotyrant/ "Tokyo Tyrant")
-- [Cassandra](http://cassandra.apache.org/ "Cassandra")
 - [Project Voldemort](http://project-voldemort.com/ "Project Voldemort")
 - a simple file-system backed store
 - WebDAV (tested against Apache mod_dav, nginx and lighttpd)
-- [KosmosFS](http://kosmosfs.wiki.sourceforge.net/ "Kosmos File System")
 - A custom [thrift](http://incubator.apache.org/thrift/ "Apache Thrift")-based proxy server that uses any of the above as backend
 
 ## Examples ##
@@ -227,11 +221,6 @@ Using a [totally unscientific benchmark](http://github.com/samtingleff/oo-kv-sto
    <td>292</td>
   </tr>
   <tr>
-   <td>Tokyo Tyrant</td>
-   <td>11,150ms</td>
-   <td>269</td>
-  </tr>
-  <tr>
    <td>WebDAV (Apache 2.2)</td>
    <td>11,342ms</td>
    <td>265</td>
@@ -240,16 +229,6 @@ Using a [totally unscientific benchmark](http://github.com/samtingleff/oo-kv-sto
    <td>Thrift + FS</td>
    <td>12387ms</td>
    <td>242</td>
-  </tr>
-  <tr>
-   <td>BDB JE</td>
-   <td>13,983ms</td>
-   <td>215</td>
-  </tr>
-  <tr>
-   <td>Thrift + BDB JE</td>
-   <td>17,127ms</td>
-   <td>175</td>
   </tr>
  </tbody>
 </table>
