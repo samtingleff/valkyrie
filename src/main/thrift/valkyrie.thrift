@@ -1,4 +1,4 @@
-namespace java com.othersonline.kv.gen
+namespace java com.rubiconproject.oss.kv.gen
 
 const i32 DEFAULT_PORT = 9010
 

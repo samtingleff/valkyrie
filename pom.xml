@@ -153,10 +153,10 @@
                                              <arg value="src/main/thrift/valkyrie.thrift" />
                                          </exec>
                                          <delete>
-                                             <fileset dir="src/main/java/com/othersonline/kv/gen" includes="**/*" />
+                                             <fileset dir="src/main/java/com/rubiconproject/oss/kv/gen" includes="**/*" />
                                          </delete>
-                                         <copy todir="src/main/java/com/othersonline/kv/gen">
-                                             <fileset dir="target/generated-sources/gen-javabean/com/othersonline/kv/gen" />
+                                         <copy todir="src/main/java/com/rubiconproject/oss/kv/gen">
+                                             <fileset dir="target/generated-sources/gen-javabean/com/rubiconproject/oss/kv/gen" />
                                          </copy>
                                      </tasks>
                                  </configuration>
