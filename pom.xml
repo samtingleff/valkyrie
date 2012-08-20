@@ -9,7 +9,7 @@
     <groupId>com.rubiconproject.oss</groupId>
     <artifactId>valkyrie</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <name>valkyrie</name>
     <description>Library to provide a consistent interface for key/value stores</description>
     <url>https://github.com/samtingleff/valkyrie</url>
