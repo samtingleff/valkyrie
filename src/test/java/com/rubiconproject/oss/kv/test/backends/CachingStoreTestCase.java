@@ -13,7 +13,7 @@ public class CachingStoreTestCase extends KeyValueStoreBackendTestCase {
 		master.start();
 
 		MemcachedKeyValueStore cache = new MemcachedKeyValueStore();
-		cache.setHosts("dev-db:11211");
+		cache.setHosts("localhost:11211");
 		cache.start();
 
 		CachingKeyValueStore store = new CachingKeyValueStore(master, cache);

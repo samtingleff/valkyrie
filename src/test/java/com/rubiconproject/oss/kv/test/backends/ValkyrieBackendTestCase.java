@@ -18,7 +18,7 @@ public class ValkyrieBackendTestCase extends KeyValueStoreBackendTestCase {
 		configurator
 				.load(getClass()
 						.getResourceAsStream(
-								"/com/othersonline/kv/test/resources/valkyrie-test.properties"));
+								"/com/rubiconproject/oss/kv/test/resources/valkyrie-test.properties"));
 		DistributedKeyValueStoreClientImpl store = new DistributedKeyValueStoreClientImpl();
 		store.setConfigurator(configurator);
 		doTestBackend(store);

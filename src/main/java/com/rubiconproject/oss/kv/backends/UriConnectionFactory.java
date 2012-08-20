@@ -74,12 +74,12 @@ public class UriConnectionFactory extends AbstractConnectionFactory implements
 			store = new ConcurrentHashMapKeyValueStore();
 		else if ("fs".equals(type))
 			store = new FileSystemKeyValueStore();
+		else if ("krati".equals(type))
+			store = new KratiKeyValueStore();
 		else if ("memcached".equals(type))
 			store = new MemcachedKeyValueStore();
 		else if ("thrift".equals(type))
 			store = new ThriftKeyValueStore();
-		else if ("dav".equals(type))
-			store = new WebDAVKeyValueStore();
 		else if ("sql".equals(type))
 			store = new JdbcKeyValueStore();
 		return store;

@@ -13,7 +13,6 @@ Currently supported backends include:
 - [memcached](http://www.danga.com/memcached/ "memcached") (and cousins [MemcacheQ](http://memcachedb.org/memcacheq/ "MemcacheQ") and [MemcacheDB](http://memcachedb.org/ "MemcacheDB"))
 - [Krati](http://sna-projects.com/krati/ "Ehcache")
 - a simple file-system backed store
-- WebDAV (tested against Apache mod_dav, nginx and lighttpd)
 - A custom [thrift](http://incubator.apache.org/thrift/ "Apache Thrift")-based proxy server that uses any of the above as backend
 
 ## Examples ##

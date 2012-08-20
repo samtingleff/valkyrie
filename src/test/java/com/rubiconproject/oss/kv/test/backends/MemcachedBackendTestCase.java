@@ -13,7 +13,7 @@ public class MemcachedBackendTestCase extends KeyValueStoreBackendTestCase {
 	public void testBackend() throws Exception {
 		MemcachedKeyValueStore store = new MemcachedKeyValueStore();
 		store.setUseBinaryProtocol(false);
-		store.setHosts("dev-db:11211");
+		store.setHosts("localhost:11211");
 		doTestBackend(store);
 
 		// test transactions

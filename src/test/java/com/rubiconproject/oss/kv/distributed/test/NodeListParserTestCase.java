@@ -13,7 +13,7 @@ public class NodeListParserTestCase extends TestCase {
 	public void testXmlNodeListParser() throws Exception {
 		XmlNodeListParser parser = new XmlNodeListParser();
 		InputStream is = getClass().getResourceAsStream(
-				"/com/othersonline/kv/test/resources/sample-node-list.xml");
+				"/com/rubiconproject/oss/kv/test/resources/sample-node-list.xml");
 		List<Node> nodes = parser.parse(is);
 		is.close();
 		assertEquals(nodes.size(), 5);

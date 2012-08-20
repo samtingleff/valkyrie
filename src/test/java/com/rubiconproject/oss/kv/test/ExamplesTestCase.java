@@ -81,29 +81,9 @@ public class ExamplesTestCase extends TestCase {
 
 		// this will delete globally
 		firstCache.delete(key);
-	}
 
-	public void testThriftServer() throws Exception {
-		// Presumably (1) and (2) occurr on a different host from (3)
-		// (1) create backing store for thrift service
-		FileSystemKeyValueStore backend = new FileSystemKeyValueStore("tmp/fs");
-		backend.start();
-
-		// (2) start thrift service
-		ThriftKeyValueServer server = new ThriftKeyValueServer();
-		server.setBackend(backend);
-		server.start();
-
-		// (3) create client
-		ThriftKeyValueStore client = new ThriftKeyValueStore("localhost",
-				Constants.DEFAULT_PORT);
-		client.start();
-
-		String key = "some.key";
-		client.set(key, new Integer(14));
-		assertTrue(client.exists(key));
-		assertEquals(client.get(key), new Integer(14));
-		client.delete(key);
+		// shutdown
+		ehcache.stop();
 	}
 
 	public void testReplication() throws Exception {
@@ -134,7 +114,7 @@ public class ExamplesTestCase extends TestCase {
 		assertEquals(replicatingStore.get(key), value);
 		assertEquals(replica1.get(key), value);
 		assertEquals(replica2.get(key), value);
-		assertEquals(master.get(key), value);
+		assertEquals(master.get(key, transcoder), value);
 
 		// delete it
 		replicatingStore.delete(key);

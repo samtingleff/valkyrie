@@ -21,7 +21,6 @@ import com.rubiconproject.oss.kv.backends.EhCacheKeyValueStore;
 import com.rubiconproject.oss.kv.backends.FileSystemKeyValueStore;
 import com.rubiconproject.oss.kv.backends.MemcachedKeyValueStore;
 import com.rubiconproject.oss.kv.backends.ThriftKeyValueStore;
-import com.rubiconproject.oss.kv.backends.WebDAVKeyValueStore;
 import com.rubiconproject.oss.kv.server.ThriftKeyValueServer;
 
 public class Benchmark {
@@ -51,8 +50,7 @@ public class Benchmark {
 				new MemcachedKeyValueStore("stanley:11211"),
 				new MemcachedKeyValueStore("stanley:21201"),
 				new FileSystemKeyValueStore("tmp/fs"),
-				new ThriftKeyValueStore("stanley", 9010),
-				new WebDAVKeyValueStore("http://stanley/dav/testing") };
+				new ThriftKeyValueStore("stanley", 9010) };
 		for (KeyValueStore kv : backends) {
 			kv.start();
 			TestResult tr = doTestStorageBackend(kv, 10, 100);

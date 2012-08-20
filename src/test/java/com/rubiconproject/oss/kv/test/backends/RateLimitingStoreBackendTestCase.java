@@ -15,7 +15,7 @@ public class RateLimitingStoreBackendTestCase extends
 
 	public void testBackend() throws Exception {
 		MemcachedKeyValueStore mcc = new MemcachedKeyValueStore();
-		mcc.setHosts("dev-db:11211");
+		mcc.setHosts("localhost:11211");
 		mcc.start();
 
 		RateLimitingKeyValueStore store = new RateLimitingKeyValueStore();

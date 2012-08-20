@@ -9,7 +9,7 @@ public class JdbcBackendTestCase extends KeyValueStoreBackendTestCase {
 
 	public void testBackend() throws Exception {
 		JdbcKeyValueStore store = new JdbcKeyValueStore();
-		store.setUrl("jdbc:mysql://dev-db/kv");
+		store.setUrl("jdbc:mysql://localhost/kv");
 		store.setUsername("haymitch");
 		store.setPassword("haymitch");
 		store.setTable("test_table");
@@ -30,7 +30,7 @@ public class JdbcBackendTestCase extends KeyValueStoreBackendTestCase {
 
 	public void testSampleValueObject() throws Exception {
 		JdbcKeyValueStore store = new JdbcKeyValueStore();
-		store.setUrl("jdbc:mysql://dev-db/kv");
+		store.setUrl("jdbc:mysql://localhost/kv");
 		store.setUsername("haymitch");
 		store.setPassword("haymitch");
 		store.setDAOClass(SampleValueObjectDAO.class.getName());

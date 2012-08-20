@@ -12,7 +12,7 @@ public class ReplicatingStoreBackendTestCase extends
 
 	public void testBackend() throws Exception {
 		MemcachedKeyValueStore master = new MemcachedKeyValueStore();
-		master.setHosts("dev-db:11211");
+		master.setHosts("localhost:11211");
 		master.start();
 
 		KeyValueStore replica = new ConcurrentHashMapKeyValueStore();
