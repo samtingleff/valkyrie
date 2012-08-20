@@ -17,7 +17,6 @@ import com.rubiconproject.oss.kv.transcoder.Transcoder;
 import com.rubiconproject.oss.kv.transcoder.ZippingTranscoder;
 import com.rubiconproject.oss.kv.util.StreamUtils;
 
-import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 public class TranscoderTestCase extends TestCase {
@@ -92,7 +91,7 @@ public class TranscoderTestCase extends TestCase {
 		Transcoder delegate = new StringTranscoder();
 		Transcoder t = new GzippingTranscoder(delegate);
 		String s = StreamUtils
-				.getResourceAsString("/com/othersonline/kv/test/resources/lorem-ipsum.txt");
+				.getResourceAsString("/com/rubiconproject/oss/kv/test/resources/lorem-ipsum.txt");
 		byte[] raw = delegate.encode(s);
 		byte[] compressed = t.encode(s);
 		// length of compressed byte should be at least 1/3 the raw bytes
@@ -113,7 +112,7 @@ public class TranscoderTestCase extends TestCase {
 		Transcoder delegate = new StringTranscoder();
 		Transcoder t = new ZippingTranscoder(delegate);
 		String s = StreamUtils
-				.getResourceAsString("/com/othersonline/kv/test/resources/lorem-ipsum.txt");
+				.getResourceAsString("/com/rubiconproject/oss/kv/test/resources/lorem-ipsum.txt");
 		byte[] raw = delegate.encode(s);
 		byte[] compressed = t.encode(s);
 		// length of compressed byte should be at least 1/3 the raw bytes
