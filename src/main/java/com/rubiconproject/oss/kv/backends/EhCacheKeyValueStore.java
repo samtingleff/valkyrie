@@ -8,6 +8,7 @@ import java.util.Map;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.Configuration;
 
 import com.rubiconproject.oss.kv.BaseManagedKeyValueStore;
 import com.rubiconproject.oss.kv.KeyValueStoreException;
@@ -21,6 +22,8 @@ public class EhCacheKeyValueStore extends BaseManagedKeyValueStore {
 	private String cacheName = "ehcache";
 
 	private int capacity = 5000;
+	
+	private long capacityBytes = 0; 
 
 	private int timeToLiveSeconds = 60;
 
@@ -42,6 +45,11 @@ public class EhCacheKeyValueStore extends BaseManagedKeyValueStore {
 	public void setCacheCapacity(int capacity) {
 		this.capacity = capacity;
 	}
+	
+	@Configurable(name = "cacheHeapBytes", accepts = Type.LongType)
+	public void setCacheHeapBytes(long bytes) {
+	    this.capacityBytes = bytes;
+	}
 
 	@Configurable(name = "timeToLive", accepts = Type.IntType)
 	public void setTimeToLive(int timeToLiveSeconds) {
@@ -58,7 +66,16 @@ public class EhCacheKeyValueStore extends BaseManagedKeyValueStore {
 	}
 
 	public void start() throws IOException {
-		mgr = CacheManager.create();
+	    if (capacityBytes == 0) {
+	        mgr = CacheManager.create();
+	    } else {
+	        // Default value in default config is also 0,
+	        // but might as well play it safe
+	        Configuration managerConfig = new Configuration();
+	        managerConfig.setMaxBytesLocalHeap(capacityBytes);
+	        mgr = CacheManager.create(managerConfig);
+	    }
+	        
 		cache = new Cache(cacheName, capacity, false, false, timeToLiveSeconds,
 				timeToIdleSeconds);
 		mgr.addCache(cache);
